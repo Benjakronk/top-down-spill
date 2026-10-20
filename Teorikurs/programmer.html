@@ -1,0 +1,606 @@
+<!doctype html>
+<html lang="no">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hvordan et program kjører – teorikurs</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@500;700&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<style>
+
+:root{
+  --natt:#16151f; --panel:#201e2c; --panel2:#282538; --strek:#3a3650; --tekst:#ece9f4; --dempet:#a9a4bf;
+  --aksent:#78a8f0; --aksent-dyp:#2f4f8a; --mose:#88c860; --rust:#f87858; --gul:#e8b830;
+  --display:"Pixelify Sans","Courier New",monospace;
+  --brod:"Atkinson Hyperlegible","Segoe UI",system-ui,sans-serif;
+  --mono:Consolas,"Cascadia Mono","DejaVu Sans Mono",monospace;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--natt);color:var(--tekst);font:18px/1.65 var(--brod)}
+h1,h2,h3,.merkenavn{font-variant-ligatures:none!important;font-feature-settings:"liga" 0,"clig" 0,"calt" 0!important}
+a{color:var(--aksent)}
+code{font-family:var(--mono);font-size:.88em;background:#0f0e17;border:1px solid var(--strek);padding:1px 6px;border-radius:3px;color:var(--aksent)}
+.kodeboks{position:relative;margin:14px 0}
+pre{margin:0;background:#0f0e17;border:1px solid var(--strek);border-radius:5px;padding:14px 18px;overflow-x:auto;
+  font:16px/1.6 var(--mono);color:#dcd8ea;white-space:pre}
+.kopier{display:none}
+.kom{color:#7e78a0}.str{color:#a8d058}.nok{color:#f8a040}.tall{color:#78a8f0}.fn{color:#e8b830}
+ul.liste{padding-left:22px;margin:8px 0} ul.liste li{margin:4px 0}
+p{margin:0 0 12px}
+button{font-family:var(--brod)}
+button:focus-visible,a:focus-visible{outline:2px solid var(--aksent);outline-offset:2px}
+[hidden]{display:none!important}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+body{min-height:100vh;display:flex;flex-direction:column}
+.topp{position:sticky;top:0;z-index:5;background:var(--natt);border-bottom:1px solid var(--strek)}
+.toppinner{max-width:1100px;margin:0 auto;padding:10px 20px;display:flex;align-items:center;gap:16px}
+.merkenavn{margin:0;font:700 19px var(--display);color:var(--aksent);white-space:nowrap;text-decoration:none}
+.lnavn{flex:1 1 auto;min-width:0;color:var(--dempet);font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lnavn b{color:var(--tekst);font-weight:700}
+.teller{font:14px var(--mono);color:var(--dempet);white-space:nowrap}
+.liten{font:14px var(--brod);color:var(--dempet);background:none;border:1px solid var(--strek);border-radius:4px;padding:6px 12px;cursor:pointer;text-decoration:none;white-space:nowrap}
+.liten:hover{color:var(--aksent);border-color:var(--aksent)}
+.prikker{max-width:1100px;margin:0 auto;padding:0 20px 8px;display:flex;gap:3px}
+.prikker button{flex:1 1 0;height:6px;min-width:4px;border:none;border-radius:2px;background:var(--strek);padding:0;cursor:pointer}
+.prikker button.oppg{background:#4a4566}
+.prikker button.sett{background:#5d5880}
+.prikker button.oppg.gjort{background:var(--mose)}
+.prikker button.naa{outline:2px solid var(--aksent);outline-offset:1px}
+main{flex:1 0 auto;width:100%;max-width:1100px;margin:0 auto;padding:28px 20px 40px}
+.etikett{font:13px var(--mono);letter-spacing:.08em;color:var(--aksent);margin:0 0 6px}
+.etikett.oppgave{color:var(--gul)}
+h2.lbtittel{font:700 clamp(26px,4vw,38px)/1.15 var(--display);margin:0 0 18px;text-wrap:balance}
+.tekst{max-width:70ch}
+.tekst p,.tekst li{color:#d8d4e6}
+.todelt{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:28px;align-items:start}
+@media (max-width:820px){.todelt{grid-template-columns:minmax(0,1fr)}}
+.kodepanel{background:#0f0e17;border:1px solid var(--strek);border-radius:6px;overflow:hidden;min-width:0}
+.kodepanel .phode{display:flex;justify-content:space-between;padding:6px 14px;border-bottom:1px solid var(--strek);font:13px var(--mono);color:var(--dempet)}
+.rader{font:16px/1.65 var(--mono);padding:8px 0;overflow-x:auto}
+.rad{display:flex;white-space:pre;color:#dcd8ea;padding-right:14px;min-width:max-content}
+.rad .ln{flex:0 0 44px;text-align:right;padding-right:12px;color:#57527a;user-select:none}
+.rad.merket{background:rgba(120,168,240,.15)}
+.rad.merket .ln{color:var(--aksent);box-shadow:inset 3px 0 0 var(--aksent)}
+.rad.kjort{background:rgba(232,184,48,.16)}
+.rad.kjort .ln{color:var(--gul);box-shadow:inset 3px 0 0 var(--gul)}
+.rader.klikkbar .rad{cursor:pointer}
+.rader.klikkbar .rad:hover{background:rgba(255,255,255,.05)}
+.rad.valgt-feil{background:rgba(248,120,88,.18)}
+.rad.valgt-riktig{background:rgba(136,200,96,.2)}
+.minne{background:var(--panel);border:1px solid var(--strek);border-radius:6px;min-width:0}
+.minne .phode{display:flex;justify-content:space-between;padding:6px 14px;border-bottom:1px solid var(--strek);font:13px var(--mono);color:var(--dempet)}
+.vars{padding:8px 14px 10px;font:15px var(--mono)}
+.var{display:flex;justify-content:space-between;gap:14px;border-bottom:1px solid var(--strek);padding:4px 0}
+.var .n{color:var(--dempet)} .var .v{color:var(--tekst);text-align:right;word-break:break-all}
+.var.endret .v{color:var(--gul)}
+.gruppe{font:12px var(--mono);color:var(--aksent);margin:10px 0 2px;letter-spacing:.06em}
+.tom{color:#6d6789;font:14px var(--brod)}
+.utskrift{margin-top:14px}
+.utskrift pre{min-height:44px;color:#f2f0f8}
+.trinnknapper{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:14px 0 0}
+.trinnknapper .info{font:14px var(--mono);color:var(--dempet)}
+.notat{margin-top:12px;border-left:3px solid var(--gul);padding:6px 12px;background:rgba(232,184,48,.07);color:#efe9d6;min-height:20px}
+.feilmelding{color:var(--rust);font:15px var(--mono);margin-top:10px}
+.knapp{font:16px var(--brod);padding:10px 18px;border-radius:5px;cursor:pointer;border:1px solid var(--strek);background:var(--panel2);color:var(--tekst)}
+.knapp:hover{border-color:var(--aksent)}
+.knapp.hoved{background:var(--aksent);color:#0f1626;border-color:var(--aksent);font-weight:700}
+.knapp:disabled{opacity:.4;cursor:default}
+.valg{display:grid;gap:10px;margin:18px 0 0;max-width:760px}
+.valg.rutenett{grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr))}
+.valg button{text-align:left;font:17px/1.45 var(--brod);padding:12px 16px;border-radius:6px;border:1px solid var(--strek);
+  background:var(--panel);color:var(--tekst);cursor:pointer;display:flex;gap:12px;align-items:flex-start}
+.valg button .bokstav{font:700 15px var(--mono);color:var(--aksent);flex:0 0 auto;padding-top:2px}
+.valg button pre{background:none;border:none;padding:0;font-size:16px;white-space:pre-wrap}
+.valg button:hover:not(:disabled){border-color:var(--aksent)}
+.valg button.feil{border-color:var(--rust);background:rgba(248,120,88,.1)}
+.valg button.riktig{border-color:var(--mose);background:rgba(136,200,96,.13)}
+.valg button:disabled{cursor:default}
+.svar{margin-top:18px;max-width:760px;border-radius:6px;padding:14px 18px;border:1px solid var(--strek);background:var(--panel)}
+.svar.riktig{border-color:var(--mose)} .svar.feil{border-color:var(--rust)}
+.svar .overskrift{font:700 16px var(--display);margin:0 0 6px}
+.svar.riktig .overskrift{color:var(--mose)} .svar.feil .overskrift{color:var(--rust)}
+.svar p:last-child{margin-bottom:0}
+.skrivsvar{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;max-width:760px}
+.skrivsvar textarea{flex:1 1 260px;font:16px/1.5 var(--mono);background:#0f0e17;color:var(--tekst);border:1px solid var(--strek);border-radius:5px;padding:10px 12px;min-height:46px;resize:vertical}
+.rekke{display:grid;gap:8px;margin-top:14px;max-width:760px}
+.rekke button{text-align:left;font:16px var(--mono);white-space:pre;padding:9px 14px;border:1px solid var(--strek);border-radius:5px;background:#0f0e17;color:#dcd8ea;cursor:pointer;overflow-x:auto}
+.rekke button:hover:not(:disabled){border-color:var(--aksent)}
+.rekke button:disabled{opacity:.35;cursor:default}
+.bygget{margin-top:14px;max-width:760px}
+.bygget .phode{font:13px var(--mono);color:var(--dempet);margin-bottom:4px}
+.skjermramme{background:#0f0e17;border:1px solid var(--strek);border-radius:6px;padding:6px;display:inline-block;max-width:100%}
+canvas.skjerm{display:block;width:720px;max-width:100%;height:auto;image-rendering:pixelated}
+canvas.klikk{cursor:crosshair}
+.koord{font:14px var(--mono);color:var(--dempet);margin-top:6px;min-height:20px}
+.oppsum{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:22px;margin-top:10px}
+.oppsum div{border-top:2px solid var(--aksent);padding-top:12px}
+.oppsum h3{font:700 20px var(--display);margin:0 0 6px}
+.oppsum p{color:var(--dempet);margin:0}
+.resultat{margin-top:28px;padding:16px 20px;border:1px solid var(--strek);border-radius:6px;background:var(--panel2);max-width:760px}
+.nav{position:sticky;bottom:0;background:var(--natt);border-top:1px solid var(--strek)}
+.navinner{max-width:1100px;margin:0 auto;padding:12px 20px;display:flex;gap:10px;align-items:center}
+.navinner .tips{flex:1 1 auto;color:#6d6789;font:13px var(--mono);text-align:center}
+@media (max-width:620px){body{font-size:17px} .navinner .tips{display:none} .navinner{justify-content:space-between}
+  .lnavn{display:none} main{padding:20px 16px 30px} .toppinner,.prikker,.navinner{padding-left:16px;padding-right:16px}}
+.meny{position:fixed;inset:0;z-index:20;background:rgba(10,10,20,.7);display:flex;justify-content:flex-end}
+.menyboks{width:min(420px,100%);height:100%;overflow:auto;background:var(--panel);border-left:1px solid var(--strek);padding:20px}
+.menyboks h3{font:700 20px var(--display);margin:0 0 12px}
+.menyboks ol{list-style:none;margin:0;padding:0}
+.menyboks li button{width:100%;text-align:left;background:none;border:none;color:var(--dempet);font:15px var(--brod);padding:7px 8px;border-radius:4px;cursor:pointer;display:flex;gap:10px}
+.menyboks li button:hover{background:var(--panel2);color:var(--tekst)}
+.menyboks li button.naa{color:var(--tekst);background:var(--panel2)}
+.menyboks li .t{font:12px var(--mono);color:#6d6789;flex:0 0 26px;padding-top:3px}
+.menyboks li .ok{color:var(--mose);margin-left:auto}
+.menyboks .andre{margin-top:22px;border-top:1px solid var(--strek);padding-top:14px}
+.menyboks .andre a{display:block;padding:4px 8px;text-decoration:none;color:var(--dempet);font-size:15px}
+.menyboks .andre a.naa{color:var(--aksent)}
+</style>
+</head>
+<body>
+<header class="topp">
+  <div class="toppinner">
+    <a class="merkenavn" href="index.html">Teorikurs</a>
+    <span class="lnavn" id="lnavn"></span>
+    <span class="teller"><span id="nr">1</span> / <span id="tot">1</span></span>
+    <button class="liten" id="menyknapp" type="button" aria-haspopup="dialog">Innhold</button>
+  </div>
+  <div class="prikker" id="prikker" aria-label="Lysbildene"></div>
+</header>
+<main id="lysbilde" aria-live="polite"></main>
+<nav class="nav" aria-label="Bla">
+  <div class="navinner">
+    <button class="knapp" id="forrige" type="button">← Tilbake</button>
+    <span class="tips">Bla med piltastene · Svar på oppgavene for å få en grønn hake</span>
+    <button class="knapp hoved" id="neste" type="button">Neste →</button>
+  </div>
+</nav>
+<div class="meny" id="meny" hidden role="dialog" aria-label="Innhold"><div class="menyboks" id="menyboks"></div></div>
+<script>
+(function(){
+"use strict";
+var DATA = {"leksjon": {"nr": 1, "slug": "programmer", "tittel": "Hvordan et program kjører", "ingress": "Python leser koden din ovenfra og ned, én linje om gangen. Her lærer du å lese et program som Python gjør – og å forstå feilmeldingene."}, "lysbilder": [{"type": "tekst", "tittel": "Et program er en oppskrift", "tekst": "<p>Et program er en liste med beskjeder til datamaskinen. Datamaskinen er veldig rask, men den tenker ikke selv: den gjør <strong>nøyaktig<\/strong> det som står, og ingenting annet.<\/p>\n<p>Python leser koden <strong>ovenfra og ned, én linje om gangen<\/strong> – akkurat som du leser en oppskrift. Først linje 1, så linje 2, så linje 3.<\/p>\n<p><code>print(...)<\/code> skriver noe ut på skjermen. Den kjenner du fra teksteventyret.<\/p>", "sporsmal": "", "forklaring": "", "hint": "", "kode": "print(\"Hei!\")\nprint(\"Jeg heter Python.\")\nprint(\"Ha det!\")"}, {"type": "spor", "tittel": "Se Python lese koden", "tekst": "<p>Trykk <strong>Kjør neste linje<\/strong> (eller pil høyre) og se hva som skjer. Den gule linja er den Python nettopp har kjørt.<\/p>", "sporsmal": "", "forklaring": "", "hint": "", "kode": "print(\"Linje 1 kjøres først\")\nprint(\"så linje 2\")\nprint(\"og til slutt linje 3\")", "trinn": [{"l": 1, "s": {"g": {}, "l": null}, "u": "Linje 1 kjøres først\n"}, {"l": 2, "s": {"g": {}, "l": null}, "u": "Linje 1 kjøres først\nså linje 2\n"}, {"l": 3, "s": {"g": {}, "l": null}, "u": "Linje 1 kjøres først\nså linje 2\nog til slutt linje 3\n"}], "notater": {"1": "Python begynner alltid øverst.", "3": "Nå er det ikke flere linjer, og programmet er ferdig."}}, {"type": "output", "tittel": "Hva kommer først?", "tekst": "", "sporsmal": "<p>Hva skriver programmet?<\/p>", "forklaring": "<p>Python sorterer ingenting – linjene kjøres i den rekkefølgen de står.<\/p>", "hint": "", "kode": "print(\"B\")\nprint(\"A\")\nprint(\"C\")", "svar": "B\nA\nC", "valg": ["A\nB\nC", "B\nA\nC", "C\nA\nB"], "riktig": [1]}, {"type": "tekst", "tittel": "Kommentarer: tekst til mennesker", "tekst": "<p>Alt som står etter <code>#<\/code> på en linje, er en <strong>kommentar<\/strong>. Python hopper over kommentarer. De er der for at du (og andre) skal skjønne koden.<\/p>\n<p>I stegfilene står det mange kommentarer. Les dem! De forteller hva koden gjør, og hvor oppgavene er (<code># OPPGAVE 1<\/code>).<\/p>\n<p>Du kan også bruke <code>#<\/code> til å «slå av» en linje mens du tester noe.<\/p>", "sporsmal": "", "forklaring": "", "hint": "", "kode": "# Dette er en kommentar. Python bryr seg ikke om den.\nprint(\"Denne skrives ut\")\n# print(\"Denne skrives IKKE ut\")\nprint(\"Ferdig\")   # en kommentar kan stå bak koden også"}, {"type": "output", "tittel": "Kommentarer", "tekst": "", "sporsmal": "<p>Hva skriver programmet?<\/p>", "forklaring": "<p>Linje 2 er en kommentar, og på linje 3 er alt etter <code>#<\/code> en kommentar. Bare <code>en<\/code> og <code>tre<\/code> skrives ut.<\/p>", "hint": "", "kode": "print(\"en\")\n# print(\"to\")\nprint(\"tre\")  # print(\"fire\")", "svar": "en\ntre", "valg": ["en\ntre", "en\nto\ntre", "en\ntre\nfire", "en\nto\ntre\nfire"], "riktig": [0]}, {"type": "tekst", "tittel": "Spillene dine er også programmer", "tekst": "<p>Et spill er bare et litt lengre program. Øverst henter vi verktøyene fra spillmotoren:<\/p>\n<div class=\"kodeboks\"><button class=\"kopier\" type=\"button\">Kopier<\/button><pre>from spillmotor import *<\/pre><\/div>\n<p>Da kan vi bruke <code>Figur<\/code>, <code>Tekst<\/code>, <code>tegn_kart<\/code> og alt det andre som står i <strong>Oppslag<\/strong>. Fila <code>spillmotor.py<\/code> må ligge i samme mappe som spillet.<\/p>\n<p>Helt nederst står <code>start(...)<\/code>. Den åpner vinduet og starter spillet. Derfor må alt annet stå <strong>over<\/strong> <code>start()<\/code> – det Python leser etter <code>start()<\/code>, kjøres ikke før du lukker vinduet.<\/p>", "sporsmal": "", "forklaring": "", "hint": "", "kode": "from spillmotor import *      # hent verktøyene\n\nhelt = Figur(\"helt_ned_1\", 112, 64)\nmynt = Figur(\"mynt_1\", 48, 32)\n\nstart(tittel=\"Skattejakten\")   # alltid nederst"}, {"type": "kode", "tittel": "Tre deler i hvert spill", "tekst": "<p>Alle spillene i opplegget er bygd på samme måte:<\/p>\n<ul class=\"liste\"><li><strong>Øverst:<\/strong> <code>import<\/code> og alt som lages én gang – kartet, figurene, tekstene.<\/li><li><strong>I midten:<\/strong> funksjoner, blant annet <code>oppdater()<\/code>, som spillet kjører 60 ganger i sekundet (det lærer du om i leksjon 6).<\/li><li><strong>Nederst:<\/strong> <code>start()<\/code>.<\/li><\/ul>\n<p>Når du leter etter noe i en lang stegfil, hjelper det å vite hvilken del det hører til. Bruk Ctrl+F for å søke.<\/p>", "sporsmal": "", "forklaring": "", "hint": "", "kode": "from spillmotor import *\n\n# ---------- KARTET OG FIGURENE ----------\nhelt = Figur(\"helt_ned_1\", 112, 64)\n\n# ---------- SPILL-LØKKA ----------\ndef oppdater():\n    helt.x = helt.x + 1\n\n# ---------- START ----------\nstart(tittel=\"Mitt spill\")", "merk": [1, 4, 7, 8, 11]}, {"type": "rekkefolge", "tittel": "Bygg et lite spill", "tekst": "", "sporsmal": "<p>Linjene til et lite spill har blitt stokket om. Sett dem i riktig rekkefølge, så programmet virker.<\/p>", "forklaring": "<p><code>import<\/code> må komme først, ellers finnes ikke <code>Figur<\/code>. <code>start()<\/code> må komme sist, ellers lages figurene først når vinduet er lukket.<\/p>", "hint": "<p>Hva må Python ha hentet før den kan lage en <code>Figur<\/code>? Og hva skal alltid stå nederst?<\/p>", "linjer": ["from spillmotor import *", "helt = Figur(\"helt_ned_1\", 112, 64)", "start(tittel=\"Mitt spill\")", "mynt = Figur(\"mynt_1\", 48, 32)"], "riktig": [0, 1, 3, 2]}, {"type": "tekst", "tittel": "Innrykk betyr noe", "tekst": "<p>Noen linjer i Python slutter med kolon <code>:<\/code>. Det betyr at det kommer en <strong>blokk<\/strong> under – linjer som hører til. Linjene i blokka har <strong>innrykk<\/strong>: fire mellomrom (eller ett trykk på Tab i VS Code og IDLE).<\/p>\n<p>Innrykket er ikke pynt. Det er slik Python vet hvilke linjer som hører sammen. Blir innrykket feil, får du <code>IndentationError<\/code>.<\/p>", "sporsmal": "", "forklaring": "", "hint": "", "kode": "def oppdater():\n    helt.x = helt.x + 1      # hører til oppdater()\n    helt.y = helt.y + 1      # hører til oppdater()\n\nprint(\"Denne hører ikke til\")"}, {"type": "feil", "tittel": "Hvor er innrykket feil?", "tekst": "", "sporsmal": "<p>Programmet stopper med <code>IndentationError<\/code> før det i det hele tatt starter. Hvilken linje er feil?<\/p>", "forklaring": "<p>Linjene inni en blokk må ha <strong>like mye<\/strong> innrykk. Linje 5 har to mellomrom for mye.<\/p>", "hint": "", "kode": "poeng = 0\n\ndef ta_mynt():\n    print(\"Pling!\")\n      print(\"Du fikk en mynt\")\n    print(\"Bra!\")", "riktig": [5], "feilnavn": "IndentationError"}, {"type": "tekst", "tittel": "Feilmeldinger er hjelp, ikke kjeft", "tekst": "<p>Når noe er galt, stopper Python og skriver en <strong>feilmelding<\/strong>. I spillene står den i rødt både i spillvinduet og i terminalen.<\/p>\n<p>Les feilmeldingen <strong>nedenfra<\/strong>:<\/p>\n<ul class=\"liste\"><li>Nederste linje sier <strong>hva<\/strong> som er galt, for eksempel <code>NameError: name &#x27;mynt&#x27; is not defined<\/code>.<\/li><li>Litt over står <strong>hvor<\/strong>: <code>line 12<\/code> betyr linje 12 i fila.<\/li><\/ul>\n<p>Gå til linja, og se på den – og på linja over. Ofte er feilen en skrivefeil.<\/p>", "sporsmal": "", "forklaring": "", "hint": "", "kode": "Traceback (most recent call last):\n  File \"steg1.py\", line 12, in <module>\n    mynt.animer([\"mynt_1\", \"mynt_2\"], fart=8)\nNameError: name 'mynt' is not defined"}, {"type": "flervalg", "tittel": "Hva betyr meldingen?", "tekst": "", "sporsmal": "<p>Du får denne feilmeldingen:<\/p>\n<div class=\"kodeboks\"><button class=\"kopier\" type=\"button\">Kopier<\/button><pre>  File &quot;steg2.py&quot;, line 31\nNameError: name &#x27;helt&#x27; is not defined<\/pre><\/div>\n<p>Hva er mest sannsynlig galt?<\/p>", "forklaring": "<p><code>NameError<\/code> betyr at Python ikke kjenner navnet. Enten er det stavet annerledes der det ble laget (for eksempel <code>Helt<\/code>), eller så lages det på en linje under linje 31 – og Python leser jo ovenfra og ned.<\/p>", "hint": "", "valg": ["Bildet <code>helt_ned_1<\/code> finnes ikke", "Python kjenner ikke noe som heter <code>helt<\/code> når den kommer til linje 31 – variabelen er stavet feil eller lages lenger ned", "Linje 31 har feil innrykk", "Datamaskinen er for treg"], "riktig": [1]}, {"type": "feil", "tittel": "Store og små bokstaver", "tekst": "", "sporsmal": "<p>Python skiller mellom store og små bokstaver. Hvilken linje krasjer?<\/p>", "forklaring": "<p>Variabelen heter <code>poeng<\/code> med liten p. <code>Poeng<\/code> med stor P er et helt annet navn, og det finnes ikke – derfor <code>NameError<\/code>.<\/p>", "hint": "", "kode": "poeng = 3\nprint(\"Du har\")\nprint(Poeng)\nprint(\"mynter\")", "riktig": [3], "feilnavn": "NameError"}, {"type": "output", "tittel": "Flere ting i én print", "tekst": "", "sporsmal": "<p>Du kan skrive flere ting i én <code>print<\/code>, med komma imellom. Hva skriver programmet?<\/p>", "forklaring": "<p>Teksten i fnutter skrives som den er. <code>mynter<\/code> uten fnutter er en variabel, så Python skriver verdien, 4. Komma gir et mellomrom imellom.<\/p>", "hint": "", "kode": "mynter = 4\nprint(\"Mynter:\", mynter)", "svar": "Mynter: 4", "valg": ["Mynter: mynter", "Mynter: 4", "Mynter:4", "\"Mynter:\", 4"], "riktig": [1]}, {"type": "oppsummering", "tittel": "Ta med deg dette", "tekst": "", "sporsmal": "", "forklaring": "", "hint": "", "punkter": [["Ovenfra og ned", "Python kjører én linje om gangen, i den rekkefølgen de står."], ["# er kommentar", "Python hopper over alt etter <code>#<\/code>. Les kommentarene i stegfilene."], ["Innrykk = blokk", "Linjer etter et kolon <code>:<\/code> har fire mellomrom innrykk og hører sammen."], ["Les feilen nedenfra", "Nederst står hva som er galt, litt over står linjenummeret."]]}], "kurs": [{"nr": 1, "slug": "programmer", "tittel": "Hvordan et program kjører"}, {"nr": 2, "slug": "variabler", "tittel": "Variabler og regning"}, {"nr": 3, "slug": "koordinater", "tittel": "Koordinater og skjermen"}, {"nr": 4, "slug": "tekst", "tittel": "Tekst og f-strenger"}, {"nr": 5, "slug": "valg", "tittel": "Valg: if, elif og else"}, {"nr": 6, "slug": "spillokka", "tittel": "Spill-løkka, taster og tellere"}, {"nr": 7, "slug": "funksjoner", "tittel": "Funksjoner"}, {"nr": 8, "slug": "global", "tittel": "Lokale og globale variabler"}, {"nr": 9, "slug": "lister", "tittel": "Lister"}, {"nr": 10, "slug": "lokker", "tittel": "Løkker: for"}, {"nr": 11, "slug": "ordboker", "tittel": "Ordbøker (dictionaries)"}, {"nr": 12, "slug": "figurer", "tittel": "Figurer, objekter og kollisjon"}, {"nr": 13, "slug": "tilstand", "tittel": "Tilstand: spillet husker hva som skjer"}, {"nr": 14, "slug": "tilfeldighet", "tittel": "Tilfeldighet og sannsynlighet"}, {"nr": 15, "slug": "filer_og_feil", "tittel": "Filer, feilmeldinger og feilsøking"}]};
+var SKRIFT = {"A": [".###.", "#...#", "#...#", "#####", "#...#", "#...#", "#...#", ".....", "....."], "B": ["####.", "#...#", "#...#", "####.", "#...#", "#...#", "####.", ".....", "....."], "C": [".###.", "#...#", "#....", "#....", "#....", "#...#", ".###.", ".....", "....."], "D": ["####.", "#...#", "#...#", "#...#", "#...#", "#...#", "####.", ".....", "....."], "E": ["#####", "#....", "#....", "####.", "#....", "#....", "#####", ".....", "....."], "F": ["#####", "#....", "#....", "####.", "#....", "#....", "#....", ".....", "....."], "G": [".###.", "#...#", "#....", "#.###", "#...#", "#...#", ".####", ".....", "....."], "H": ["#...#", "#...#", "#...#", "#####", "#...#", "#...#", "#...#", ".....", "....."], "I": ["###", ".#.", ".#.", ".#.", ".#.", ".#.", "###", "...", "..."], "J": ["..###", "...#.", "...#.", "...#.", "#..#.", "#..#.", ".##..", ".....", "....."], "K": ["#...#", "#..#.", "#.#..", "##...", "#.#..", "#..#.", "#...#", ".....", "....."], "L": ["#....", "#....", "#....", "#....", "#....", "#....", "#####", ".....", "....."], "M": ["#...#", "##.##", "#.#.#", "#.#.#", "#...#", "#...#", "#...#", ".....", "....."], "N": ["#...#", "##..#", "#.#.#", "#..##", "#...#", "#...#", "#...#", ".....", "....."], "O": [".###.", "#...#", "#...#", "#...#", "#...#", "#...#", ".###.", ".....", "....."], "P": ["####.", "#...#", "#...#", "####.", "#....", "#....", "#....", ".....", "....."], "Q": [".###.", "#...#", "#...#", "#...#", "#.#.#", "#..#.", ".##.#", ".....", "....."], "R": ["####.", "#...#", "#...#", "####.", "#.#..", "#..#.", "#...#", ".....", "....."], "S": [".###.", "#...#", "#....", ".###.", "....#", "#...#", ".###.", ".....", "....."], "T": ["#####", "..#..", "..#..", "..#..", "..#..", "..#..", "..#..", ".....", "....."], "U": ["#...#", "#...#", "#...#", "#...#", "#...#", "#...#", ".###.", ".....", "....."], "V": ["#...#", "#...#", "#...#", "#...#", ".#.#.", ".#.#.", "..#..", ".....", "....."], "W": ["#...#", "#...#", "#...#", "#.#.#", "#.#.#", "##.##", "#...#", ".....", "....."], "X": ["#...#", "#...#", ".#.#.", "..#..", ".#.#.", "#...#", "#...#", ".....", "....."], "Y": ["#...#", "#...#", ".#.#.", "..#..", "..#..", "..#..", "..#..", ".....", "....."], "Z": ["#####", "....#", "...#.", "..#..", ".#...", "#....", "#####", ".....", "....."], "Æ": [".####", "#.#..", "#.#..", "####.", "#.#..", "#.#..", "#.###", ".....", "....."], "Ø": [".###.", "#..##", "#.#.#", "#.#.#", "#.#.#", "##..#", ".###.", ".....", "....."], "Å": ["..#..", ".#.#.", "..#..", ".....", ".###.", "#####", "#...#", ".....", "....."], "Ä": [".#.#.", ".....", ".###.", "#...#", "#####", "#...#", "#...#", ".....", "....."], "Ö": [".#.#.", ".....", ".###.", "#...#", "#...#", "#...#", ".###.", ".....", "....."], "Ü": [".#.#.", ".....", "#...#", "#...#", "#...#", "#...#", ".###.", ".....", "....."], "É": ["...#.", "..#..", "#####", "#....", "####.", "#....", "#####", ".....", "....."], "a": ["....", "....", ".##.", "...#", ".###", "#..#", ".###", "....", "...."], "b": ["#...", "#...", "###.", "#..#", "#..#", "#..#", "###.", "....", "...."], "c": ["....", "....", ".##.", "#..#", "#...", "#..#", ".##.", "....", "...."], "d": ["...#", "...#", ".###", "#..#", "#..#", "#..#", ".###", "....", "...."], "e": ["....", "....", ".##.", "#..#", "####", "#...", ".###", "....", "...."], "f": ["..#", ".#.", "###", ".#.", ".#.", ".#.", ".#.", "...", "..."], "g": ["....", "....", ".###", "#..#", "#..#", ".###", "...#", "#..#", ".##."], "h": ["#...", "#...", "###.", "#..#", "#..#", "#..#", "#..#", "....", "...."], "i": ["#", ".", "#", "#", "#", "#", "#", ".", "."], "j": ["..#", "...", "..#", "..#", "..#", "..#", "..#", "#.#", ".#."], "k": ["#...", "#...", "#..#", "#.#.", "##..", "#.#.", "#..#", "....", "...."], "l": ["#.", "#.", "#.", "#.", "#.", "#.", ".#", "..", ".."], "m": [".....", ".....", "####.", "#.#.#", "#.#.#", "#.#.#", "#.#.#", ".....", "....."], "n": ["....", "....", "###.", "#..#", "#..#", "#..#", "#..#", "....", "...."], "o": ["....", "....", ".##.", "#..#", "#..#", "#..#", ".##.", "....", "...."], "p": ["....", "....", "###.", "#..#", "#..#", "#..#", "###.", "#...", "#..."], "q": ["....", "....", ".###", "#..#", "#..#", "#..#", ".###", "...#", "...#"], "r": ["...", "...", "#.#", "##.", "#..", "#..", "#..", "...", "..."], "s": ["....", "....", ".###", "#...", ".##.", "...#", "###.", "....", "...."], "t": [".#.", ".#.", "###", ".#.", ".#.", ".#.", "..#", "...", "..."], "u": ["....", "....", "#..#", "#..#", "#..#", "#..#", ".###", "....", "...."], "v": [".....", ".....", "#...#", "#...#", ".#.#.", ".#.#.", "..#..", ".....", "....."], "w": [".....", ".....", "#...#", "#...#", "#.#.#", "#.#.#", ".#.#.", ".....", "....."], "x": ["....", "....", "#..#", "#..#", ".##.", "#..#", "#..#", "....", "...."], "y": ["....", "....", "#..#", "#..#", "#..#", ".###", "...#", "#..#", ".##."], "z": ["....", "....", "####", "..#.", ".#..", "#...", "####", "....", "...."], "æ": ["......", "......", ".####.", "...#.#", ".#####", "#..#..", ".##.##", "......", "......"], "ø": [".....", ".....", ".###.", "#..##", "#.#.#", "##..#", ".###.", ".....", "....."], "å": [".##.", "....", ".##.", "...#", ".###", "#..#", ".###", "....", "...."], "ä": ["#..#", "....", ".##.", "...#", ".###", "#..#", ".###", "....", "...."], "ö": ["#..#", "....", ".##.", "#..#", "#..#", "#..#", ".##.", "....", "...."], "ü": ["#..#", "....", "#..#", "#..#", "#..#", "#..#", ".###", "....", "...."], "é": ["..#.", ".#..", ".##.", "#..#", "####", "#...", ".###", "....", "...."], "0": [".###.", "#...#", "#...#", "#.#.#", "#...#", "#...#", ".###.", ".....", "....."], "1": ["..#..", ".##..", "..#..", "..#..", "..#..", "..#..", ".###.", ".....", "....."], "2": [".###.", "#...#", "....#", "...#.", "..#..", ".#...", "#####", ".....", "....."], "3": [".###.", "#...#", "....#", "..##.", "....#", "#...#", ".###.", ".....", "....."], "4": ["...#.", "..##.", ".#.#.", "#..#.", "#####", "...#.", "...#.", ".....", "....."], "5": ["#####", "#....", "####.", "....#", "....#", "#...#", ".###.", ".....", "....."], "6": [".###.", "#....", "#....", "####.", "#...#", "#...#", ".###.", ".....", "....."], "7": ["#####", "....#", "...#.", "..#..", ".#...", ".#...", ".#...", ".....", "....."], "8": [".###.", "#...#", "#...#", ".###.", "#...#", "#...#", ".###.", ".....", "....."], "9": [".###.", "#...#", "#...#", ".####", "....#", "....#", ".###.", ".....", "....."], ".": [".", ".", ".", ".", ".", ".", "#", ".", "."], ",": ["..", "..", "..", "..", "..", "..", ".#", "#.", ".."], ":": [".", ".", "#", ".", ".", ".", "#", ".", "."], ";": ["..", "..", ".#", "..", "..", "..", ".#", "#.", ".."], "!": ["#", "#", "#", "#", "#", ".", "#", ".", "."], "?": [".###.", "#...#", "....#", "...#.", "..#..", ".....", "..#..", ".....", "....."], "-": ["....", "....", "....", "####", "....", "....", "....", "....", "...."], "_": [".....", ".....", ".....", ".....", ".....", ".....", ".....", "#####", "....."], "+": [".....", ".....", "..#..", "..#..", "#####", "..#..", "..#..", ".....", "....."], "=": ["....", "....", "####", "....", "####", "....", "....", "....", "...."], "*": [".....", "#.#.#", ".###.", "#####", ".###.", "#.#.#", ".....", ".....", "....."], "/": ["...#", "...#", "..#.", ".#..", "#...", "#...", "#...", "....", "...."], "\\": ["#...", "#...", ".#..", "..#.", "...#", "...#", "...#", "....", "...."], "%": ["##..#", "##..#", "...#.", "..#..", ".#...", "#..##", "#..##", ".....", "....."], "'": ["#", "#", ".", ".", ".", ".", ".", ".", "."], "\"": ["#.#", "#.#", "...", "...", "...", "...", "...", "...", "..."], "(": [".#", "#.", "#.", "#.", "#.", "#.", ".#", "..", ".."], ")": ["#.", ".#", ".#", ".#", ".#", ".#", "#.", "..", ".."], "[": ["##", "#.", "#.", "#.", "#.", "#.", "##", "..", ".."], "]": ["##", ".#", ".#", ".#", ".#", ".#", "##", "..", ".."], "<": ["...#", "..#.", ".#..", "#...", ".#..", "..#.", "...#", "....", "...."], ">": ["#...", ".#..", "..#.", "...#", "..#.", ".#..", "#...", "....", "...."], "#": [".#.#.", ".#.#.", "#####", ".#.#.", "#####", ".#.#.", ".#.#.", ".....", "....."], "&": [".##..", "#..#.", "#.#..", ".#...", "#.#.#", "#..#.", ".##.#", ".....", "....."], "@": [".###.", "#...#", "#.###", "#.#.#", "#.###", "#....", ".###.", ".....", "....."], "~": [".....", ".....", ".....", ".##.#", "#..#.", ".....", ".....", ".....", "....."], "♥": [".....", ".#.#.", "#####", "#####", ".###.", "..#..", ".....", ".....", "....."], "…": [".....", ".....", ".....", ".....", ".....", ".....", "#.#.#", ".....", "....."], "→": [".....", "..#..", "...#.", "#####", "...#.", "..#..", ".....", ".....", "....."], "←": [".....", "..#..", ".#...", "#####", ".#...", "..#..", ".....", ".....", "....."], "□": ["####", "#..#", "#..#", "#..#", "#..#", "#..#", "####", "....", "...."]};
+var L = DATA.leksjon, LB = DATA.lysbilder;
+var OPPG = {flervalg:1, output:1, fyll:1, feil:1, rekkefolge:1, skjermklikk:1};
+var $ = function(id){ return document.getElementById(id); };
+var NOKKEL = "teorikurs-" + L.slug + "-";
+function les(k){ try { return localStorage.getItem(NOKKEL + k); } catch(e) { return null; } }
+function skriv(k, v){ try { localStorage.setItem(NOKKEL + k, v); } catch(e) {} }
+function esc(t){ return String(t).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+document.title = L.tittel + " – teorikurs";
+$("lnavn").innerHTML = "Leksjon " + L.nr + " · <b>" + esc(L.tittel) + "</b>";
+$("tot").textContent = LB.length;
+
+// ---------- Fargelegging av kode ----------
+var NOK = /\b(def|if|elif|else|for|while|in|not|and|or|return|global|import|from|True|False|None|pass|break|continue|is|try|except|with|as)\b/g;
+var FN = /\b(print|len|range|str|int|float|round|abs|random|append|remove|pop|input|open|min|max|list|dict|enumerate)\b(?=\()/g;
+function farg(linje){
+  var e = esc(linje), kom = "", inni = false, q = "";
+  for (var j = 0; j < e.length; j++){
+    var c = e[j];
+    if (inni){ if (c === q) inni = false; }
+    else if (c === '"' || c === "'"){ inni = true; q = c; }
+    else if (c === "#"){ kom = e.slice(j); e = e.slice(0, j); break; }
+  }
+  var biter = e.split(/("[^"]*"|'[^']*')/);
+  for (var i = 0; i < biter.length; i++){
+    if (i % 2 === 1){ biter[i] = '<span class="str">' + biter[i] + "</span>"; continue; }
+    biter[i] = biter[i].replace(NOK, '<span class="nok">$1</span>').replace(FN, '<span class="fn">$1</span>')
+      .replace(/(^|[^\w#])(\d+(?:\.\d+)?)/g, '$1<span class="tall">$2</span>');
+  }
+  return biter.join("") + (kom ? '<span class="kom">' + kom + "</span>" : "");
+}
+function fargAlle(rot){
+  rot.querySelectorAll(".kodeboks pre").forEach(function(p){
+    p.innerHTML = p.textContent.split("\n").map(farg).join("\n");
+  });
+}
+function kodepanel(kode, tittel){
+  var h = '<div class="kodepanel"><div class="phode"><span>' + esc(tittel || "Python") + '</span><span></span></div><div class="rader">';
+  kode.split("\n").forEach(function(l, i){
+    h += '<div class="rad" data-n="' + (i + 1) + '"><span class="ln">' + (i + 1) + "</span><span>" + farg(l) + "</span></div>";
+  });
+  return h + "</div></div>";
+}
+
+// ---------- Spillskjermen ----------
+var S = 3, bildeLager = {};
+function bilde(navn, ferdig){
+  if (!bildeLager[navn]){
+    var im = new Image(); im.src = "bilder/" + navn + ".png"; bildeLager[navn] = im;
+  }
+  var b = bildeLager[navn];
+  if (ferdig && !b.complete) b.addEventListener("load", ferdig, {once: true});
+  return b;
+}
+function pikseltekst(g, tekst, x, y, farge, st){
+  var cx = x; g.fillStyle = farge;
+  String(tekst).split("").forEach(function(tegn){
+    if (tegn === " "){ cx += 4 * st; return; }
+    var rader = SKRIFT[tegn] || SKRIFT["□"];
+    rader.forEach(function(rad, ry){
+      for (var rx = 0; rx < rad.length; rx++) if (rad[rx] === "#") g.fillRect((cx + rx * st) * S, (y + ry * st) * S, S * st, S * st);
+    });
+    cx += (rader[0].length + 1) * st;
+  });
+}
+function etikett(g, tekst, x, y, farge){
+  if (!tekst) return;
+  g.font = "bold 16px Consolas, monospace";
+  var b = g.measureText(tekst).width + 10;
+  x = Math.max(2, Math.min(720 - b - 2, x)); y = Math.max(2, Math.min(480 - 24, y));
+  g.fillStyle = "rgba(10,10,20,.85)"; g.fillRect(x, y, b, 22);
+  g.strokeStyle = farge; g.lineWidth = 1; g.strokeRect(x + .5, y + .5, b - 1, 21);
+  g.fillStyle = farge; g.textBaseline = "middle"; g.fillText(tekst, x + 5, y + 11.5);
+}
+function merke(g, m){
+  var f = m.farge || "#f8e070";
+  g.lineWidth = 3; g.strokeStyle = f; g.fillStyle = f;
+  if (m.type === "boks"){ g.strokeRect(m.x * S + 1.5, m.y * S + 1.5, m.b * S - 3, m.h * S - 3); etikett(g, m.tekst, m.x * S, (m.y + m.h) * S + 4, f); }
+  else if (m.type === "rute"){ g.strokeRect(m.kol * 48 + 1.5, m.rad * 48 + 1.5, 45, 45); etikett(g, m.tekst, m.kol * 48, m.rad * 48 + 50, f); }
+  else if (m.type === "punkt"){ g.beginPath(); g.arc(m.x * S, m.y * S, 6, 0, Math.PI * 2); g.fill(); g.strokeStyle = "#181820"; g.lineWidth = 2; g.stroke(); etikett(g, m.tekst, m.x * S + 10, m.y * S - 11, f); }
+  else if (m.type === "pil"){
+    var x0 = m.fra[0] * S, y0 = m.fra[1] * S, x1 = m.til[0] * S, y1 = m.til[1] * S;
+    g.beginPath(); g.moveTo(x0, y0); g.lineTo(x1, y1); g.stroke();
+    var v = Math.atan2(y1 - y0, x1 - x0);
+    g.beginPath(); g.moveTo(x1, y1); g.lineTo(x1 - 14 * Math.cos(v - .45), y1 - 14 * Math.sin(v - .45));
+    g.lineTo(x1 - 14 * Math.cos(v + .45), y1 - 14 * Math.sin(v + .45)); g.closePath(); g.fill();
+    etikett(g, m.tekst, (x0 + x1) / 2 + 8, (y0 + y1) / 2 - 28, f);
+  }
+}
+function tegnSkjerm(c, sk, ekstra){
+  var g = c.getContext("2d");
+  var igjen = function(){ tegnSkjerm(c, sk, ekstra); };
+  g.imageSmoothingEnabled = false;
+  g.fillStyle = sk.bakgrunn || "#3f7a3a"; g.fillRect(0, 0, 720, 480);
+  if (sk.kart && sk.ruter){
+    sk.kart.forEach(function(rad, r){
+      for (var k = 0; k < rad.length; k++){
+        var navn = sk.ruter[rad[k]]; if (!navn) continue;
+        var im = bilde(navn, igjen), w = im.naturalWidth, h = im.naturalHeight;
+        if (im.complete && w) g.drawImage(im, (k * 16) % w, (r * 16) % h, 16, 16, k * 48, r * 48, 48, 48);
+      }
+    });
+  }
+  (sk.figurer || []).forEach(function(f){
+    var im = bilde(f.bilde, igjen);
+    if (im.complete && im.naturalWidth) g.drawImage(im, Math.round(f.x) * S, Math.round(f.y) * S, im.naturalWidth * S, im.naturalHeight * S);
+  });
+  if (sk.dim){ g.fillStyle = "rgba(10,10,20,.45)"; g.fillRect(0, 0, 720, 480); }
+  if (sk.rutenett){
+    g.strokeStyle = "rgba(255,255,255,.25)"; g.lineWidth = 1;
+    for (var x = 0; x <= 240; x += 16){ g.beginPath(); g.moveTo(x * S + .5, 0); g.lineTo(x * S + .5, 480); g.stroke(); }
+    for (var y = 0; y <= 160; y += 16){ g.beginPath(); g.moveTo(0, y * S + .5); g.lineTo(720, y * S + .5); g.stroke(); }
+    g.font = "12px Consolas, monospace"; g.fillStyle = "rgba(255,255,255,.8)";
+    for (var k2 = 0; k2 < 15; k2++) g.fillText(String(k2 * 16), k2 * 48 + 3, 12);
+    for (var r2 = 1; r2 < 10; r2++) g.fillText(String(r2 * 16), 3, r2 * 48 + 12);
+  }
+  (sk.tekster || []).forEach(function(t){
+    var st = t.storrelse || 1;
+    pikseltekst(g, t.tekst, t.x + st, t.y + st, "#181820", st);
+    pikseltekst(g, t.tekst, t.x, t.y, t.farge || "#f8f8f8", st);
+  });
+  (sk.merker || []).forEach(function(m){ merke(g, m); });
+  if (ekstra) ekstra(g);
+}
+function skjermHTML(){ return '<div class="skjermramme"><canvas class="skjerm" width="720" height="480"></canvas></div>'; }
+
+// ---------- Visning ----------
+var pos = 0, sporPos = {};
+function erGjort(i){ return les("o" + i) === "1"; }
+function oppdaterPrikker(){
+  var p = $("prikker");
+  if (!p.children.length){
+    LB.forEach(function(lb, i){
+      var b = document.createElement("button"); b.type = "button";
+      b.title = (OPPG[lb.type] ? "Oppgave" : "Lysbilde") + " " + (i + 1);
+      b.setAttribute("aria-label", b.title);
+      if (OPPG[lb.type]) b.classList.add("oppg");
+      b.addEventListener("click", function(){ gaaTil(i); });
+      p.appendChild(b);
+    });
+  }
+  Array.prototype.forEach.call(p.children, function(b, i){
+    b.classList.toggle("naa", i === pos);
+    b.classList.toggle("gjort", erGjort(i));
+    b.classList.toggle("sett", !OPPG[LB[i].type] && i < pos);
+  });
+}
+var TYPENAVN = {flervalg: "FLERVALG", output: "GJETT OUTPUT", fyll: "FYLL INN", feil: "FINN FEILEN",
+  rekkefolge: "RIKTIG REKKEFØLGE", skjermklikk: "KLIKK PÅ SKJERMEN"};
+function oppgaveNr(i){ var n = 0; for (var j = 0; j <= i; j++) if (OPPG[LB[j].type]) n++; return n; }
+function antallOppg(){ return LB.filter(function(lb){ return OPPG[lb.type]; }).length; }
+
+function vis(){
+  var lb = LB[pos], m = $("lysbilde"), h = "";
+  $("nr").textContent = pos + 1;
+  if (OPPG[lb.type]){
+    h += '<p class="etikett oppgave">OPPGAVE ' + oppgaveNr(pos) + " AV " + antallOppg() + " · " + TYPENAVN[lb.type] + (erGjort(pos) ? " · ✓ LØST" : "") + "</p>";
+    h += '<h2 class="lbtittel">' + (lb.tittel || "Test deg selv") + "</h2>";
+  } else {
+    h += '<p class="etikett">LEKSJON ' + L.nr + " · " + esc(L.tittel.toUpperCase()) + "</p>";
+    if (lb.tittel) h += '<h2 class="lbtittel">' + lb.tittel + "</h2>";
+  }
+  m.innerHTML = h + '<div id="innhold"></div>';
+  var inn = $("innhold");
+  ({tekst: visTekst, kode: visKode, spor: visSpor, oppsummering: visOppsummering, flervalg: visValg, output: visValg,
+    fyll: visValg, feil: visFeil, rekkefolge: visRekke, skjermklikk: visKlikk})[lb.type](inn, lb, pos);
+  fargAlle(m);
+  $("forrige").disabled = pos === 0;
+  $("neste").textContent = pos === LB.length - 1 ? "Ferdig ✓" : "Neste →";
+  oppdaterPrikker();
+  if (location.hash !== "#" + (pos + 1)) history.replaceState(null, "", "#" + (pos + 1));
+  try { localStorage.setItem(NOKKEL + "pos", String(pos)); } catch(e) {}
+  window.scrollTo(0, 0);
+}
+
+function visTekst(inn, lb){
+  var side = lb.kode || lb.skjerm;
+  var tekst = '<div class="tekst">' + lb.tekst + "</div>";
+  if (!side){ inn.innerHTML = tekst; return; }
+  var hoyre = "";
+  if (lb.kode) hoyre += kodepanel(lb.kode);
+  if (lb.skjerm) hoyre += (lb.kode ? '<div style="height:14px"></div>' : "") + skjermHTML();
+  inn.innerHTML = '<div class="todelt">' + tekst + "<div>" + hoyre + "</div></div>";
+  if (lb.skjerm) tegnSkjerm(inn.querySelector("canvas"), lb.skjerm);
+}
+function visKode(inn, lb){
+  inn.innerHTML = '<div class="todelt"><div>' + kodepanel(lb.kode) + '</div><div class="tekst">' + lb.tekst + "</div></div>";
+  (lb.merk || []).forEach(function(n){ var r = inn.querySelector('.rad[data-n="' + n + '"]'); if (r) r.classList.add("merket"); });
+}
+function visOppsummering(inn, lb){
+  var h = (lb.tekst ? '<div class="tekst">' + lb.tekst + "</div>" : "") + '<div class="oppsum">';
+  lb.punkter.forEach(function(p){ h += "<div><h3>" + p[0] + "</h3><p>" + p[1] + "</p></div>"; });
+  h += "</div>";
+  var gjort = LB.filter(function(x, i){ return OPPG[x.type] && erGjort(i); }).length;
+  h += '<div class="resultat"><p><b>Du har løst ' + gjort + " av " + antallOppg() + " oppgaver i denne leksjonen.</b>" +
+    (gjort < antallOppg() ? " Oppgavene du ikke har løst, er grå i stolpen øverst – klikk på dem for å prøve igjen." : " Bra jobba!") + "</p>";
+  var neste = DATA.kurs.filter(function(k){ return k.nr === L.nr + 1; })[0];
+  h += neste ? '<p style="margin:0">Neste leksjon: <a href="' + neste.slug + '.html">' + neste.nr + ". " + esc(neste.tittel) + " →</a></p>"
+             : '<p style="margin:0">Dette var siste leksjon. <a href="index.html">Tilbake til oversikten</a></p>';
+  inn.innerHTML = h + "</div>";
+}
+
+// ---------- Trinn for trinn ----------
+function visSpor(inn, lb, i){
+  inn.innerHTML = '<div class="tekst">' + lb.tekst + '</div><div class="todelt"><div>' + kodepanel(lb.kode, "Trinn for trinn") +
+    '<div class="trinnknapper"><button class="knapp" type="button" data-t="-1">← Forrige linje</button>' +
+    '<button class="knapp hoved" type="button" data-t="1">Kjør neste linje</button>' +
+    '<button class="knapp" type="button" data-t="0">Start på nytt</button><span class="info"></span></div>' +
+    '<div class="notat" hidden></div></div><div><div class="minne"><div class="phode"><span>Det programmet husker</span><span>variabler</span></div><div class="vars"></div></div>' +
+    '<div class="utskrift"><div class="phode" style="font:13px var(--mono);color:var(--dempet);margin-bottom:4px">Det som skrives ut (print)</div><pre></pre></div></div></div>';
+  if (sporPos[i] === undefined) sporPos[i] = -1;
+  inn.querySelectorAll("[data-t]").forEach(function(b){
+    b.addEventListener("click", function(){
+      var d = parseInt(b.getAttribute("data-t"), 10);
+      sporPos[i] = d === 0 ? -1 : Math.max(-1, Math.min(lb.trinn.length - 1, sporPos[i] + d));
+      tegnSpor(inn, lb, i);
+    });
+  });
+  tegnSpor(inn, lb, i);
+}
+function tegnSpor(inn, lb, i){
+  var t = sporPos[i], tr = t >= 0 ? lb.trinn[t] : null, forr = t > 0 ? lb.trinn[t - 1] : null;
+  inn.querySelectorAll(".rad").forEach(function(r){ r.classList.remove("kjort"); });
+  if (tr){ var r = inn.querySelector('.rad[data-n="' + tr.l + '"]'); if (r){ r.classList.add("kjort"); r.scrollIntoView({block: "nearest"}); } }
+  inn.querySelector(".info").textContent = t < 0 ? "Ingen linjer er kjørt ennå" : "Trinn " + (t + 1) + " av " + lb.trinn.length + " · linje " + tr.l;
+  inn.querySelector('[data-t="1"]').disabled = t >= lb.trinn.length - 1;
+  inn.querySelector('[data-t="-1"]').disabled = t < 0;
+  var vars = inn.querySelector(".vars"), h = "";
+  function rader(v, gammel){
+    var navn = Object.keys(v);
+    if (!navn.length) return '<p class="tom">Ingen variabler.</p>';
+    return navn.map(function(n){
+      var endret = !gammel || gammel[n] !== v[n];
+      return '<div class="var' + (endret && t >= 0 ? " endret" : "") + '"><span class="n">' + esc(n) + '</span><span class="v">' + esc(v[n]) + "</span></div>";
+    }).join("");
+  }
+  if (!tr) h = '<p class="tom">Ingen variabler ennå. Trykk «Kjør neste linje».</p>';
+  else {
+    h += rader(tr.s.g, forr ? forr.s.g : null);
+    if (tr.s.l) h += '<p class="gruppe">INNI ' + esc(tr.s.l.navn.toUpperCase()) + "</p>" + rader(tr.s.l.v, forr && forr.s.l ? forr.s.l.v : null);
+  }
+  vars.innerHTML = h;
+  inn.querySelector(".utskrift pre").textContent = tr ? tr.u : "";
+  var notat = inn.querySelector(".notat"), nt = "";
+  if (tr){
+    var eget = lb.notater[String(tr.l)] || "";
+    if (tr.r) nt = esc(tr.a);                                   // funksjonen er ferdig
+    else if (tr.a) nt = (eget ? eget + "<br>" : "") + '<span style="color:var(--dempet)">' + esc(tr.a) + "</span>";
+    else nt = eget;
+  }
+  if (tr && tr.f) nt = (nt ? nt + "<br>" : "") + '<span class="feilmelding">Programmet krasjer: ' + esc(tr.f) + "</span>";
+  notat.innerHTML = nt; notat.hidden = !nt;
+}
+
+// ---------- Oppgaver ----------
+function svarboks(inn, ok, lb, ekstra){
+  var gml = inn.querySelector(".svar"); if (gml) gml.remove();
+  var d = document.createElement("div");
+  d.className = "svar " + (ok ? "riktig" : "feil");
+  d.innerHTML = ok ? '<p class="overskrift">Riktig!</p>' + (ekstra || "") + (lb.forklaring || "")
+                   : '<p class="overskrift">Ikke helt – prøv igjen!</p>' + (ekstra || "") + (lb.hint || "");
+  inn.appendChild(d);
+  fargAlle(d);
+  try { d.scrollIntoView({block: "nearest", behavior: "smooth"}); } catch(e) {}
+}
+function lost(i, inn, lb){
+  skriv("o" + i, "1");
+  oppdaterPrikker();
+  var e = $("lysbilde").querySelector(".etikett"); if (e && e.textContent.indexOf("LØST") < 0) e.textContent += " · ✓ LØST";
+}
+var BOKST = "ABCDEFGH";
+function visValg(inn, lb, i){
+  var h = '<div class="tekst">' + lb.sporsmal + "</div>";
+  var kode = lb.kode;
+  if (kode) h += '<div style="max-width:760px">' + kodepanel(lb.type === "fyll" ? kode : kode) + "</div>";
+  if (lb.type === "output" && lb.skriv){
+    h += '<div class="skrivsvar"><textarea rows="2" aria-label="Ditt svar" placeholder="Skriv det programmet skriver ut"></textarea>' +
+         '<button class="knapp hoved" type="button">Sjekk</button><button class="knapp" type="button" data-vis>Vis svaret</button></div>';
+    inn.innerHTML = h;
+    var ta = inn.querySelector("textarea"), forsok = 0;
+    var norm = function(s){ return s.replace(/\r/g, "").split("\n").map(function(l){ return l.trim(); }).join("\n").trim(); };
+    inn.querySelector(".hoved").addEventListener("click", function(){
+      var ok = norm(ta.value) === norm(lb.svar);
+      forsok++;
+      svarboks(inn, ok, lb, ok ? "" : (forsok >= 2 ? "<p>Tips: trykk «Vis svaret» hvis du står fast, og se om du skjønner hvorfor.</p>" : ""));
+      if (ok) lost(i, inn, lb);
+    });
+    inn.querySelector("[data-vis]").addEventListener("click", function(){
+      svarboks(inn, true, lb, "<p>Programmet skriver:</p><pre>" + esc(lb.svar) + "</pre>");
+      inn.querySelector(".svar .overskrift").textContent = "Svaret";
+    });
+    return;
+  }
+  var kodeValg = lb.type === "output" || lb.type === "fyll";
+  h += '<div class="valg' + (kodeValg ? " rutenett" : "") + '">';
+  lb.valg.forEach(function(v, j){
+    var innh = kodeValg ? "<pre>" + esc(v) + "</pre>" : "<span>" + v + "</span>";
+    h += '<button type="button" data-j="' + j + '"><span class="bokstav">' + BOKST[j] + "</span>" + innh + "</button>";
+  });
+  inn.innerHTML = h + "</div>";
+  if (lb.type === "fyll") markerHull(inn);
+  var knapper = inn.querySelectorAll(".valg button");
+  knapper.forEach(function(b){
+    b.addEventListener("click", function(){
+      var j = parseInt(b.getAttribute("data-j"), 10), ok = lb.riktig.indexOf(j) >= 0;
+      b.classList.add(ok ? "riktig" : "feil");
+      if (ok){ knapper.forEach(function(k){ k.disabled = true; }); lost(i, inn, lb); if (lb.type === "fyll") fyllInn(inn, lb.valg[j]); }
+      else b.disabled = true;
+      svarboks(inn, ok, lb);
+    });
+  });
+}
+function markerHull(inn){
+  inn.querySelectorAll(".rad span:last-child").forEach(function(s){
+    s.innerHTML = s.innerHTML.replace("___", '<span class="hull" style="border-bottom:2px solid var(--gul);color:var(--gul)">&nbsp;&nbsp;?&nbsp;&nbsp;</span>');
+  });
+}
+function fyllInn(inn, v){
+  var h = inn.querySelector(".hull"); if (h){ h.textContent = v; h.style.color = "var(--mose)"; h.style.borderColor = "var(--mose)"; }
+}
+function visFeil(inn, lb, i){
+  inn.innerHTML = '<div class="tekst">' + lb.sporsmal + '<p style="color:var(--dempet)">Klikk på linja der feilen er.</p></div><div style="max-width:760px">' + kodepanel(lb.kode) + "</div>";
+  inn.querySelector(".rader").classList.add("klikkbar");
+  var ferdig = false;
+  inn.querySelectorAll(".rad").forEach(function(r){
+    r.setAttribute("tabindex", "0"); r.setAttribute("role", "button");
+    var velg = function(){
+      if (ferdig) return;
+      var n = parseInt(r.getAttribute("data-n"), 10), ok = lb.riktig.indexOf(n) >= 0;
+      r.classList.add(ok ? "valgt-riktig" : "valgt-feil");
+      if (ok){ ferdig = true; lost(i, inn, lb); }
+      svarboks(inn, ok, lb, ok && lb.feilnavn ? "<p>Python ville gitt feilmeldingen <code>" + esc(lb.feilnavn) + "</code> på denne linja.</p>" : "");
+    };
+    r.addEventListener("click", velg);
+    r.addEventListener("keydown", function(e){ if (e.key === "Enter" || e.key === " "){ e.preventDefault(); e.stopPropagation(); velg(); } });
+  });
+}
+function visRekke(inn, lb, i){
+  inn.innerHTML = '<div class="tekst">' + lb.sporsmal + '<p style="color:var(--dempet)">Klikk på linjene i den rekkefølgen de skal stå.</p></div>' +
+    '<div class="rekke"></div><div class="bygget"><p class="phode">Programmet ditt</p><pre> </pre></div>' +
+    '<div class="trinnknapper"><button class="knapp" type="button" data-nullstill>Begynn på nytt</button></div>';
+  var valgt = [], rekke = inn.querySelector(".rekke"), ferdig = false;
+  function tegn(){
+    rekke.innerHTML = "";
+    lb.linjer.forEach(function(l, j){
+      var b = document.createElement("button"); b.type = "button"; b.textContent = l;
+      b.disabled = valgt.indexOf(j) >= 0 || ferdig;
+      b.addEventListener("click", function(){
+        valgt.push(j); tegn();
+        if (valgt.length === lb.linjer.length){
+          var ok = valgt.every(function(v, k){ return lb.linjer[v] === lb.linjer[lb.riktig[k]]; });
+          if (ok){ ferdig = true; lost(i, inn, lb); tegn(); }
+          svarboks(inn, ok, lb, ok && lb.forventet ? "<p>Programmet skriver:</p><pre>" + esc(lb.forventet) + "</pre>" : "");
+        }
+      });
+      rekke.appendChild(b);
+    });
+    var pre = inn.querySelector(".bygget pre");
+    pre.textContent = valgt.length ? valgt.map(function(v){ return lb.linjer[v]; }).join("\n") : " ";
+    pre.innerHTML = pre.textContent.split("\n").map(farg).join("\n");
+  }
+  inn.querySelector("[data-nullstill]").addEventListener("click", function(){
+    if (ferdig) return; valgt = []; var s = inn.querySelector(".svar"); if (s) s.remove(); tegn();
+  });
+  tegn();
+}
+function visKlikk(inn, lb, i){
+  inn.innerHTML = '<div class="tekst">' + lb.sporsmal + "</div>" + skjermHTML() + '<p class="koord">Flytt musa over skjermen for å se x og y.</p>';
+  var c = inn.querySelector("canvas"), ferdig = false, klikk = null;
+  c.classList.add("klikk");
+  var tegnAlt = function(){ tegnSkjerm(c, lb.skjerm, function(g){
+    if (!klikk) return;
+    g.fillStyle = klikk.ok ? "#88c860" : "#f87858"; g.beginPath(); g.arc(klikk.x * S, klikk.y * S, 7, 0, Math.PI * 2); g.fill();
+    g.strokeStyle = "#181820"; g.lineWidth = 2; g.stroke();
+    if (ferdig && lb.maal){ g.strokeStyle = "#88c860"; g.lineWidth = 2; g.beginPath(); g.arc(lb.maal[0] * S, lb.maal[1] * S, lb.toleranse * S, 0, Math.PI * 2); g.stroke(); }
+    if (ferdig && lb.maal_rute){ g.strokeStyle = "#88c860"; g.lineWidth = 3; g.strokeRect(lb.maal_rute[0] * 48 + 1.5, lb.maal_rute[1] * 48 + 1.5, 45, 45); }
+  }); };
+  function punkt(e){
+    var r = c.getBoundingClientRect();
+    return {x: Math.floor((e.clientX - r.left) / r.width * 240), y: Math.floor((e.clientY - r.top) / r.height * 160)};
+  }
+  c.addEventListener("mousemove", function(e){ var p = punkt(e); inn.querySelector(".koord").textContent = "x = " + p.x + ", y = " + p.y + "  (rute: kolonne " + Math.floor(p.x / 16) + ", rad " + Math.floor(p.y / 16) + ")"; });
+  c.addEventListener("click", function(e){
+    if (ferdig) return;
+    var p = punkt(e), ok;
+    if (lb.maal_rute) ok = Math.floor(p.x / 16) === lb.maal_rute[0] && Math.floor(p.y / 16) === lb.maal_rute[1];
+    else ok = Math.abs(p.x - lb.maal[0]) <= lb.toleranse && Math.abs(p.y - lb.maal[1]) <= lb.toleranse;
+    klikk = {x: p.x, y: p.y, ok: ok};
+    if (ok){ ferdig = true; lost(i, inn, lb); }
+    tegnAlt();
+    svarboks(inn, ok, lb, "<p>Du klikket på x = " + p.x + ", y = " + p.y + ".</p>");
+  });
+  tegnAlt();
+}
+
+// ---------- Navigasjon ----------
+function gaaTil(n){ pos = Math.max(0, Math.min(LB.length - 1, n)); lukkMeny(); vis(); }
+$("forrige").addEventListener("click", function(){ gaaTil(pos - 1); });
+$("neste").addEventListener("click", function(){
+  if (pos === LB.length - 1) location.href = "index.html"; else gaaTil(pos + 1);
+});
+document.addEventListener("keydown", function(e){
+  var t = e.target.tagName;
+  if (t === "TEXTAREA" || t === "INPUT") return;
+  if (!$("meny").hidden){ if (e.key === "Escape") lukkMeny(); return; }
+  var lb = LB[pos];
+  if (e.key === "ArrowRight" || e.key === "PageDown"){
+    e.preventDefault();
+    if (lb.type === "spor" && sporPos[pos] < lb.trinn.length - 1){ sporPos[pos]++; tegnSpor($("innhold"), lb, pos); return; }
+    gaaTil(pos + 1);
+  } else if (e.key === "ArrowLeft" || e.key === "PageUp"){
+    e.preventDefault();
+    if (lb.type === "spor" && sporPos[pos] > -1){ sporPos[pos]--; tegnSpor($("innhold"), lb, pos); return; }
+    gaaTil(pos - 1);
+  }
+});
+function lukkMeny(){ $("meny").hidden = true; }
+$("menyknapp").addEventListener("click", function(){
+  var h = "<h3>" + esc(L.nr + ". " + L.tittel) + "</h3><ol>";
+  LB.forEach(function(lb, i){
+    var navn = OPPG[lb.type] ? "Oppgave " + oppgaveNr(i) + ": " + (lb.tittel ? lb.tittel.replace(/<[^>]+>/g, "") : TYPENAVN[lb.type].toLowerCase())
+                             : (lb.tittel ? lb.tittel.replace(/<[^>]+>/g, "") : "Lysbilde");
+    h += '<li><button type="button" data-i="' + i + '"' + (i === pos ? ' class="naa"' : "") + '><span class="t">' + (i + 1) + "</span><span>" + esc(navn) + "</span>" +
+      (erGjort(i) ? '<span class="ok">✓</span>' : "") + "</button></li>";
+  });
+  h += '</ol><div class="andre"><p class="etikett">ALLE LEKSJONENE</p>';
+  DATA.kurs.forEach(function(k){ h += '<a href="' + k.slug + '.html"' + (k.nr === L.nr ? ' class="naa"' : "") + ">" + k.nr + ". " + esc(k.tittel) + "</a>"; });
+  h += '<a href="index.html" style="margin-top:8px">← Oversikten</a></div>';
+  $("menyboks").innerHTML = h;
+  $("menyboks").querySelectorAll("[data-i]").forEach(function(b){ b.addEventListener("click", function(){ gaaTil(parseInt(b.getAttribute("data-i"), 10)); }); });
+  $("meny").hidden = false;
+  var f = $("menyboks").querySelector(".naa"); if (f) f.focus();
+});
+$("meny").addEventListener("click", function(e){ if (e.target === $("meny")) lukkMeny(); });
+
+var start = parseInt((location.hash || "").slice(1), 10);
+if (!(start >= 1)) { var lagret = parseInt(les("pos"), 10); start = lagret >= 0 ? lagret + 1 : 1; }
+gaaTil(start - 1);
+})();
+</script>
+</body>
+</html>

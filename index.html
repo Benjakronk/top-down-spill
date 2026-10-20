@@ -16,7 +16,7 @@ body{margin:0;background:var(--natt);color:var(--tekst);font:17px/1.6 var(--brod
 header{margin-bottom:40px}
 h1{font:700 clamp(34px,6vw,56px)/1.05 var(--display);margin:0 0 14px}
 header p{color:var(--dempet);max-width:60ch;margin:0;font-size:19px}
-.kortene{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:24px}
+.kortene{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:24px}
 .kort{background:var(--panel);border:1px solid var(--strek);border-radius:8px;overflow:hidden;display:flex;flex-direction:column}
 .kort:hover{border-color:var(--farge)}
 .bilde img{display:block;width:100%;height:auto;image-rendering:pixelated;border-bottom:1px solid var(--strek)}
@@ -32,6 +32,14 @@ h2{font:700 34px/1.1 var(--display);margin:6px 0 10px;color:var(--farge)}
 .knapp.hoved{background:var(--farge);color:var(--natt)}
 .knapp:hover{filter:brightness(1.12)}
 .knapp:focus-visible{outline:2px solid var(--tekst);outline-offset:2px}
+a.teori{display:grid;gap:6px;margin-top:28px;padding:24px 28px;border-radius:8px;text-decoration:none;color:var(--tekst);
+  background:var(--panel);border:1px solid #2f4f8a}
+a.teori:hover{border-color:#78a8f0}
+a.teori:focus-visible{outline:2px solid var(--tekst);outline-offset:2px}
+.tmerke{font:13px Consolas,monospace;letter-spacing:.06em;color:#78a8f0}
+.ttittel{font:700 30px/1.15 var(--display);color:#78a8f0}
+.ttekst{color:var(--dempet);max-width:70ch}
+.tknapp{justify-self:start;margin-top:8px;background:#78a8f0;color:var(--natt);font-weight:700;padding:9px 16px;border-radius:5px}
 .slik{margin-top:44px;background:var(--panel);border:1px solid var(--strek);border-radius:8px;padding:22px 26px}
 .slik h3{font:700 22px var(--display);margin:0 0 10px}
 .slik ol{margin:0;padding-left:22px;color:var(--dempet)}
@@ -44,9 +52,22 @@ code{font:15px Consolas,monospace;background:#282538;padding:1px 5px;border-radi
 <div class="wrap">
   <header>
     <h1>Lag ditt eget spill</h1>
-    <p>Velg ett av de to spillene. Du bygger det steg for steg i Python, med ferdig grafikk, lyd og musikk.</p>
+    <p>Velg ett av de tre spillene. Du bygger det steg for steg i Python, med ferdig grafikk, lyd og musikk. Er du ny i programmering, start med Skattejakten.</p>
   </header>
   <div class="kortene">
+  <article class="kort" style="--farge:#88c860">
+    <a class="bilde" href="Skattejakten/"><img src="Skattejakten/oppgaveark_bilder/steg6.png" alt="Tittelskjermen i Skattejakten" width="720" height="480"></a>
+    <div class="innhold">
+      <p class="type">Enklest · start her</p>
+      <h2>Skattejakten</h2>
+      <p>Løp rundt på enga, plukk mynter og pass deg for slimet. Korte steg med små oppgaver – over hver oppgave står det et eksempel du kan bygge på. Fint hvis du er ny i programmering.</p>
+      <p class="steg">6 steg</p>
+      <div class="knapper">
+        <a class="knapp hoved" href="Skattejakten/">Åpne oppgavearket</a>
+        <a class="knapp" href="Skattejakten/Skattejakten.zip" download>Last ned spillmappa <span>12 MB</span></a>
+      </div>
+    </div>
+  </article>
   <article class="kort" style="--farge:#e8b830">
     <a class="bilde" href="Eventyret/"><img src="Eventyret/oppgaveark_bilder/steg8.png" alt="Tittelskjermen i Eventyret" width="720" height="480"></a>
     <div class="innhold">
@@ -74,6 +95,13 @@ code{font:15px Consolas,monospace;background:#282538;padding:1px 5px;border-radi
     </div>
   </article>
   </div>
+  <a class="teori" href="Teorikurs/">
+    <span class="tmerke">TEORIKURS · 15 LEKSJONER</span>
+    <span class="ttittel">Skjønn koden du skriver</span>
+    <span class="ttekst">Variabler, if, løkker, lister, funksjoner og alt det andre spillene bruker – forklart steg for steg,
+    med oppgaver der du kan teste deg selv. Står du fast i et steg, finn leksjonen som hører til.</span>
+    <span class="tknapp">Åpne teorikurset →</span>
+  </a>
   <section class="slik">
     <h3>Slik kommer du i gang</h3>
     <ol>

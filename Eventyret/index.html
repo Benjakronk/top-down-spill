@@ -120,6 +120,10 @@ ul.lydliste{list-style:none;padding:0;margin:0;display:grid;gap:6px}
 ul.lydliste li{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
 ul.lydliste audio{height:30px;width:220px;max-width:100%}
 .kort{color:var(--dempet)}
+.forklaring{aspect-ratio:16/9;border:1px solid var(--strek);border-radius:6px;overflow:hidden;background:#0d0c14}
+.forklaring iframe{display:block;width:100%;height:100%;border:0}
+.forklaringslenke{font-size:15px;margin-top:8px}
+.forklaringslenke a{color:var(--aksent)}
 footer{margin-top:100px;padding-top:22px;border-top:1px solid var(--strek);color:var(--dempet);font-size:14px}
 @media (max-width:620px){body{font-size:16px} .wrap{padding:0 16px 80px} .navinner{padding:0 16px}
   .merkenavn{font-size:17px;padding-right:12px} .fane{padding:14px 11px 12px;font-size:15px} .panel{padding:20px 16px}}
@@ -135,7 +139,7 @@ footer{margin-top:100px;padding-top:22px;border-top:1px solid var(--strek);color
     <button class="fane" type="button" id="fane-byggesett" role="tab" aria-controls="byggesett" aria-selected="false" tabindex="-1">Byggesett</button>
     <button class="fane" type="button" id="fane-oppslag" role="tab" aria-controls="oppslag" aria-selected="false" tabindex="-1">Oppslag</button>
   </div>
-  <a href="../" title="Tilbake til alle spill" style="display:flex;align-items:center;padding:0 0 0 14px;margin-left:8px;border-left:1px solid var(--strek);color:var(--dempet);text-decoration:none;white-space:nowrap">&larr; Alle spill</a><a href="Eventyret.zip" download style="align-self:center;margin-left:12px;color:var(--natt);background:#e8b830;padding:5px 12px;border-radius:4px;font-weight:700;text-decoration:none;white-space:nowrap">Last ned (.zip)</a>
+  <a href="../Teorikurs/" title="Teorikurset" style="display:flex;align-items:center;padding:0 0 0 14px;margin-left:8px;border-left:1px solid var(--strek);color:var(--dempet);text-decoration:none;white-space:nowrap">Teori</a><a href="../" title="Tilbake til alle spill" style="display:flex;align-items:center;padding:0 0 0 14px;margin-left:8px;border-left:1px solid var(--strek);color:var(--dempet);text-decoration:none;white-space:nowrap">&larr; Alle spill</a><a href="Eventyret.zip" download style="align-self:center;margin-left:12px;color:var(--natt);background:#e8b830;padding:5px 12px;border-radius:4px;font-weight:700;text-decoration:none;white-space:nowrap">Last ned (.zip)</a>
 </div></div>
 <div class="wrap">
 
@@ -170,10 +174,19 @@ footer{margin-top:100px;padding-top:22px;border-top:1px solid var(--strek);color
       <h3 class="mellom" style="margin-top:0">Kom i gang</h3>
       <p>Åpne <code>steg1.py</code> og kjør den. Du ser engen og helten, men helten står helt stille. Les kommentarene øverst i fila, og finn funksjonen <code>gaa()</code>. Der er det bare <code>opp</code> som virker ennå – prøv pil opp!</p>
       <p class="fil">Fil: <code>steg1.py</code></p>
+      <p class="fil">Teori til dette steget: <a href="../Teorikurs/programmer.html" style="color:var(--aksent)">1. Hvordan et program kjører</a> · <a href="../Teorikurs/variabler.html" style="color:var(--aksent)">2. Variabler og regning</a> · <a href="../Teorikurs/koordinater.html" style="color:var(--aksent)">3. Koordinater og skjermen</a> · <a href="../Teorikurs/valg.html" style="color:var(--aksent)">5. Valg: if, elif og else</a> · <a href="../Teorikurs/spillokka.html" style="color:var(--aksent)">6. Spill-løkka, taster og tellere</a> · <a href="../Teorikurs/funksjoner.html" style="color:var(--aksent)">7. Funksjoner</a> · <a href="../Teorikurs/lister.html" style="color:var(--aksent)">9. Lister</a> · <a href="../Teorikurs/ordboker.html" style="color:var(--aksent)">11. Ordbøker (dictionaries)</a> · <a href="../Teorikurs/figurer.html" style="color:var(--aksent)">12. Figurer, objekter og kollisjon</a></p>
       <h4>Nytt i dag</h4><ul class="brikker"><li>spill-løkka: oppdater() 60 ganger i sekundet</li><li>koordinater og piksler (y går nedover)</li><li>kartet som en liste med tekst</li><li>kollisjon med rute_ved(x, y)</li><li>treffboks (bare føttene)</li></ul>
     </div>
     <figure class="skjerm"><img src="oppgaveark_bilder/steg1.png" alt="Slik kan spillet se ut etter steg 1" width="480" height="320"><figcaption>Slik kan det se ut når du er ferdig med steg 1.</figcaption></figure>
   </div>
+  <h3 class="mellom">Forklaring av koden</h3>
+  <p class="leder kort">Bla gjennom forklaringen før du begynner, og gå tilbake til den når du står fast.
+  Den viser koden i <code>steg1.py</code>, hva som skjer på skjermen, og hva programmet husker.
+  Der det står <strong>OPPGAVE</strong>, er det du som skal skrive koden.</p>
+  <div class="forklaring"><iframe src="forklaring.html?inne=1#okt1" loading="lazy"
+    title="Forklaring av koden i steg 1"></iframe></div>
+  <p class="kort forklaringslenke"><a href="forklaring.html#okt1" target="_blank" rel="noopener">Åpne forklaringen i
+  stort vindu &#8599;</a> · Neste: mellomrom eller &rarr; (klikk i forklaringen først)</p>
   <h3 class="mellom">Oppgavene</h3>
   <p class="leder kort">I <code>steg1.py</code> står det <code>OPPGAVE</code> og <code>pass</code> der
   det mangler kode. Bytt ut <code>pass</code> med din egen kode. Kjør spillet ofte!</p>
@@ -203,10 +216,19 @@ hjorner = [(venstre, topp), (hoyre, topp), (venstre, bunn), (hoyre, bunn)]</pre>
       <h3 class="mellom" style="margin-top:0">Kom i gang</h3>
       <p>Åpne <code>steg2.py</code> og kjør den. Helten går, men glir rundt uten å røre beina, og han ser alltid ned. Går du mot høyre på stien, stopper han ved kanten. Ser du trærne? De er nye.</p>
       <p class="fil">Fil: <code>steg2.py</code></p>
+      <p class="fil">Teori til dette steget: <a href="../Teorikurs/variabler.html" style="color:var(--aksent)">2. Variabler og regning</a> · <a href="../Teorikurs/koordinater.html" style="color:var(--aksent)">3. Koordinater og skjermen</a> · <a href="../Teorikurs/tekst.html" style="color:var(--aksent)">4. Tekst og f-strenger</a> · <a href="../Teorikurs/valg.html" style="color:var(--aksent)">5. Valg: if, elif og else</a> · <a href="../Teorikurs/spillokka.html" style="color:var(--aksent)">6. Spill-løkka, taster og tellere</a> · <a href="../Teorikurs/funksjoner.html" style="color:var(--aksent)">7. Funksjoner</a> · <a href="../Teorikurs/global.html" style="color:var(--aksent)">8. Lokale og globale variabler</a> · <a href="../Teorikurs/lokker.html" style="color:var(--aksent)">10. Løkker: for</a> · <a href="../Teorikurs/ordboker.html" style="color:var(--aksent)">11. Ordbøker (dictionaries)</a></p>
       <h4>Nytt i dag</h4><ul class="brikker"><li>global</li><li>animasjon med teller, // og %</li><li>f-string</li><li>rom som en dictionary</li><li>overgang()</li></ul>
     </div>
     <figure class="skjerm"><img src="oppgaveark_bilder/steg2.png" alt="Slik kan spillet se ut etter steg 2" width="480" height="320"><figcaption>Slik kan det se ut når du er ferdig med steg 2.</figcaption></figure>
   </div>
+  <h3 class="mellom">Forklaring av koden</h3>
+  <p class="leder kort">Bla gjennom forklaringen før du begynner, og gå tilbake til den når du står fast.
+  Den viser koden i <code>steg2.py</code>, hva som skjer på skjermen, og hva programmet husker.
+  Der det står <strong>OPPGAVE</strong>, er det du som skal skrive koden.</p>
+  <div class="forklaring"><iframe src="forklaring.html?inne=1#okt2" loading="lazy"
+    title="Forklaring av koden i steg 2"></iframe></div>
+  <p class="kort forklaringslenke"><a href="forklaring.html#okt2" target="_blank" rel="noopener">Åpne forklaringen i
+  stort vindu &#8599;</a> · Neste: mellomrom eller &rarr; (klikk i forklaringen først)</p>
   <h3 class="mellom">Oppgavene</h3>
   <p class="leder kort">I <code>steg2.py</code> står det <code>OPPGAVE</code> og <code>pass</code> der
   det mangler kode. Bytt ut <code>pass</code> med din egen kode. Kjør spillet ofte!</p>
@@ -237,10 +259,19 @@ ROM[&quot;engen&quot;][&quot;opp&quot;] = &quot;fjellet&quot;</pre></div>
       <h3 class="mellom" style="margin-top:0">Kom i gang</h3>
       <p>Åpne <code>steg3.py</code> og kjør den. Alt fra steg 2 virker, men ingenting skjer når du trykker mellomrom. Finn funksjonene <code>slaa()</code> og <code>kutt_busk()</code>, og se på <code>SVERD_PLASS</code> øverst.</p>
       <p class="fil">Fil: <code>steg3.py</code></p>
+      <p class="fil">Teori til dette steget: <a href="../Teorikurs/koordinater.html" style="color:var(--aksent)">3. Koordinater og skjermen</a> · <a href="../Teorikurs/valg.html" style="color:var(--aksent)">5. Valg: if, elif og else</a> · <a href="../Teorikurs/spillokka.html" style="color:var(--aksent)">6. Spill-løkka, taster og tellere</a> · <a href="../Teorikurs/funksjoner.html" style="color:var(--aksent)">7. Funksjoner</a> · <a href="../Teorikurs/global.html" style="color:var(--aksent)">8. Lokale og globale variabler</a> · <a href="../Teorikurs/ordboker.html" style="color:var(--aksent)">11. Ordbøker (dictionaries)</a> · <a href="../Teorikurs/figurer.html" style="color:var(--aksent)">12. Figurer, objekter og kollisjon</a></p>
       <h4>Nytt i dag</h4><ul class="brikker"><li>tast_trykket()</li><li>en teller som teller ned</li><li>None</li><li>dictionary med tupler</li><li>endre_rute()</li><li>effekt() og spill_lyd()</li></ul>
     </div>
     <figure class="skjerm"><img src="oppgaveark_bilder/steg3.png" alt="Slik kan spillet se ut etter steg 3" width="480" height="320"><figcaption>Slik kan det se ut når du er ferdig med steg 3.</figcaption></figure>
   </div>
+  <h3 class="mellom">Forklaring av koden</h3>
+  <p class="leder kort">Bla gjennom forklaringen før du begynner, og gå tilbake til den når du står fast.
+  Den viser koden i <code>steg3.py</code>, hva som skjer på skjermen, og hva programmet husker.
+  Der det står <strong>OPPGAVE</strong>, er det du som skal skrive koden.</p>
+  <div class="forklaring"><iframe src="forklaring.html?inne=1#okt3" loading="lazy"
+    title="Forklaring av koden i steg 3"></iframe></div>
+  <p class="kort forklaringslenke"><a href="forklaring.html#okt3" target="_blank" rel="noopener">Åpne forklaringen i
+  stort vindu &#8599;</a> · Neste: mellomrom eller &rarr; (klikk i forklaringen først)</p>
   <h3 class="mellom">Oppgavene</h3>
   <p class="leder kort">I <code>steg3.py</code> står det <code>OPPGAVE</code> og <code>pass</code> der
   det mangler kode. Bytt ut <code>pass</code> med din egen kode. Kjør spillet ofte!</p>
@@ -267,10 +298,19 @@ spill_lyd(&quot;sverd&quot;)</pre></div></details></div></div></li><li><div clas
       <h3 class="mellom" style="margin-top:0">Kom i gang</h3>
       <p>Åpne <code>steg4.py</code> og kjør den. Det står to slim på engen, men de rører seg ikke. Se på <code>FIENDER</code> og på lista <code>ROM[&quot;engen&quot;][&quot;fiender&quot;]</code> – <code>[&quot;slim&quot;, 10, 2]</code> er et slim i kolonne 10, rad 2.</p>
       <p class="fil">Fil: <code>steg4.py</code></p>
+      <p class="fil">Teori til dette steget: <a href="../Teorikurs/valg.html" style="color:var(--aksent)">5. Valg: if, elif og else</a> · <a href="../Teorikurs/funksjoner.html" style="color:var(--aksent)">7. Funksjoner</a> · <a href="../Teorikurs/lister.html" style="color:var(--aksent)">9. Lister</a> · <a href="../Teorikurs/lokker.html" style="color:var(--aksent)">10. Løkker: for</a> · <a href="../Teorikurs/ordboker.html" style="color:var(--aksent)">11. Ordbøker (dictionaries)</a> · <a href="../Teorikurs/figurer.html" style="color:var(--aksent)">12. Figurer, objekter og kollisjon</a> · <a href="../Teorikurs/tilfeldighet.html" style="color:var(--aksent)">14. Tilfeldighet og sannsynlighet</a></p>
       <h4>Nytt i dag</h4><ul class="brikker"><li>liste med figurer</li><li>attributter: fiende.liv, fiende.art</li><li>random.choice og random.randint</li><li>FIENDER-dictionary</li><li>fiender[:] (kopi av lista)</li></ul>
     </div>
     <figure class="skjerm"><img src="oppgaveark_bilder/steg4.png" alt="Slik kan spillet se ut etter steg 4" width="480" height="320"><figcaption>Slik kan det se ut når du er ferdig med steg 4.</figcaption></figure>
   </div>
+  <h3 class="mellom">Forklaring av koden</h3>
+  <p class="leder kort">Bla gjennom forklaringen før du begynner, og gå tilbake til den når du står fast.
+  Den viser koden i <code>steg4.py</code>, hva som skjer på skjermen, og hva programmet husker.
+  Der det står <strong>OPPGAVE</strong>, er det du som skal skrive koden.</p>
+  <div class="forklaring"><iframe src="forklaring.html?inne=1#okt4" loading="lazy"
+    title="Forklaring av koden i steg 4"></iframe></div>
+  <p class="kort forklaringslenke"><a href="forklaring.html#okt4" target="_blank" rel="noopener">Åpne forklaringen i
+  stort vindu &#8599;</a> · Neste: mellomrom eller &rarr; (klikk i forklaringen først)</p>
   <h3 class="mellom">Oppgavene</h3>
   <p class="leder kort">I <code>steg4.py</code> står det <code>OPPGAVE</code> og <code>pass</code> der
   det mangler kode. Bytt ut <code>pass</code> med din egen kode. Kjør spillet ofte!</p>
@@ -302,10 +342,19 @@ if kan_gaa(fiende, ny_x, ny_y):
       <h3 class="mellom" style="margin-top:0">Kom i gang</h3>
       <p>Åpne <code>steg5.py</code> og kjør den. Hjertene står øverst til venstre, men fiendene gjør ingen skade ennå. Se på <code>skade_helt()</code> – den er ferdig – og på de nye variablene <code>liv</code>, <code>tilstand</code> og <code>dytt</code>.</p>
       <p class="fil">Fil: <code>steg5.py</code></p>
+      <p class="fil">Teori til dette steget: <a href="../Teorikurs/variabler.html" style="color:var(--aksent)">2. Variabler og regning</a> · <a href="../Teorikurs/valg.html" style="color:var(--aksent)">5. Valg: if, elif og else</a> · <a href="../Teorikurs/spillokka.html" style="color:var(--aksent)">6. Spill-løkka, taster og tellere</a> · <a href="../Teorikurs/global.html" style="color:var(--aksent)">8. Lokale og globale variabler</a> · <a href="../Teorikurs/figurer.html" style="color:var(--aksent)">12. Figurer, objekter og kollisjon</a> · <a href="../Teorikurs/tilstand.html" style="color:var(--aksent)">13. Tilstand: spillet husker hva som skjer</a></p>
       <h4>Nytt i dag</h4><ul class="brikker"><li>HUD i lag 3</li><li>tilstandsvariabel (&quot;spill&quot; / &quot;game_over&quot;)</li><li>blink() og blinker</li><li>rist_skjerm()</li><li>liv i halve hjerter</li></ul>
     </div>
     <figure class="skjerm"><img src="oppgaveark_bilder/steg5.png" alt="Slik kan spillet se ut etter steg 5" width="480" height="320"><figcaption>Slik kan det se ut når du er ferdig med steg 5.</figcaption></figure>
   </div>
+  <h3 class="mellom">Forklaring av koden</h3>
+  <p class="leder kort">Bla gjennom forklaringen før du begynner, og gå tilbake til den når du står fast.
+  Den viser koden i <code>steg5.py</code>, hva som skjer på skjermen, og hva programmet husker.
+  Der det står <strong>OPPGAVE</strong>, er det du som skal skrive koden.</p>
+  <div class="forklaring"><iframe src="forklaring.html?inne=1#okt5" loading="lazy"
+    title="Forklaring av koden i steg 5"></iframe></div>
+  <p class="kort forklaringslenke"><a href="forklaring.html#okt5" target="_blank" rel="noopener">Åpne forklaringen i
+  stort vindu &#8599;</a> · Neste: mellomrom eller &rarr; (klikk i forklaringen først)</p>
   <h3 class="mellom">Oppgavene</h3>
   <p class="leder kort">I <code>steg5.py</code> står det <code>OPPGAVE</code> og <code>pass</code> der
   det mangler kode. Bytt ut <code>pass</code> med din egen kode. Kjør spillet ofte!</p>
@@ -340,10 +389,19 @@ if lite_liv_teller &gt;= 60:
       <h3 class="mellom" style="margin-top:0">Kom i gang</h3>
       <p>Åpne <code>steg6.py</code> og kjør den. Gamle Ragna står rett under helten – gå ned til henne og trykk mellomrom. Du ser mynter og en myntteller øverst til høyre, men myntene står stille og kan ikke plukkes opp. Gå til fjellet: nå kommer du inn i hulen!</p>
       <p class="fil">Fil: <code>steg6.py</code></p>
+      <p class="fil">Teori til dette steget: <a href="../Teorikurs/tekst.html" style="color:var(--aksent)">4. Tekst og f-strenger</a> · <a href="../Teorikurs/funksjoner.html" style="color:var(--aksent)">7. Funksjoner</a> · <a href="../Teorikurs/lister.html" style="color:var(--aksent)">9. Lister</a> · <a href="../Teorikurs/lokker.html" style="color:var(--aksent)">10. Løkker: for</a> · <a href="../Teorikurs/ordboker.html" style="color:var(--aksent)">11. Ordbøker (dictionaries)</a> · <a href="../Teorikurs/figurer.html" style="color:var(--aksent)">12. Figurer, objekter og kollisjon</a> · <a href="../Teorikurs/tilstand.html" style="color:var(--aksent)">13. Tilstand: spillet husker hva som skjer</a> · <a href="../Teorikurs/tilfeldighet.html" style="color:var(--aksent)">14. Tilfeldighet og sannsynlighet</a></p>
       <h4>Nytt i dag</h4><ul class="brikker"><li>liste med ting i hvert rom</li><li>plukke opp med treffer()</li><li>dialog: liste med replikker + teller</li><li>endre_kart() som husker endringen</li><li>tilstandene &quot;prat&quot; og &quot;jubel&quot;</li></ul>
     </div>
     <figure class="skjerm"><img src="oppgaveark_bilder/steg6.png" alt="Slik kan spillet se ut etter steg 6" width="480" height="320"><figcaption>Slik kan det se ut når du er ferdig med steg 6.</figcaption></figure>
   </div>
+  <h3 class="mellom">Forklaring av koden</h3>
+  <p class="leder kort">Bla gjennom forklaringen før du begynner, og gå tilbake til den når du står fast.
+  Den viser koden i <code>steg6.py</code>, hva som skjer på skjermen, og hva programmet husker.
+  Der det står <strong>OPPGAVE</strong>, er det du som skal skrive koden.</p>
+  <div class="forklaring"><iframe src="forklaring.html?inne=1#okt6" loading="lazy"
+    title="Forklaring av koden i steg 6"></iframe></div>
+  <p class="kort forklaringslenke"><a href="forklaring.html#okt6" target="_blank" rel="noopener">Åpne forklaringen i
+  stort vindu &#8599;</a> · Neste: mellomrom eller &rarr; (klikk i forklaringen først)</p>
   <h3 class="mellom">Oppgavene</h3>
   <p class="leder kort">I <code>steg6.py</code> står det <code>OPPGAVE</code> og <code>pass</code> der
   det mangler kode. Bytt ut <code>pass</code> med din egen kode. Kjør spillet ofte!</p>
@@ -378,10 +436,19 @@ else:
       <h3 class="mellom" style="margin-top:0">Kom i gang</h3>
       <p>Åpne <code>steg7.py</code> og kjør den. Hent nøkkelen, åpne døra i hulen og gå inn i gangen. Faklene ser rare ut, og en rad med klosser stenger veien til bossrommet. Finn <code>flytt_boss()</code> og les hvordan den bytter mellom tilstandene.</p>
       <p class="fil">Fil: <code>steg7.py</code></p>
+      <p class="fil">Teori til dette steget: <a href="../Teorikurs/spillokka.html" style="color:var(--aksent)">6. Spill-løkka, taster og tellere</a> · <a href="../Teorikurs/lokker.html" style="color:var(--aksent)">10. Løkker: for</a> · <a href="../Teorikurs/tilstand.html" style="color:var(--aksent)">13. Tilstand: spillet husker hva som skjer</a> · <a href="../Teorikurs/tilfeldighet.html" style="color:var(--aksent)">14. Tilfeldighet og sannsynlighet</a></p>
       <h4>Nytt i dag</h4><ul class="brikker"><li>tilstandsmaskin: &quot;vent&quot;, &quot;hopp&quot;, &quot;angrip&quot;</li><li>løkke inni en løkke (rader og kolonner)</li><li>partikler()</li><li>% for «hver tredje gang»</li></ul>
     </div>
     <figure class="skjerm"><img src="oppgaveark_bilder/steg7.png" alt="Slik kan spillet se ut etter steg 7" width="480" height="320"><figcaption>Slik kan det se ut når du er ferdig med steg 7.</figcaption></figure>
   </div>
+  <h3 class="mellom">Forklaring av koden</h3>
+  <p class="leder kort">Bla gjennom forklaringen før du begynner, og gå tilbake til den når du står fast.
+  Den viser koden i <code>steg7.py</code>, hva som skjer på skjermen, og hva programmet husker.
+  Der det står <strong>OPPGAVE</strong>, er det du som skal skrive koden.</p>
+  <div class="forklaring"><iframe src="forklaring.html?inne=1#okt7" loading="lazy"
+    title="Forklaring av koden i steg 7"></iframe></div>
+  <p class="kort forklaringslenke"><a href="forklaring.html#okt7" target="_blank" rel="noopener">Åpne forklaringen i
+  stort vindu &#8599;</a> · Neste: mellomrom eller &rarr; (klikk i forklaringen først)</p>
   <h3 class="mellom">Oppgavene</h3>
   <p class="leder kort">I <code>steg7.py</code> står det <code>OPPGAVE</code> og <code>pass</code> der
   det mangler kode. Bytt ut <code>pass</code> med din egen kode. Kjør spillet ofte!</p>
@@ -407,10 +474,19 @@ else:
       <h3 class="mellom" style="margin-top:0">Kom i gang</h3>
       <p>Åpne <code>steg8.py</code> og kjør den. Spillet starter på en tittelskjerm – men du kommer ikke videre! Start med oppgave 1 og 2.</p>
       <p class="fil">Fil: <code>steg8.py</code></p>
+      <p class="fil">Teori til dette steget: <a href="../Teorikurs/tekst.html" style="color:var(--aksent)">4. Tekst og f-strenger</a> · <a href="../Teorikurs/ordboker.html" style="color:var(--aksent)">11. Ordbøker (dictionaries)</a> · <a href="../Teorikurs/tilstand.html" style="color:var(--aksent)">13. Tilstand: spillet husker hva som skjer</a> · <a href="../Teorikurs/filer_og_feil.html" style="color:var(--aksent)">15. Filer, feilmeldinger og feilsøking</a></p>
       <h4>Nytt i dag</h4><ul class="brikker"><li>spill_musikk() og stopp_musikk()</li><li>Tekst med storrelse=2</li><li>tid()</li><li>lese og skrive en fil med open()</li><li>copy.deepcopy()</li><li>pause(True) og pause(False)</li><li>meny med en liste og %</li></ul>
     </div>
     <figure class="skjerm"><img src="oppgaveark_bilder/steg8.png" alt="Slik kan spillet se ut etter steg 8" width="480" height="320"><figcaption>Slik kan det se ut når du er ferdig med steg 8.</figcaption></figure>
   </div>
+  <h3 class="mellom">Forklaring av koden</h3>
+  <p class="leder kort">Bla gjennom forklaringen før du begynner, og gå tilbake til den når du står fast.
+  Den viser koden i <code>steg8.py</code>, hva som skjer på skjermen, og hva programmet husker.
+  Der det står <strong>OPPGAVE</strong>, er det du som skal skrive koden.</p>
+  <div class="forklaring"><iframe src="forklaring.html?inne=1#okt8" loading="lazy"
+    title="Forklaring av koden i steg 8"></iframe></div>
+  <p class="kort forklaringslenke"><a href="forklaring.html#okt8" target="_blank" rel="noopener">Åpne forklaringen i
+  stort vindu &#8599;</a> · Neste: mellomrom eller &rarr; (klikk i forklaringen først)</p>
   <h3 class="mellom">Oppgavene</h3>
   <p class="leder kort">I <code>steg8.py</code> står det <code>OPPGAVE</code> og <code>pass</code> der
   det mangler kode. Bytt ut <code>pass</code> med din egen kode. Kjør spillet ofte!</p>

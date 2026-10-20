@@ -1,0 +1,442 @@
+<!doctype html>
+<html lang="no">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Skattejakten – forklaring av koden</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@500;700&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<style>
+:root{
+  --natt:#16151f; --panel:#201e2c; --panel2:#282538; --strek:#3a3650; --tekst:#ece9f4; --dempet:#a9a4bf;
+  --aksent:#88c860; --aksent-dyp:#3e6a2a; --mose:#88c860; --rust:#f87858; --blaa:#78a8f0;
+  --display:"Pixelify Sans","Courier New",monospace;
+  --brod:"Atkinson Hyperlegible","Segoe UI",system-ui,sans-serif;
+  --mono:Consolas,"Cascadia Mono","DejaVu Sans Mono",monospace;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;background:#0d0c14;color:var(--tekst);font-family:var(--brod);overflow:hidden}
+h1,h2,h3,.merkenavn,.kapnavn{font-variant-ligatures:none!important;font-feature-settings:"liga" 0,"clig" 0,"calt" 0!important}
+#scene{position:fixed;inset:0;overflow:hidden}
+#stage{position:absolute;left:50%;top:50%;width:1600px;height:900px;transform-origin:center center;display:grid;grid-template-rows:56px minmax(0,1fr) auto;grid-template-columns:minmax(0,1fr);overflow:hidden;
+  background:var(--natt);border:1px solid var(--strek);position:relative}
+.topp{display:flex;align-items:center;gap:18px;padding:0 20px;border-bottom:1px solid var(--strek)}
+.merkenavn{margin:0;font:700 22px var(--display);color:var(--aksent);white-space:nowrap}
+#kapitler{display:flex;gap:4px;flex:1 1 auto;min-width:0;overflow:hidden}
+#kapitler button{background:none;border:1px solid transparent;border-radius:4px;color:var(--dempet);font:15px var(--brod);
+  padding:6px 10px;cursor:pointer;white-space:nowrap}
+#kapitler button b{font:13px var(--mono);color:#6d6789;margin-right:6px}
+#kapitler button.valgt{border-color:var(--aksent-dyp);color:var(--tekst)}
+#kapitler button:not(.valgt) span{display:none}
+#kapitler button:not(.valgt) b{margin-right:0}
+#kapitler button.valgt b{color:var(--aksent)}
+#kapitler button:hover{color:var(--tekst)}
+.teller{font:15px var(--mono);color:var(--dempet);white-space:nowrap}
+.liten{font:14px var(--brod);color:var(--dempet);background:none;border:1px solid var(--strek);border-radius:4px;padding:6px 12px;
+  cursor:pointer;text-decoration:none;white-space:nowrap}
+.liten:hover{color:var(--aksent);border-color:var(--aksent)}
+.flate{display:grid;grid-template-columns:820px minmax(0,1fr);gap:14px;padding:12px 16px;min-height:0}
+.panel{background:var(--panel);border:1px solid var(--strek);border-radius:6px;display:flex;flex-direction:column;min-height:0;overflow:hidden}
+.phode{display:flex;justify-content:space-between;gap:12px;padding:7px 14px;border-bottom:1px solid var(--strek);
+  font:14px var(--mono);color:var(--dempet)}
+.phode b{color:var(--tekst);font-weight:400}
+.hoyre{display:grid;grid-template-rows:auto 1fr;gap:12px;min-height:0}
+.vindu{position:relative;flex:1 1 auto;overflow:hidden}
+#rader{position:absolute;left:0;right:0;top:0;transition:transform .35s ease;font:17px/26px var(--mono);padding:10px 0}
+.rad{display:flex;white-space:pre;color:#cfcade;padding-right:12px}
+.rad .ln{flex:0 0 52px;text-align:right;padding-right:14px;color:#57527a;user-select:none}
+.rad.merket{background:rgba(232,184,48,.14);color:#fff}
+.rad.merket .ln{color:var(--aksent);box-shadow:inset 3px 0 0 var(--aksent)}
+.rad .kom{color:#7e78a0}
+.rad .str{color:#a8d058}
+.rad .nok{color:#f8a040}
+.rad .tall{color:#78a8f0}
+.skjermvindu{padding:6px;display:grid;place-items:center;background:#0f0e17}
+#skjerm{width:720px;height:480px;image-rendering:pixelated;display:block;border:1px solid var(--strek)}
+.vars{padding:6px 14px;display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:2px 18px;align-content:start;overflow:auto}
+.var{display:flex;justify-content:space-between;gap:10px;border-bottom:1px solid var(--strek);padding:3px 0;font:15px var(--mono)}
+.var .n{color:var(--dempet)}
+.var .n{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.var .v{color:var(--tekst);text-align:right;white-space:nowrap;flex:0 0 auto}
+.var.endret .v{color:var(--aksent);animation:blink 1s ease-out}
+@keyframes blink{0%{background:rgba(232,184,48,.35)}100%{background:transparent}}
+.tom{color:#6d6789;font:15px var(--brod);padding:4px 0}
+.fortelling{display:grid;grid-template-columns:1fr 380px auto;gap:18px;align-items:stretch;padding:12px 16px 14px;border-top:1px solid var(--strek);
+  min-height:140px}
+.kapnavn{margin:0 0 6px;font:700 14px var(--mono);color:var(--aksent);letter-spacing:.08em}
+#fortell{margin:0;font-size:22px;line-height:1.5}
+code{font-family:var(--mono);font-size:.88em;background:#0f0e17;border:1px solid var(--strek);padding:1px 6px;border-radius:3px;color:var(--aksent)}
+.sporsmal{border:1px solid var(--aksent-dyp);border-radius:6px;padding:12px 16px;background:rgba(232,184,48,.06)}
+.sporsmal .lbl{margin:0 0 6px;font:13px var(--mono);letter-spacing:.08em;color:var(--aksent)}
+.sporsmal .sp{margin:0;font-size:19px;line-height:1.45}
+.sporsmal.skjult{visibility:hidden}
+.oppgmerke{display:inline-block;margin:0 0 8px;font:700 14px var(--mono);letter-spacing:.06em;color:#1b1408;background:var(--aksent);padding:3px 10px;border-radius:3px}
+.rad.oppg.merket{background:rgba(136,200,96,.16)}
+.rad.oppg.merket .ln{color:var(--mose);box-shadow:inset 3px 0 0 var(--mose)}
+body.inne .topp #kapitler button:not(.valgt){display:none}
+body.inne #tilbake{display:none}
+.knapper{display:flex;flex-direction:column;gap:8px;justify-content:center}
+.knapper button{font:16px var(--brod);padding:12px 22px;border-radius:5px;cursor:pointer;white-space:nowrap}
+#neste{background:var(--aksent);color:#1b1408;border:none;font-weight:700}
+#forrige{background:none;color:var(--dempet);border:1px solid var(--strek)}
+button:focus-visible{outline:2px solid var(--tekst);outline-offset:2px}
+.kort{position:absolute;inset:56px 0 0 0;background:var(--natt);display:grid;place-items:center;padding:60px;z-index:5}
+.kort .innhold{max-width:1100px}
+.kort .eyebrow{font:15px var(--mono);letter-spacing:.1em;color:var(--aksent);margin:0 0 12px}
+.kort h1{font:700 64px/1.1 var(--display);margin:0 0 22px}
+.kort p.ingress{font-size:26px;line-height:1.5;color:var(--dempet);margin:0 0 30px;max-width:46ch}
+.kort .tre{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:22px;margin-top:10px}
+.kort .tre div{border-top:2px solid var(--aksent);padding-top:14px}
+.kort .tre h2{font:700 22px var(--display);margin:0 0 8px}
+.kort .tre p{font-size:19px;line-height:1.5;color:var(--dempet);margin:0}
+.kort .hint{margin-top:40px;font:15px var(--mono);color:#6d6789}
+[hidden]{display:none!important}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div id="scene"><div id="stage">
+  <header class="topp">
+    <p class="merkenavn">Skattejakten</p>
+    <nav id="kapitler" aria-label="Økter"></nav>
+    <span class="teller"><span id="nr">1</span> / <span id="tot">1</span></span>
+    <button class="liten" id="fullskjerm" type="button">Fullskjerm</button>
+    <a class="liten" id="tilbake" href="index.html">← Oppgavearket</a>
+  </header>
+  <main class="flate">
+    <section class="panel" aria-label="Koden">
+      <div class="phode"><b id="filnavn"></b><span id="linjeinfo"></span></div>
+      <div class="vindu"><div id="rader"></div></div>
+    </section>
+    <div class="hoyre">
+      <section class="panel" aria-label="Spillskjermen">
+        <div class="phode"><span>Spillskjermen</span><span>240 × 160 piksler</span></div>
+        <div class="skjermvindu"><canvas id="skjerm" width="720" height="480"></canvas></div>
+      </section>
+      <section class="panel" aria-label="Det programmet husker">
+        <div class="phode"><span>Det programmet husker</span><span>variabler</span></div>
+        <div class="vars" id="vars"></div>
+      </section>
+    </div>
+  </main>
+  <footer class="fortelling">
+    <div><p class="kapnavn" id="kapnavn"></p><p class="oppgmerke" id="oppgmerke" hidden></p><p id="fortell" aria-live="polite"></p></div>
+    <aside class="sporsmal" id="sporsmal"><p class="lbl" id="splbl">SPØR KLASSEN</p><p class="sp" id="sp"></p></aside>
+    <div class="knapper"><button type="button" id="neste">Neste →</button><button type="button" id="forrige">← Tilbake</button></div>
+  </footer>
+  <div class="kort" id="kort" hidden></div>
+</div></div>
+<script>
+(function(){
+"use strict";
+var DATA = {"kapitler": [{"steg": 1, "tittel": "Din egen eng", "fil": "steg1.py", "intro": "Hvordan blir noen linjer med tekst til en eng – og hvordan bestemmer vi hvor helten står?", "oppsummering": [["Kartet er tekst", "Hver linje i <code>ENGEN<\/code> er en rad, og hvert tegn er én rute på 16 × 16 piksler."], ["x og y", "x er hvor langt mot høyre, y er hvor langt ned. (0, 0) er øverst til venstre."], ["Figur", "<code>Figur(&quot;bilde&quot;, x, y)<\/code> setter et bilde på skjermen. Variabelen husker figuren, så vi kan bruke den senere."]], "lysbilder": [{"t": "Kartet er en liste med tekst. Hver linje er en rad på skjermen, og hvert tegn er én rute. Det er 10 rader med 15 tegn.", "q": "Finn tegnene <code>=<\/code> i kartet. Hvor er stien på skjermen?", "l": [32, 43], "skjerm": {"kart": ["..,......*...,.", ".*....,........", "......=====....", "..,...=...=..*.", "=======...=====", "......=...=....", ".*....=====..,.", "...,.......*...", ".......,.......", ".*.........,.*."], "ruter": {".": "gress_stor", ",": "gress_2", "*": "gress_blomst", "=": "sti"}, "rutenett": true}}, {"t": "<code>RUTER<\/code> sier hvilket bilde hvert tegn skal ha: <code>.<\/code> blir gress, <code>*<\/code> blir blomster og <code>=<\/code> blir sti.", "q": null, "l": [46, 51], "skjerm": {"rutenett": false, "merker": [{"type": "rute", "kol": 6, "rad": 2, "tekst": "= sti"}, {"type": "rute", "kol": 1, "rad": 1, "tekst": "* blomster"}]}}, {"t": "Denne linja tegner kartet. Python leser fila ovenfra og ned, én linje om gangen.", "q": "Hva tror du skjer hvis vi sletter denne linja?", "l": [56, 56]}, {"t": "Helten er en <code>Figur<\/code> med bildet <code>helt_ned_1<\/code>. Tallene er x og y: 112 piksler fra venstre og 64 piksler ned.", "q": "Hvilke tall må vi skrive for at helten skal stå helt oppe i venstre hjørne?", "l": [62, 63], "o": ["2"], "husk": {"helt.x": "112", "helt.y": "64"}, "skjerm": {"figurer": {"helt": {"bilde": "helt_ned_1", "x": 112, "y": 64}}, "merker": [{"type": "pil", "fra": [0, 76], "til": [110, 76], "tekst": "x = 112"}, {"type": "pil", "fra": [120, 0], "til": [120, 62], "tekst": "y = 64"}]}}, {"t": "Mynten lages på samme måte. Variabelen <code>mynt<\/code> husker figuren, så vi kan bruke den senere.", "q": null, "l": [65, 66], "o": ["3"], "husk": {"mynt.x": "48", "mynt.y": "32"}, "skjerm": {"figurer": {"mynt": {"bilde": "mynt_1", "x": 48, "y": 32}}, "merker": [{"type": "boks", "x": 48, "y": 32, "b": 16, "h": 16, "tekst": "mynt"}]}}, {"t": "<code>animer<\/code> bytter mellom fire bilder, om og om igjen. Da ser det ut som mynten snurrer. <code>fart=8<\/code> betyr et nytt bilde hver 8. gang skjermen tegnes.", "q": null, "l": [68, 69], "o": ["4"], "skjerm": {"figurer": {"mynt": {"bilde": "mynt_2"}}}}, {"t": "<code>start()<\/code> står alltid helt nederst. Den åpner vinduet og starter spillet. Teksten blir navnet øverst i vinduet.", "q": null, "l": [73, 74], "o": ["5"]}]}, {"steg": 2, "tittel": "Gå med piltastene", "fil": "steg2.py", "intro": "Hvordan kan et bilde som står stille, se ut som en helt som går?", "oppsummering": [["60 ganger i sekundet", "<code>oppdater()<\/code> kjøres om og om igjen. Flytter vi helten litt hver gang, ser det ut som han går."], ["if", "Linjene med innrykk under en <code>if<\/code> kjøres bare når det som står etter <code>if<\/code>, er sant."], ["x og y endres", "Høyre: x blir større. Venstre: x blir mindre. Ned: y blir større. Opp: y blir mindre."]], "lysbilder": [{"t": "<code>FART<\/code> er en variabel: et navn som husker et tall. Overalt der det står <code>FART<\/code>, bruker Python tallet 2.", "q": null, "l": [59, 60], "o": ["1"], "husk": {"FART": "2"}, "skjerm": {"kart": ["..,......*...,.", ".*....,........", "......=====....", "..,...=...=..*.", "=======...=====", "......=...=....", ".*....=====..,.", "...,.......*...", ".......,.......", ".*.........,.*."], "ruter": {".": "gress_stor", ",": "gress_2", "*": "gress_blomst", "=": "sti"}, "figurer": {"helt": {"bilde": "helt_ned_1", "x": 112, "y": 64}, "mynt": {"bilde": "mynt_1", "x": 48, "y": 32}}}}, {"t": "<code>oppdater()<\/code> er en funksjon. Spillet kjører den 60 ganger i sekundet, helt til du lukker vinduet.", "q": "Helten går 2 piksler hver gang. Hvor langt går han på ett sekund?", "l": [65, 66]}, {"t": "<code>if<\/code> betyr «hvis». <code>tast_holdes(&quot;hoyre&quot;)<\/code> er sant så lenge du holder høyre piltast nede. Bare da kjøres linjene med innrykk under.", "q": null, "l": [69, 69]}, {"t": "Les det som: «ny x er gammel x pluss 2». Helten flytter seg 2 piksler mot høyre og ser mot høyre.", "q": null, "l": [70, 71], "husk": {"helt.x": "114", "helt.y": "64"}, "skjerm": {"figurer": {"helt": {"bilde": "helt_hoyre_1", "x": 114}}, "merker": [{"type": "pil", "fra": [118, 92], "til": [140, 92], "tekst": "x + 2"}]}}, {"t": "Venstre er nesten likt: nå blir x <strong>mindre<\/strong>, og bildet er <code>helt_venstre_1<\/code>.", "q": null, "l": [73, 74], "o": ["2"], "husk": {"helt.x": "112"}, "skjerm": {"figurer": {"helt": {"bilde": "helt_venstre_1", "x": 112}}, "merker": [{"type": "pil", "fra": [118, 92], "til": [96, 92], "tekst": "x - 2"}]}}, {"t": "Opp og ned endrer y. y blir <strong>større<\/strong> når helten går <strong>ned<\/strong>, fordi y teller ovenfra.", "q": null, "l": [76, 77], "o": ["3"], "husk": {"helt.y": "66"}, "skjerm": {"figurer": {"helt": {"bilde": "helt_ned_1", "y": 66}}, "merker": [{"type": "pil", "fra": [134, 70], "til": [134, 92], "tekst": "y + 2"}]}}, {"t": "Pil opp: y blir mindre. Nå kan helten gå overalt – også ut av skjermen!", "q": "Hva skjer hvis du holder høyre og ned samtidig?", "l": [79, 80], "o": ["4"], "husk": {"helt.y": "64"}, "skjerm": {"figurer": {"helt": {"bilde": "helt_opp_1", "y": 64}}, "merker": [{"type": "pil", "fra": [134, 88], "til": [134, 66], "tekst": "y - 2"}]}}]}, {"steg": 3, "tittel": "Hold deg på skjermen", "fil": "steg3.py", "intro": "Hvordan stopper vi helten ved kanten – og hvorfor er høyre kant på x = 224 og ikke 240?", "oppsummering": [["&lt; og &gt;", "<code>&lt;<\/code> betyr «mindre enn» og <code>&gt;<\/code> betyr «større enn». <code>if helt.x &lt; 0:<\/code> er sant når helten er utenfor til venstre."], ["Sett tilbake", "Har helten gått for langt, setter vi x eller y tilbake til kanten før skjermen tegnes."], ["Øverste venstre hjørne", "x og y er hjørnet øverst til venstre på bildet. Derfor trekker vi fra bredden (16) og høyden (24)."]], "lysbilder": [{"t": "<code>Tekst<\/code> skriver tekst på skjermen. x = 4 og y = 148 er nederst til venstre. <code>skygge<\/code> gir en mørk kant, så teksten synes på gresset.", "q": null, "l": [65, 66], "o": ["1"], "skjerm": {"kart": ["..,......*...,.", ".*....,........", "......=====....", "..,...=...=..*.", "=======...=====", "......=...=....", ".*....=====..,.", "...,.......*...", ".......,.......", ".*.........,.*."], "ruter": {".": "gress_stor", ",": "gress_2", "*": "gress_blomst", "=": "sti"}, "figurer": {"helt": {"bilde": "helt_ned_1", "x": 112, "y": 64}, "mynt": {"bilde": "mynt_1", "x": 48, "y": 32}}, "tekster": [{"tekst": "Finn mynten!", "x": 4, "y": 148}]}}, {"t": "Går helten til venstre, blir x mindre og mindre: 4, 2, 0, −2 … Er x <strong>mindre enn<\/strong> 0, setter vi den tilbake til 0.", "q": "Hvorfor ser vi aldri helten på x = −2?", "l": [90, 91], "husk": {"helt.x": "0", "helt.y": "64"}, "skjerm": {"figurer": {"helt": {"bilde": "helt_venstre_1", "x": 0}}, "merker": [{"type": "pil", "fra": [30, 60], "til": [2, 60], "tekst": "x < 0? Da blir x = 0"}]}}, {"t": "Høyre kant: skjermen er 240 bred, men helten er 16 bred. Står han på x = 224, er høyre side av ham akkurat på kanten.", "q": null, "l": [93, 94], "o": ["2"], "husk": {"helt.x": "224"}, "skjerm": {"figurer": {"helt": {"bilde": "helt_hoyre_1", "x": 224}}, "merker": [{"type": "boks", "x": 224, "y": 64, "b": 16, "h": 24, "tekst": "16 bred"}, {"type": "punkt", "x": 224, "y": 64, "tekst": "x = 224"}]}}, {"t": "Toppen er y = 0. Er y mindre enn 0, setter vi den tilbake til 0.", "q": null, "l": [96, 97], "o": ["3"], "husk": {"helt.y": "0"}, "skjerm": {"figurer": {"helt": {"bilde": "helt_opp_1", "x": 112, "y": 0}}}}, {"t": "Bunnen: 160 − 24 = 136, fordi helten er 24 piksler høy.", "q": "Hva skjer hvis vi skriver 160 i stedet for 136?", "l": [99, 100], "o": ["4"], "husk": {"helt.x": "112", "helt.y": "136"}, "skjerm": {"figurer": {"helt": {"bilde": "helt_ned_1", "x": 112, "y": 136}}, "merker": [{"type": "boks", "x": 112, "y": 136, "b": 16, "h": 24, "tekst": "24 høy"}]}}]}, {"steg": 4, "tittel": "Plukk opp mynten", "fil": "steg4.py", "intro": "Hvordan vet spillet at helten står på mynten – og hvordan teller det poengene?", "oppsummering": [["treffer", "<code>helt.treffer(mynt)<\/code> er sant når bildene overlapper."], ["Funksjon", "<code>def ta_mynt():<\/code> gir noen linjer et navn. <code>ta_mynt()<\/code> kjører dem."], ["Teller", "<code>poeng = poeng + 1<\/code>: ny poeng er gammel poeng pluss 1. <code>global poeng<\/code> trengs fordi funksjonen endrer den."]], "lysbilder": [{"t": "Øverst henter vi <code>random<\/code>. Den kan lage tilfeldige tall – som når du kaster terning.", "q": null, "l": [21, 21], "skjerm": {"kart": ["..,......*...,.", ".*....,........", "......=====....", "..,...=...=..*.", "=======...=====", "......=...=....", ".*....=====..,.", "...,.......*...", ".......,.......", ".*.........,.*."], "ruter": {".": "gress_stor", ",": "gress_2", "*": "gress_blomst", "=": "sti"}, "figurer": {"helt": {"bilde": "helt_ned_1", "x": 112, "y": 64}, "mynt": {"bilde": "mynt_1", "x": 48, "y": 32}}, "tekster": [{"tekst": "Finn mynten!", "x": 4, "y": 148}, {"tekst": "Mynter: 0", "x": 4, "y": 4}]}}, {"t": "<code>poeng<\/code> husker hvor mange mynter du har tatt. Den starter på 0.", "q": null, "l": [63, 63], "husk": {"poeng": "0"}}, {"t": "Nederst i <code>oppdater()<\/code>: <code>helt.treffer(mynt)<\/code> er sant når helten og mynten overlapper. Da kjører vi <code>ta_mynt()<\/code>.", "q": null, "l": [130, 131], "husk": {"helt.x": "50", "helt.y": "24"}, "skjerm": {"figurer": {"helt": {"bilde": "helt_venstre_1", "x": 50, "y": 24}}, "merker": [{"type": "boks", "x": 48, "y": 32, "b": 16, "h": 16, "tekst": "treffer!"}]}}, {"t": "En funksjon er noen linjer med et navn. <code>def ta_mynt():<\/code> lager den. Linjene kjøres først når noen skriver <code>ta_mynt()<\/code>.", "q": null, "l": [75, 77]}, {"t": "Mynten hopper til et tilfeldig sted. <code>random.randint(0, 224)<\/code> kan gi 0, 224 eller et hvilket som helst tall imellom.", "q": "Hvorfor står det 224 og ikke 240?", "l": [80, 82], "o": ["1"], "husk": {"mynt.x": "170", "mynt.y": "100"}, "skjerm": {"figurer": {"mynt": {"x": 170, "y": 100}}, "merker": [{"type": "pil", "fra": [60, 40], "til": [168, 100], "tekst": "tilfeldig sted"}]}}, {"t": "Pling! Lyden spilles, og det glitrer der helten står. <code>helt.midt_x<\/code> er midten av helten.", "q": null, "l": [84, 85], "o": ["2"]}, {"t": "Les det som: «ny poeng er gammel poeng pluss 1». Linja under skriver de nye poengene på skjermen.", "q": null, "l": [87, 88], "o": ["3"], "husk": {"poeng": "1"}, "skjerm": {"tekster": [{"tekst": "Bra! Finn en til!", "x": 4, "y": 148}, {"tekst": "Mynter: 1", "x": 4, "y": 4}]}}, {"t": "<code>poeng<\/code> ligger utenfor funksjonen. Skal funksjonen <strong>endre<\/strong> den, må det stå <code>global poeng<\/code> øverst – ellers blir det feilmelding.", "q": "Hvilke andre variabler bruker <code>ta_mynt()<\/code> uten å endre dem?", "l": [77, 77]}]}, {"steg": 5, "tittel": "Pass deg for slimet!", "fil": "steg5.py", "intro": "Hvordan kan slimet vite hvilken vei det skal krype – og hvordan blir det GAME OVER?", "oppsummering": [["Følg etter", "Er slimet til venstre for helten (mindre x), går det mot høyre. Det samme med y."], ["== og =", "<code>==<\/code> sjekker om to ting er like. Ett <code>=<\/code> gir en variabel en ny verdi."], ["ferdig og return", "Når <code>ferdig<\/code> er <code>True<\/code>, stopper <code>return<\/code> resten av <code>oppdater()<\/code>. Da står alt stille."]], "lysbilder": [{"t": "Slimet er en ny <code>Figur<\/code> nede til høyre. Det har to bilder som byttes, så det ser ut som det hopper.", "q": null, "l": [66, 67], "skjerm": {"kart": ["..,......*...,.", ".*....,........", "......=====....", "..,...=...=..*.", "=======...=====", "......=...=....", ".*....=====..,.", "...,.......*...", ".......,.......", ".*.........,.*."], "ruter": {".": "gress_stor", ",": "gress_2", "*": "gress_blomst", "=": "sti"}, "figurer": {"helt": {"bilde": "helt_ned_1", "x": 112, "y": 64}, "mynt": {"bilde": "mynt_1", "x": 48, "y": 32}, "slim": {"bilde": "slim_1", "x": 208, "y": 128}}, "tekster": [{"tekst": "Finn mynten!", "x": 4, "y": 148}, {"tekst": "Mynter: 0", "x": 4, "y": 4}, {"tekst": "Liv: 3", "x": 200, "y": 4}], "merker": [{"type": "boks", "x": 208, "y": 128, "b": 16, "h": 16, "tekst": "slim"}]}}, {"t": "<code>liv<\/code> starter på 3. <code>ferdig<\/code> er <code>False<\/code> – spillet er ikke over ennå. <code>True<\/code> og <code>False<\/code> betyr sant og usant.", "q": null, "l": [63, 64], "husk": {"liv": "3", "ferdig": "False"}}, {"t": "Slimet kryper en halv piksel hver gang. Det er halvparten så fort som helten gikk i steg 2.", "q": null, "l": [71, 71], "husk": {"slim_fart": "0.5"}}, {"t": "Er slimet til venstre for helten, kryper det mot høyre. Er det til høyre for helten, kryper det mot venstre. Slik følger det etter!", "q": null, "l": [111, 114], "husk": {"slim.x": "207.5", "helt.x": "112"}, "skjerm": {"merker": [{"type": "pil", "fra": [206, 136], "til": [132, 136], "tekst": "slim.x > helt.x"}]}}, {"t": "Det samme med y. Nå kryper slimet på skrå mot helten.", "q": null, "l": [116, 117], "o": ["2"], "husk": {"slim.x": "150", "slim.y": "90"}, "skjerm": {"figurer": {"slim": {"x": 150, "y": 90}}, "merker": [{"type": "pil", "fra": [156, 96], "til": [130, 82], "tekst": "mot helten"}]}}, {"t": "Treffer slimet helten, kjøres <code>au()<\/code>. Helten blinker, skjermen rister, og slimet hopper til hjørnet lengst unna.", "q": null, "l": [193, 194], "skjerm": {"figurer": {"slim": {"x": 118, "y": 76}}}}, {"t": "Ett liv mindre. Det er som <code>poeng = poeng + 1<\/code>, bare med minus.", "q": null, "l": [137, 138], "o": ["3"], "husk": {"liv": "2"}, "skjerm": {"figurer": {"slim": {"x": 0, "y": 0}}, "tekster": [{"tekst": "Finn mynten!", "x": 4, "y": 148}, {"tekst": "Mynter: 0", "x": 4, "y": 4}, {"tekst": "Liv: 2", "x": 200, "y": 4}]}}, {"t": "<code>==<\/code> sjekker om <code>liv<\/code> er 0. Da står det GAME OVER, og <code>ferdig<\/code> blir <code>True<\/code>.", "q": "Hva er forskjellen på <code>liv = 0<\/code> og <code>liv == 0<\/code>?", "l": [141, 142], "o": ["4"], "husk": {"liv": "0", "ferdig": "True"}, "skjerm": {"tekster": [{"tekst": "Finn mynten!", "x": 4, "y": 148}, {"tekst": "Mynter: 0", "x": 4, "y": 4}, {"tekst": "Liv: 0", "x": 200, "y": 4}, {"tekst": "GAME OVER", "x": 72, "y": 68, "storrelse": 2}]}}, {"t": "Øverst i <code>oppdater()<\/code>: er spillet over, avslutter <code>return<\/code> funksjonen med en gang. Resten kjøres ikke, så ingenting flytter seg.", "q": null, "l": [151, 152]}]}, {"steg": 6, "tittel": "Vinn spillet", "fil": "steg6.py", "intro": "Et ferdig spill trenger musikk, en slutt du kan vinne, og en måte å spille igjen på.", "oppsummering": [["Én gang eller hele tiden", "Musikken startes én gang, utenfor <code>oppdater()<\/code>. Det som står inni <code>oppdater()<\/code>, skjer 60 ganger i sekundet."], ["Vinn og tap", "<code>if poeng == 10:<\/code> og <code>if liv == 0:<\/code> er bygget likt: vis en stor tekst, spill en lyd og sett <code>ferdig = True<\/code>."], ["Start på nytt", "<code>nytt_spill()<\/code> setter alle variablene og figurene tilbake slik de var i starten."]], "lysbilder": [{"t": "Musikken startes én gang, når fila leses. Den spilles om og om igjen helt til spillet slutter.", "q": "Hva tror du skjer hvis vi starter musikken inni <code>oppdater()<\/code>?", "l": [54, 55], "o": ["1"], "skjerm": {"kart": ["..,......*...,.", ".*....,........", "......=====....", "..,...=...=..*.", "=======...=====", "......=...=....", ".*....=====..,.", "...,.......*...", ".......,.......", ".*.........,.*."], "ruter": {".": "gress_stor", ",": "gress_2", "*": "gress_blomst", "=": "sti"}, "figurer": {"helt": {"bilde": "helt_ned_1", "x": 112, "y": 64}, "mynt": {"bilde": "mynt_1", "x": 48, "y": 32}, "slim": {"bilde": "slim_1", "x": 208, "y": 128}}, "tekster": [{"tekst": "Finn mynten!", "x": 4, "y": 148}, {"tekst": "Mynter: 0", "x": 4, "y": 4}, {"tekst": "Liv: 3", "x": 200, "y": 4}]}}, {"t": "Nå endrer <code>ta_mynt()<\/code> tre variabler, så alle tre må stå etter <code>global<\/code>.", "q": null, "l": [91, 91]}, {"t": "For hver mynt kryper slimet litt raskere. Etter 10 mynter er det dobbelt så raskt.", "q": null, "l": [105, 106], "o": ["2"], "husk": {"poeng": "1", "slim_fart": "0.6"}}, {"t": "Ti mynter: DU VANT! Helten jubler, og <code>ferdig<\/code> blir <code>True<\/code>, så alt stopper. Se hvor likt det er GAME OVER i <code>au()<\/code>.", "q": null, "l": [108, 109], "o": ["3"], "husk": {"poeng": "10", "ferdig": "True"}, "skjerm": {"figurer": {"helt": {"bilde": "helt_jubel"}}, "tekster": [{"tekst": "Trykk Enter for å spille igjen", "x": 4, "y": 148}, {"tekst": "Mynter: 10", "x": 4, "y": 4}, {"tekst": "Liv: 3", "x": 200, "y": 4}, {"tekst": "DU VANT!", "x": 76, "y": 68, "storrelse": 2}]}}, {"t": "<code>nytt_spill()<\/code> setter alt tilbake slik det var i starten: poeng, liv, farten til slimet, tekstene og hvor figurene står.", "q": null, "l": [161, 176], "husk": {"poeng": "0", "ferdig": "False", "slim_fart": "0.5"}, "skjerm": {"figurer": {"helt": {"bilde": "helt_ned_1"}}, "tekster": [{"tekst": "Finn mynten!", "x": 4, "y": 148}, {"tekst": "Mynter: 0", "x": 4, "y": 4}, {"tekst": "Liv: 3", "x": 200, "y": 4}]}}, {"t": "Når spillet er over, venter vi på Enter. <code>tast_trykket<\/code> er sant bare i det øyeblikket tasten trykkes ned – ikke hele tiden den holdes.", "q": null, "l": [187, 188], "o": ["4"]}]}], "filer": {"steg1.py": "# ============================================================\n#  SKATTEJAKTEN – STEG 1: Din egen eng\n# ============================================================\n#\n#  I dag lager du verdenen i spillet: en eng med gress, blomster\n#  og en sti. Du setter ut helten og en mynt som snurrer.\n#  Ingenting beveger seg ennå – det kommer i steg 2.\n#\n#  Kjør fila med F5. Endre litt, kjør igjen, og se hva som skjer!\n#\n#  Skjermen er 240 piksler bred og 160 piksler høy.\n#  x er hvor langt mot HØYRE noe står.\n#  y er hvor langt NED noe står.\n#\n#      x = 0                     x = 240\n#      +-------------------------+  y = 0\n#      |                         |\n#      |                         |\n#      +-------------------------+  y = 160\n#\n# ============================================================\n\nfrom spillmotor import *\n\n\n# ---------- KARTET ----------\n# Hvert tegn er én rute på 16 x 16 piksler.\n# Hver linje er en rad, og hver rad har 15 tegn.\n#   .  gress      ,  litt annet gress      *  blomster      =  sti\n\n# OPPGAVE 1: Tegn på kartet. Bytt noen . med * (blomster) eller = (sti).\nENGEN = [\n    \"..,......*...,.\",\n    \".*....,........\",\n    \"......=====....\",\n    \"..,...=...=..*.\",\n    \"=======...=====\",\n    \"......=...=....\",\n    \".*....=====..,.\",\n    \"...,.......*...\",\n    \".......,.......\",\n    \".*.........,.*.\",\n]\n\n# RUTER sier hvilket bilde hvert tegn skal ha\nRUTER = {\n    \".\": \"gress_stor\",\n    \",\": \"gress_2\",\n    \"*\": [\"gress_blomst\", \"gress_blomst_2\"],    # to bilder = blomstene vaier\n    \"=\": \"sti\",\n}\n\n# Myke kanter der stien møter gresset\nKANTER = {\"=\": (\"stikant\", \".,*\")}\n\ntegn_kart(ENGEN, RUTER, KANTER)\n\n\n# ---------- FIGURENE ----------\n# Figur(\"bildenavn\", x, y) lager en figur med et bilde fra mappen bilder/.\n\n# OPPGAVE 2: Flytt helten midt på skjermen. Bytt ut 0, 0 med 112, 64.\nhelt = Figur(\"helt_ned_1\", 0, 0, skygge=True)\n\n# OPPGAVE 3: Legg ut en mynt. Bildet heter \"mynt_1\". Sett den der du vil.\npass\n\n# OPPGAVE 4: Få mynten til å snurre med mynt.animer(...).\npass\n\n\n# ---------- START ----------\n# OPPGAVE 5: Gi spillet ditt eget navn. Teksten står øverst i vinduet.\nstart(tittel=\"Skriv navnet på spillet her\")\n", "steg2.py": "# ============================================================\n#  SKATTEJAKTEN – STEG 2: Gå med piltastene\n# ============================================================\n#\n#  I dag får helten bevege seg! Nederst i fila er det en ny\n#  funksjon, oppdater(). Spillet kjører den 60 ganger i sekundet.\n#  Hver gang flytter vi helten litt, og da ser det ut som han går.\n#\n#  Taster:  piltastene = gå\n#\n#  Nytt i dag:\n#    - oppdater() kjøres 60 ganger i sekundet\n#    - if: gjør noe BARE hvis noe er sant\n#    - tast_holdes(\"hoyre\") er sant så lenge du holder tasten nede\n#    - helt.x = helt.x + 1 flytter helten én piksel mot høyre\n#\n# ============================================================\n\nfrom spillmotor import *\n\n\n# ---------- KARTET ----------\n# Hvert tegn er én rute på 16 x 16 piksler.\n#   .  gress      ,  litt annet gress      *  blomster      =  sti\n\nENGEN = [\n    \"..,......*...,.\",\n    \".*....,........\",\n    \"......=====....\",\n    \"..,...=...=..*.\",\n    \"=======...=====\",\n    \"......=...=....\",\n    \".*....=====..,.\",\n    \"...,.......*...\",\n    \".......,.......\",\n    \".*.........,.*.\",\n]\n\nRUTER = {\n    \".\": \"gress_stor\",\n    \",\": \"gress_2\",\n    \"*\": [\"gress_blomst\", \"gress_blomst_2\"],\n    \"=\": \"sti\",\n}\n\nKANTER = {\"=\": (\"stikant\", \".,*\")}\n\ntegn_kart(ENGEN, RUTER, KANTER)\n\n\n# ---------- FIGURENE ----------\n\nhelt = Figur(\"helt_ned_1\", 112, 64, skygge=True)\n\nmynt = Figur(\"mynt_1\", 48, 32)\nmynt.animer([\"mynt_1\", \"mynt_2\", \"mynt_3\", \"mynt_4\"], fart=8)\n\n# Hvor mange piksler helten går hver gang oppdater() kjøres\n# OPPGAVE 1: Gjør helten raskere. Prøv 2 – eller 5!\nFART = 1\n\n\n# ---------- SPILL-LØKKA ----------\n\ndef oppdater():\n    # Denne funksjonen kjøres 60 ganger i sekundet.\n\n    # Høyre piltast: helten går mot høyre (x blir større) og ser mot høyre\n    if tast_holdes(\"hoyre\"):\n        helt.x = helt.x + FART\n        helt.bilde = \"helt_hoyre_1\"\n\n    # OPPGAVE 2: Venstre piltast. Kopier de tre linjene over og endre dem.\n    pass\n\n    # OPPGAVE 3: Pil ned. Nå er det y som skal bli større.\n    pass\n\n    # OPPGAVE 4: Pil opp. y skal bli mindre.\n    pass\n\n\nstart(tittel=\"Skattejakten\")\n", "steg3.py": "# ============================================================\n#  SKATTEJAKTEN – STEG 3: Hold deg på skjermen\n# ============================================================\n#\n#  Nå kan helten gå rett ut av skjermen og forsvinne. I dag\n#  stopper du ham ved kantene, og du skriver en tekst på skjermen.\n#\n#  Taster:  piltastene = gå\n#\n#  Nytt i dag:\n#    - < betyr «mindre enn», > betyr «større enn»\n#    - en if som sjekker et tall: if helt.x < 0:\n#    - Tekst(\"Hei\", x, y) skriver tekst på skjermen\n#\n#  Helten er 16 piksler bred og 24 piksler høy.\n#  x og y er øverste venstre hjørne av bildet hans.\n#\n# ============================================================\n\nfrom spillmotor import *\n\n\n# ---------- KARTET ----------\n# Hvert tegn er én rute på 16 x 16 piksler.\n#   .  gress      ,  litt annet gress      *  blomster      =  sti\n\nENGEN = [\n    \"..,......*...,.\",\n    \".*....,........\",\n    \"......=====....\",\n    \"..,...=...=..*.\",\n    \"=======...=====\",\n    \"......=...=....\",\n    \".*....=====..,.\",\n    \"...,.......*...\",\n    \".......,.......\",\n    \".*.........,.*.\",\n]\n\nRUTER = {\n    \".\": \"gress_stor\",\n    \",\": \"gress_2\",\n    \"*\": [\"gress_blomst\", \"gress_blomst_2\"],\n    \"=\": \"sti\",\n}\n\nKANTER = {\"=\": (\"stikant\", \".,*\")}\n\ntegn_kart(ENGEN, RUTER, KANTER)\n\n\n# ---------- FIGURENE ----------\n\nhelt = Figur(\"helt_ned_1\", 112, 64, skygge=True)\n\nmynt = Figur(\"mynt_1\", 48, 32)\nmynt.animer([\"mynt_1\", \"mynt_2\", \"mynt_3\", \"mynt_4\"], fart=8)\n\nFART = 2\n\n\n# ---------- TEKST ----------\n# Tekst(\"tekst\", x, y) skriver en tekst. skygge gir en mørk kant, så teksten synes bedre.\n\n# OPPGAVE 1: Skriv «Finn mynten!» nederst til venstre (x = 4, y = 148).\nmelding = Tekst(\"\", 4, 148, skygge=\"#181820\")\n\n\n# ---------- SPILL-LØKKA ----------\n\ndef oppdater():\n    # Denne funksjonen kjøres 60 ganger i sekundet.\n\n    # ---- gå med piltastene ----\n    if tast_holdes(\"hoyre\"):\n        helt.x = helt.x + FART\n        helt.bilde = \"helt_hoyre_1\"\n    if tast_holdes(\"venstre\"):\n        helt.x = helt.x - FART\n        helt.bilde = \"helt_venstre_1\"\n    if tast_holdes(\"ned\"):\n        helt.y = helt.y + FART\n        helt.bilde = \"helt_ned_1\"\n    if tast_holdes(\"opp\"):\n        helt.y = helt.y - FART\n        helt.bilde = \"helt_opp_1\"\n\n    # ---- hold helten på skjermen ----\n    # Venstre kant: er x mindre enn 0, setter vi den tilbake til 0.\n    if helt.x < 0:\n        helt.x = 0\n\n    # OPPGAVE 2: Høyre kant. Helten er 16 bred, så x kan være høyst 240 - 16 = 224.\n    pass\n\n    # OPPGAVE 3: Toppen. y kan ikke være mindre enn 0.\n    pass\n\n    # OPPGAVE 4: Bunnen. Helten er 24 høy, så y kan være høyst 160 - 24 = 136.\n    pass\n\n\nstart(tittel=\"Skattejakten\")\n", "steg4.py": "# ============================================================\n#  SKATTEJAKTEN – STEG 4: Plukk opp mynten\n# ============================================================\n#\n#  I dag kan helten ta mynten! Når han går på den, skal det\n#  si «pling», mynten skal hoppe til et nytt sted, og du får\n#  ett poeng. Poengene står øverst til venstre.\n#\n#  Taster:  piltastene = gå\n#\n#  Nytt i dag:\n#    - helt.treffer(mynt) er sant når helten står oppå mynten\n#    - en funksjon: def ta_mynt(): er noen linjer med et navn.\n#      ta_mynt() kjører linjene.\n#    - random.randint(0, 224) gir et tilfeldig tall fra 0 til 224\n#    - en variabel som teller: poeng = poeng + 1\n#    - global: trengs når en funksjon skal ENDRE en variabel utenfor seg selv\n#\n# ============================================================\n\nimport random\nfrom spillmotor import *\n\n\n# ---------- KARTET ----------\n# Hvert tegn er én rute på 16 x 16 piksler.\n#   .  gress      ,  litt annet gress      *  blomster      =  sti\n\nENGEN = [\n    \"..,......*...,.\",\n    \".*....,........\",\n    \"......=====....\",\n    \"..,...=...=..*.\",\n    \"=======...=====\",\n    \"......=...=....\",\n    \".*....=====..,.\",\n    \"...,.......*...\",\n    \".......,.......\",\n    \".*.........,.*.\",\n]\n\nRUTER = {\n    \".\": \"gress_stor\",\n    \",\": \"gress_2\",\n    \"*\": [\"gress_blomst\", \"gress_blomst_2\"],\n    \"=\": \"sti\",\n}\n\nKANTER = {\"=\": (\"stikant\", \".,*\")}\n\ntegn_kart(ENGEN, RUTER, KANTER)\n\n\n# ---------- FIGURENE ----------\n\nhelt = Figur(\"helt_ned_1\", 112, 64, skygge=True)\n\nmynt = Figur(\"mynt_1\", 48, 32)\nmynt.animer([\"mynt_1\", \"mynt_2\", \"mynt_3\", \"mynt_4\"], fart=8)\n\nFART = 2\n\npoeng = 0           # hvor mange mynter helten har tatt\n\n\n# ---------- TEKST ----------\n# Tekst(\"tekst\", x, y) skriver en tekst. skygge gir en mørk kant, så teksten synes bedre.\n\nmelding = Tekst(\"Finn mynten!\", 4, 148, skygge=\"#181820\")\npoengtekst = Tekst(\"Mynter: 0\", 4, 4, skygge=\"#181820\")\n\n\n# ---------- FUNKSJONER ----------\n\ndef ta_mynt():\n    \"\"\"Kjøres når helten treffer mynten.\"\"\"\n    global poeng\n\n    # Mynten hopper til et tilfeldig sted på skjermen\n    mynt.x = random.randint(0, 224)\n    # OPPGAVE 1: Gjør det samme med mynt.y. Mynten er 16 høy, så y kan være 0 til 144.\n    pass\n\n    # OPPGAVE 2: Spill lyden \"mynt\", og lag glitter der helten står.\n    pass\n\n    # OPPGAVE 3: Tell opp poengene: poeng skal bli én mer enn før.\n    pass\n    poengtekst.tekst = f\"Mynter: {poeng}\"     # viser poengene på skjermen\n\n\n# ---------- SPILL-LØKKA ----------\n\ndef oppdater():\n    # Denne funksjonen kjøres 60 ganger i sekundet.\n\n    # ---- gå med piltastene ----\n    if tast_holdes(\"hoyre\"):\n        helt.x = helt.x + FART\n        helt.bilde = \"helt_hoyre_1\"\n    if tast_holdes(\"venstre\"):\n        helt.x = helt.x - FART\n        helt.bilde = \"helt_venstre_1\"\n    if tast_holdes(\"ned\"):\n        helt.y = helt.y + FART\n        helt.bilde = \"helt_ned_1\"\n    if tast_holdes(\"opp\"):\n        helt.y = helt.y - FART\n        helt.bilde = \"helt_opp_1\"\n\n    # ---- hold helten på skjermen ----\n    # Venstre kant: er x mindre enn 0, setter vi den tilbake til 0.\n    if helt.x < 0:\n        helt.x = 0\n\n    # Høyre kant: helten er 16 bred, så x kan være høyst 240 - 16 = 224.\n    if helt.x > 224:\n        helt.x = 224\n\n    # Toppen: y kan ikke være mindre enn 0.\n    if helt.y < 0:\n        helt.y = 0\n\n    # Bunnen: helten er 24 høy, så y kan være høyst 160 - 24 = 136.\n    if helt.y > 136:\n        helt.y = 136\n\n    # ---- ta mynten ----\n    # Står helten oppå mynten? Da kjører vi alle linjene i ta_mynt().\n    if helt.treffer(mynt):\n        ta_mynt()\n        # OPPGAVE 4: Bytt teksten nederst til «Bra! Finn en til!».\n        pass\n\n\nstart(tittel=\"Skattejakten\")\n", "steg5.py": "# ============================================================\n#  SKATTEJAKTEN – STEG 5: Pass deg for slimet!\n# ============================================================\n#\n#  Nå kommer et slim som kryper etter helten. Tar det deg,\n#  mister du et liv. Når livene er brukt opp, er det GAME OVER.\n#\n#  Taster:  piltastene = gå\n#\n#  Nytt i dag:\n#    - en fiende som følger etter: er slimet til venstre for helten,\n#      går det mot høyre, og omvendt\n#    - en variabel som teller ned: liv = liv - 1\n#    - == betyr «er lik» (sjekker), = betyr «bli» (endrer)\n#    - True og False (sann og usann) i variabelen ferdig\n#    - return: avslutter funksjonen med en gang\n#\n# ============================================================\n\nimport random\nfrom spillmotor import *\n\n\n# ---------- KARTET ----------\n# Hvert tegn er én rute på 16 x 16 piksler.\n#   .  gress      ,  litt annet gress      *  blomster      =  sti\n\nENGEN = [\n    \"..,......*...,.\",\n    \".*....,........\",\n    \"......=====....\",\n    \"..,...=...=..*.\",\n    \"=======...=====\",\n    \"......=...=....\",\n    \".*....=====..,.\",\n    \"...,.......*...\",\n    \".......,.......\",\n    \".*.........,.*.\",\n]\n\nRUTER = {\n    \".\": \"gress_stor\",\n    \",\": \"gress_2\",\n    \"*\": [\"gress_blomst\", \"gress_blomst_2\"],\n    \"=\": \"sti\",\n}\n\nKANTER = {\"=\": (\"stikant\", \".,*\")}\n\ntegn_kart(ENGEN, RUTER, KANTER)\n\n\n# ---------- FIGURENE ----------\n\nhelt = Figur(\"helt_ned_1\", 112, 64, skygge=True)\n\nmynt = Figur(\"mynt_1\", 48, 32)\nmynt.animer([\"mynt_1\", \"mynt_2\", \"mynt_3\", \"mynt_4\"], fart=8)\n\nFART = 2\n\npoeng = 0           # hvor mange mynter helten har tatt\nliv = 3             # hvor mange liv helten har igjen\nferdig = False      # blir True når spillet er over\n\nslim = Figur(\"slim_1\", 208, 128)\nslim.animer([\"slim_1\", \"slim_2\"], fart=12)\n\n# Hvor mange piksler slimet kryper hver gang oppdater() kjøres. 0.5 er en halv piksel.\n# OPPGAVE 1: Prøv 0.3 (lett) og 1 (vanskelig). Velg det du synes er best.\nslim_fart = 0.5\n\n\n# ---------- TEKST ----------\n# Tekst(\"tekst\", x, y) skriver en tekst. skygge gir en mørk kant, så teksten synes bedre.\n\nmelding = Tekst(\"Finn mynten!\", 4, 148, skygge=\"#181820\")\npoengtekst = Tekst(\"Mynter: 0\", 4, 4, skygge=\"#181820\")\nlivtekst = Tekst(\"Liv: 3\", 200, 4, skygge=\"#181820\")\nstor = Tekst(\"\", 0, 68, storrelse=2, skygge=\"#181820\")     # stor tekst midt på skjermen\n\n\n# ---------- FUNKSJONER ----------\n\ndef ta_mynt():\n    \"\"\"Kjøres når helten treffer mynten.\"\"\"\n    global poeng\n\n    # Mynten hopper til et tilfeldig sted på skjermen\n    mynt.x = random.randint(0, 224)\n    mynt.y = random.randint(0, 144)\n\n    # Pling og glitter\n    spill_lyd(\"mynt\")\n    effekt(\"glitter\", helt.midt_x, helt.midt_y)\n\n    # Ett poeng til\n    poeng = poeng + 1\n    poengtekst.tekst = f\"Mynter: {poeng}\"     # viser poengene på skjermen\n\n\ndef vis_stor(tekst):\n    \"\"\"Skriver en stor tekst midt på skjermen.\"\"\"\n    stor.tekst = tekst\n    stor.x = (240 - stor.bredde) / 2\n\n\ndef flytt_slim():\n    \"\"\"Slimet kryper mot helten.\"\"\"\n    # Er slimet til venstre for helten, kryper det mot høyre – og omvendt.\n    if slim.x < helt.x:\n        slim.x = slim.x + slim_fart\n    if slim.x > helt.x:\n        slim.x = slim.x - slim_fart\n\n    # OPPGAVE 2: Gjør det samme med y, så slimet også kryper opp og ned.\n    pass\n\n\ndef au():\n    \"\"\"Kjøres når slimet tar helten.\"\"\"\n    global liv, ferdig\n    spill_lyd(\"au\")\n    helt.blink(1)\n    rist_skjerm()\n\n    # Slimet hopper til hjørnet som er lengst unna helten\n    if helt.x < 120:\n        slim.x = 224\n    else:\n        slim.x = 0\n    if helt.y < 80:\n        slim.y = 144\n    else:\n        slim.y = 0\n\n    # OPPGAVE 3: Helten mister ett liv: liv skal bli én mindre enn før.\n    pass\n    livtekst.tekst = f\"Liv: {liv}\"\n\n    # OPPGAVE 4: Er liv blitt 0, er det GAME OVER.\n    pass\n\n\n# ---------- SPILL-LØKKA ----------\n\ndef oppdater():\n    # Denne funksjonen kjøres 60 ganger i sekundet.\n\n    # Er spillet over, skal ingenting flytte seg. return avslutter oppdater() her.\n    if ferdig:\n        return\n\n    # ---- gå med piltastene ----\n    if tast_holdes(\"hoyre\"):\n        helt.x = helt.x + FART\n        helt.bilde = \"helt_hoyre_1\"\n    if tast_holdes(\"venstre\"):\n        helt.x = helt.x - FART\n        helt.bilde = \"helt_venstre_1\"\n    if tast_holdes(\"ned\"):\n        helt.y = helt.y + FART\n        helt.bilde = \"helt_ned_1\"\n    if tast_holdes(\"opp\"):\n        helt.y = helt.y - FART\n        helt.bilde = \"helt_opp_1\"\n\n    # ---- hold helten på skjermen ----\n    # Venstre kant: er x mindre enn 0, setter vi den tilbake til 0.\n    if helt.x < 0:\n        helt.x = 0\n\n    # Høyre kant: helten er 16 bred, så x kan være høyst 240 - 16 = 224.\n    if helt.x > 224:\n        helt.x = 224\n\n    # Toppen: y kan ikke være mindre enn 0.\n    if helt.y < 0:\n        helt.y = 0\n\n    # Bunnen: helten er 24 høy, så y kan være høyst 160 - 24 = 136.\n    if helt.y > 136:\n        helt.y = 136\n\n    # ---- ta mynten ----\n    # Står helten oppå mynten? Da kjører vi alle linjene i ta_mynt().\n    if helt.treffer(mynt):\n        ta_mynt()\n        melding.tekst = \"Bra! Finn en til!\"\n\n    # ---- slimet ----\n    flytt_slim()\n    if helt.treffer(slim):\n        au()\n\n\nstart(tittel=\"Skattejakten\")\n", "steg6.py": "# ============================================================\n#  SKATTEJAKTEN – STEG 6: Vinn spillet\n# ============================================================\n#\n#  I dag blir spillet ferdig: det får musikk, slimet blir\n#  raskere for hver mynt du tar, du VINNER når du har 10 mynter,\n#  og du kan spille igjen med Enter.\n#\n#  Taster:  piltastene = gå   Enter = spill igjen (når spillet er over)\n#\n#  Nytt i dag:\n#    - spill_musikk(\"navn\") spiller musikk om og om igjen\n#    - en variabel som vokser litt hver gang: slim_fart = slim_fart + 0.1\n#    - tast_trykket(\"enter\") er sant bare i det øyeblikket du trykker\n#    - en funksjon som setter alt tilbake slik det var i starten\n#\n# ============================================================\n\nimport random\nfrom spillmotor import *\n\n\n# ---------- KARTET ----------\n# Hvert tegn er én rute på 16 x 16 piksler.\n#   .  gress      ,  litt annet gress      *  blomster      =  sti\n\nENGEN = [\n    \"..,......*...,.\",\n    \".*....,........\",\n    \"......=====....\",\n    \"..,...=...=..*.\",\n    \"=======...=====\",\n    \"......=...=....\",\n    \".*....=====..,.\",\n    \"...,.......*...\",\n    \".......,.......\",\n    \".*.........,.*.\",\n]\n\nRUTER = {\n    \".\": \"gress_stor\",\n    \",\": \"gress_2\",\n    \"*\": [\"gress_blomst\", \"gress_blomst_2\"],\n    \"=\": \"sti\",\n}\n\nKANTER = {\"=\": (\"stikant\", \".,*\")}\n\ntegn_kart(ENGEN, RUTER, KANTER)\n\n\n# ---------- MUSIKK ----------\n# Musikken ligger i mappen musikk/. Prøv \"oververden\", \"landsby\" eller \"tittel\".\n# OPPGAVE 1: Start musikken \"oververden\".\npass\n\n\n# ---------- FIGURENE ----------\n\nhelt = Figur(\"helt_ned_1\", 112, 64, skygge=True)\n\nmynt = Figur(\"mynt_1\", 48, 32)\nmynt.animer([\"mynt_1\", \"mynt_2\", \"mynt_3\", \"mynt_4\"], fart=8)\n\nFART = 2\n\npoeng = 0           # hvor mange mynter helten har tatt\nliv = 3             # hvor mange liv helten har igjen\nferdig = False      # blir True når spillet er over\n\nslim = Figur(\"slim_1\", 208, 128)\nslim.animer([\"slim_1\", \"slim_2\"], fart=12)\n\n# Hvor mange piksler slimet kryper hver gang oppdater() kjøres. 0.5 er en halv piksel.\nslim_fart = 0.5\n\n\n# ---------- TEKST ----------\n# Tekst(\"tekst\", x, y) skriver en tekst. skygge gir en mørk kant, så teksten synes bedre.\n\nmelding = Tekst(\"Finn mynten!\", 4, 148, skygge=\"#181820\")\npoengtekst = Tekst(\"Mynter: 0\", 4, 4, skygge=\"#181820\")\nlivtekst = Tekst(\"Liv: 3\", 200, 4, skygge=\"#181820\")\nstor = Tekst(\"\", 0, 68, storrelse=2, skygge=\"#181820\")     # stor tekst midt på skjermen\n\n\n# ---------- FUNKSJONER ----------\n\ndef ta_mynt():\n    \"\"\"Kjøres når helten treffer mynten.\"\"\"\n    global poeng, slim_fart, ferdig\n\n    # Mynten hopper til et tilfeldig sted på skjermen\n    mynt.x = random.randint(0, 224)\n    mynt.y = random.randint(0, 144)\n\n    # Pling og glitter\n    spill_lyd(\"mynt\")\n    effekt(\"glitter\", helt.midt_x, helt.midt_y)\n\n    # Ett poeng til\n    poeng = poeng + 1\n    poengtekst.tekst = f\"Mynter: {poeng}\"     # viser poengene på skjermen\n\n    # OPPGAVE 2: Gjør slimet litt raskere: slim_fart skal bli 0.1 mer enn før.\n    pass\n\n    # OPPGAVE 3: Har helten 10 mynter, har du VUNNET. Se hvordan GAME OVER er laget i au().\n    pass\n\n\ndef vis_stor(tekst):\n    \"\"\"Skriver en stor tekst midt på skjermen.\"\"\"\n    stor.tekst = tekst\n    stor.x = (240 - stor.bredde) / 2\n\n\ndef flytt_slim():\n    \"\"\"Slimet kryper mot helten.\"\"\"\n    # Er slimet til venstre for helten, kryper det mot høyre – og omvendt.\n    if slim.x < helt.x:\n        slim.x = slim.x + slim_fart\n    if slim.x > helt.x:\n        slim.x = slim.x - slim_fart\n\n    # ... og opp og ned\n    if slim.y < helt.y:\n        slim.y = slim.y + slim_fart\n    if slim.y > helt.y:\n        slim.y = slim.y - slim_fart\n\n\ndef au():\n    \"\"\"Kjøres når slimet tar helten.\"\"\"\n    global liv, ferdig\n    spill_lyd(\"au\")\n    helt.blink(1)\n    rist_skjerm()\n\n    # Slimet hopper til hjørnet som er lengst unna helten\n    if helt.x < 120:\n        slim.x = 224\n    else:\n        slim.x = 0\n    if helt.y < 80:\n        slim.y = 144\n    else:\n        slim.y = 0\n\n    # Ett liv mindre\n    liv = liv - 1\n    livtekst.tekst = f\"Liv: {liv}\"\n\n    # Er liv blitt 0, er det GAME OVER\n    if liv == 0:\n        vis_stor(\"GAME OVER\")\n        spill_lyd(\"game_over\")\n        ferdig = True\n\n\ndef nytt_spill():\n    \"\"\"Setter alt tilbake slik det var i starten.\"\"\"\n    global poeng, liv, ferdig, slim_fart\n    poeng = 0\n    liv = 3\n    ferdig = False\n    slim_fart = 0.5\n    poengtekst.tekst = \"Mynter: 0\"\n    livtekst.tekst = \"Liv: 3\"\n    melding.tekst = \"Finn mynten!\"\n    vis_stor(\"\")\n    helt.x = 112\n    helt.y = 64\n    helt.bilde = \"helt_ned_1\"\n    slim.x = 208\n    slim.y = 128\n\n\n# ---------- SPILL-LØKKA ----------\n\ndef oppdater():\n    # Denne funksjonen kjøres 60 ganger i sekundet.\n\n    # Er spillet over, skal ingenting flytte seg. return avslutter oppdater() her.\n    if ferdig:\n        melding.tekst = \"Trykk Enter for å spille igjen\"\n        # OPPGAVE 4: Trykker spilleren Enter, skal nytt_spill() kjøres.\n        pass\n        return\n\n    # ---- gå med piltastene ----\n    if tast_holdes(\"hoyre\"):\n        helt.x = helt.x + FART\n        helt.bilde = \"helt_hoyre_1\"\n    if tast_holdes(\"venstre\"):\n        helt.x = helt.x - FART\n        helt.bilde = \"helt_venstre_1\"\n    if tast_holdes(\"ned\"):\n        helt.y = helt.y + FART\n        helt.bilde = \"helt_ned_1\"\n    if tast_holdes(\"opp\"):\n        helt.y = helt.y - FART\n        helt.bilde = \"helt_opp_1\"\n\n    # ---- hold helten på skjermen ----\n    # Venstre kant: er x mindre enn 0, setter vi den tilbake til 0.\n    if helt.x < 0:\n        helt.x = 0\n\n    # Høyre kant: helten er 16 bred, så x kan være høyst 240 - 16 = 224.\n    if helt.x > 224:\n        helt.x = 224\n\n    # Toppen: y kan ikke være mindre enn 0.\n    if helt.y < 0:\n        helt.y = 0\n\n    # Bunnen: helten er 24 høy, så y kan være høyst 160 - 24 = 136.\n    if helt.y > 136:\n        helt.y = 136\n\n    # ---- ta mynten ----\n    # Står helten oppå mynten? Da kjører vi alle linjene i ta_mynt().\n    if helt.treffer(mynt):\n        ta_mynt()\n        melding.tekst = \"Bra! Finn en til!\"\n\n    # ---- slimet ----\n    flytt_slim()\n    if helt.treffer(slim):\n        au()\n\n\nstart(tittel=\"Skattejakten\")\n"}, "skrift": {"A": [".###.", "#...#", "#...#", "#####", "#...#", "#...#", "#...#", ".....", "....."], "B": ["####.", "#...#", "#...#", "####.", "#...#", "#...#", "####.", ".....", "....."], "C": [".###.", "#...#", "#....", "#....", "#....", "#...#", ".###.", ".....", "....."], "D": ["####.", "#...#", "#...#", "#...#", "#...#", "#...#", "####.", ".....", "....."], "E": ["#####", "#....", "#....", "####.", "#....", "#....", "#####", ".....", "....."], "F": ["#####", "#....", "#....", "####.", "#....", "#....", "#....", ".....", "....."], "G": [".###.", "#...#", "#....", "#.###", "#...#", "#...#", ".####", ".....", "....."], "H": ["#...#", "#...#", "#...#", "#####", "#...#", "#...#", "#...#", ".....", "....."], "I": ["###", ".#.", ".#.", ".#.", ".#.", ".#.", "###", "...", "..."], "J": ["..###", "...#.", "...#.", "...#.", "#..#.", "#..#.", ".##..", ".....", "....."], "K": ["#...#", "#..#.", "#.#..", "##...", "#.#..", "#..#.", "#...#", ".....", "....."], "L": ["#....", "#....", "#....", "#....", "#....", "#....", "#####", ".....", "....."], "M": ["#...#", "##.##", "#.#.#", "#.#.#", "#...#", "#...#", "#...#", ".....", "....."], "N": ["#...#", "##..#", "#.#.#", "#..##", "#...#", "#...#", "#...#", ".....", "....."], "O": [".###.", "#...#", "#...#", "#...#", "#...#", "#...#", ".###.", ".....", "....."], "P": ["####.", "#...#", "#...#", "####.", "#....", "#....", "#....", ".....", "....."], "Q": [".###.", "#...#", "#...#", "#...#", "#.#.#", "#..#.", ".##.#", ".....", "....."], "R": ["####.", "#...#", "#...#", "####.", "#.#..", "#..#.", "#...#", ".....", "....."], "S": [".###.", "#...#", "#....", ".###.", "....#", "#...#", ".###.", ".....", "....."], "T": ["#####", "..#..", "..#..", "..#..", "..#..", "..#..", "..#..", ".....", "....."], "U": ["#...#", "#...#", "#...#", "#...#", "#...#", "#...#", ".###.", ".....", "....."], "V": ["#...#", "#...#", "#...#", "#...#", ".#.#.", ".#.#.", "..#..", ".....", "....."], "W": ["#...#", "#...#", "#...#", "#.#.#", "#.#.#", "##.##", "#...#", ".....", "....."], "X": ["#...#", "#...#", ".#.#.", "..#..", ".#.#.", "#...#", "#...#", ".....", "....."], "Y": ["#...#", "#...#", ".#.#.", "..#..", "..#..", "..#..", "..#..", ".....", "....."], "Z": ["#####", "....#", "...#.", "..#..", ".#...", "#....", "#####", ".....", "....."], "Æ": [".####", "#.#..", "#.#..", "####.", "#.#..", "#.#..", "#.###", ".....", "....."], "Ø": [".###.", "#..##", "#.#.#", "#.#.#", "#.#.#", "##..#", ".###.", ".....", "....."], "Å": ["..#..", ".#.#.", "..#..", ".....", ".###.", "#####", "#...#", ".....", "....."], "Ä": [".#.#.", ".....", ".###.", "#...#", "#####", "#...#", "#...#", ".....", "....."], "Ö": [".#.#.", ".....", ".###.", "#...#", "#...#", "#...#", ".###.", ".....", "....."], "Ü": [".#.#.", ".....", "#...#", "#...#", "#...#", "#...#", ".###.", ".....", "....."], "É": ["...#.", "..#..", "#####", "#....", "####.", "#....", "#####", ".....", "....."], "a": ["....", "....", ".##.", "...#", ".###", "#..#", ".###", "....", "...."], "b": ["#...", "#...", "###.", "#..#", "#..#", "#..#", "###.", "....", "...."], "c": ["....", "....", ".##.", "#..#", "#...", "#..#", ".##.", "....", "...."], "d": ["...#", "...#", ".###", "#..#", "#..#", "#..#", ".###", "....", "...."], "e": ["....", "....", ".##.", "#..#", "####", "#...", ".###", "....", "...."], "f": ["..#", ".#.", "###", ".#.", ".#.", ".#.", ".#.", "...", "..."], "g": ["....", "....", ".###", "#..#", "#..#", ".###", "...#", "#..#", ".##."], "h": ["#...", "#...", "###.", "#..#", "#..#", "#..#", "#..#", "....", "...."], "i": ["#", ".", "#", "#", "#", "#", "#", ".", "."], "j": ["..#", "...", "..#", "..#", "..#", "..#", "..#", "#.#", ".#."], "k": ["#...", "#...", "#..#", "#.#.", "##..", "#.#.", "#..#", "....", "...."], "l": ["#.", "#.", "#.", "#.", "#.", "#.", ".#", "..", ".."], "m": [".....", ".....", "####.", "#.#.#", "#.#.#", "#.#.#", "#.#.#", ".....", "....."], "n": ["....", "....", "###.", "#..#", "#..#", "#..#", "#..#", "....", "...."], "o": ["....", "....", ".##.", "#..#", "#..#", "#..#", ".##.", "....", "...."], "p": ["....", "....", "###.", "#..#", "#..#", "#..#", "###.", "#...", "#..."], "q": ["....", "....", ".###", "#..#", "#..#", "#..#", ".###", "...#", "...#"], "r": ["...", "...", "#.#", "##.", "#..", "#..", "#..", "...", "..."], "s": ["....", "....", ".###", "#...", ".##.", "...#", "###.", "....", "...."], "t": [".#.", ".#.", "###", ".#.", ".#.", ".#.", "..#", "...", "..."], "u": ["....", "....", "#..#", "#..#", "#..#", "#..#", ".###", "....", "...."], "v": [".....", ".....", "#...#", "#...#", ".#.#.", ".#.#.", "..#..", ".....", "....."], "w": [".....", ".....", "#...#", "#...#", "#.#.#", "#.#.#", ".#.#.", ".....", "....."], "x": ["....", "....", "#..#", "#..#", ".##.", "#..#", "#..#", "....", "...."], "y": ["....", "....", "#..#", "#..#", "#..#", ".###", "...#", "#..#", ".##."], "z": ["....", "....", "####", "..#.", ".#..", "#...", "####", "....", "...."], "æ": ["......", "......", ".####.", "...#.#", ".#####", "#..#..", ".##.##", "......", "......"], "ø": [".....", ".....", ".###.", "#..##", "#.#.#", "##..#", ".###.", ".....", "....."], "å": [".##.", "....", ".##.", "...#", ".###", "#..#", ".###", "....", "...."], "ä": ["#..#", "....", ".##.", "...#", ".###", "#..#", ".###", "....", "...."], "ö": ["#..#", "....", ".##.", "#..#", "#..#", "#..#", ".##.", "....", "...."], "ü": ["#..#", "....", "#..#", "#..#", "#..#", "#..#", ".###", "....", "...."], "é": ["..#.", ".#..", ".##.", "#..#", "####", "#...", ".###", "....", "...."], "0": [".###.", "#...#", "#...#", "#.#.#", "#...#", "#...#", ".###.", ".....", "....."], "1": ["..#..", ".##..", "..#..", "..#..", "..#..", "..#..", ".###.", ".....", "....."], "2": [".###.", "#...#", "....#", "...#.", "..#..", ".#...", "#####", ".....", "....."], "3": [".###.", "#...#", "....#", "..##.", "....#", "#...#", ".###.", ".....", "....."], "4": ["...#.", "..##.", ".#.#.", "#..#.", "#####", "...#.", "...#.", ".....", "....."], "5": ["#####", "#....", "####.", "....#", "....#", "#...#", ".###.", ".....", "....."], "6": [".###.", "#....", "#....", "####.", "#...#", "#...#", ".###.", ".....", "....."], "7": ["#####", "....#", "...#.", "..#..", ".#...", ".#...", ".#...", ".....", "....."], "8": [".###.", "#...#", "#...#", ".###.", "#...#", "#...#", ".###.", ".....", "....."], "9": [".###.", "#...#", "#...#", ".####", "....#", "....#", ".###.", ".....", "....."], ".": [".", ".", ".", ".", ".", ".", "#", ".", "."], ",": ["..", "..", "..", "..", "..", "..", ".#", "#.", ".."], ":": [".", ".", "#", ".", ".", ".", "#", ".", "."], ";": ["..", "..", ".#", "..", "..", "..", ".#", "#.", ".."], "!": ["#", "#", "#", "#", "#", ".", "#", ".", "."], "?": [".###.", "#...#", "....#", "...#.", "..#..", ".....", "..#..", ".....", "....."], "-": ["....", "....", "....", "####", "....", "....", "....", "....", "...."], "_": [".....", ".....", ".....", ".....", ".....", ".....", ".....", "#####", "....."], "+": [".....", ".....", "..#..", "..#..", "#####", "..#..", "..#..", ".....", "....."], "=": ["....", "....", "####", "....", "####", "....", "....", "....", "...."], "*": [".....", "#.#.#", ".###.", "#####", ".###.", "#.#.#", ".....", ".....", "....."], "/": ["...#", "...#", "..#.", ".#..", "#...", "#...", "#...", "....", "...."], "\\": ["#...", "#...", ".#..", "..#.", "...#", "...#", "...#", "....", "...."], "%": ["##..#", "##..#", "...#.", "..#..", ".#...", "#..##", "#..##", ".....", "....."], "'": ["#", "#", ".", ".", ".", ".", ".", ".", "."], "\"": ["#.#", "#.#", "...", "...", "...", "...", "...", "...", "..."], "(": [".#", "#.", "#.", "#.", "#.", "#.", ".#", "..", ".."], ")": ["#.", ".#", ".#", ".#", ".#", ".#", "#.", "..", ".."], "[": ["##", "#.", "#.", "#.", "#.", "#.", "##", "..", ".."], "]": ["##", ".#", ".#", ".#", ".#", ".#", "##", "..", ".."], "<": ["...#", "..#.", ".#..", "#...", ".#..", "..#.", "...#", "....", "...."], ">": ["#...", ".#..", "..#.", "...#", "..#.", ".#..", "#...", "....", "...."], "#": [".#.#.", ".#.#.", "#####", ".#.#.", "#####", ".#.#.", ".#.#.", ".....", "....."], "&": [".##..", "#..#.", "#.#..", ".#...", "#.#.#", "#..#.", ".##.#", ".....", "....."], "@": [".###.", "#...#", "#.###", "#.#.#", "#.###", "#....", ".###.", ".....", "....."], "~": [".....", ".....", ".....", ".##.#", "#..#.", ".....", ".....", ".....", "....."], "♥": [".....", ".#.#.", "#####", "#####", ".###.", "..#..", ".....", ".....", "....."], "…": [".....", ".....", ".....", ".....", ".....", ".....", "#.#.#", ".....", "....."], "→": [".....", "..#..", "...#.", "#####", "...#.", "..#..", ".....", ".....", "....."], "←": [".....", "..#..", ".#...", "#####", ".#...", "..#..", ".....", ".....", "....."], "□": ["####", "#..#", "#..#", "#..#", "#..#", "#..#", "####", "....", "...."]}, "elev": true};
+var S = 3;                       // skjermen tegnes 3x
+var LH = 26, PAD = 10;
+var kapitler = DATA.kapitler;
+var INNE = /[?&]inne=1/.test(location.search);    // vist inni oppgavearket: bare én økt
+if (INNE) document.body.classList.add("inne");
+if (DATA.elev) document.getElementById("splbl").textContent = "TENK SELV";
+
+// Lysbildene: intro-kort, lysbilder, oppsummerings-kort for hvert kapittel
+var LISTE = [];
+kapitler.forEach(function(k, ki){
+  LISTE.push({k: ki, kort: "intro"});
+  k.lysbilder.forEach(function(lb, li){ LISTE.push({k: ki, i: li}); });
+  LISTE.push({k: ki, kort: "slutt"});
+});
+
+var $ = function(id){ return document.getElementById(id); };
+$("tot").textContent = LISTE.length;
+
+// ---------- Kapittelknapper ----------
+kapitler.forEach(function(k, ki){
+  var b = document.createElement("button");
+  b.type = "button";
+  b.innerHTML = "<b>" + k.steg + "</b><span>" + k.tittel + "</span>";
+  b.title = "Økt " + k.steg + ": " + k.tittel;
+  b.addEventListener("click", function(){ gaaTil(LISTE.findIndex(function(x){ return x.k === ki; })); });
+  $("kapitler").appendChild(b);
+});
+
+// ---------- Kode med enkel fargelegging ----------
+function farg(linje){
+  var e = linje.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+  var kom = "";
+  var i = e.indexOf("#");
+  // ikke del ved # inni tekst
+  var inni = false, q = "";
+  for (var j = 0; j < e.length; j++){
+    var c = e[j];
+    if (inni){ if (c === q) inni = false; }
+    else if (c === '"' || c === "'"){ inni = true; q = c; }
+    else if (c === "#"){ kom = e.slice(j); e = e.slice(0, j); break; }
+  }
+  e = e.replace(/("[^"]*"|'[^']*')/g, '<span class="str">$1</span>');
+  e = e.replace(/\b(def|if|elif|else|for|while|in|not|and|or|return|global|import|from|True|False|None|pass|break|continue|lambda|is)\b(?![^<]*<\/span>)/g, '<span class="nok">$1</span>');
+  e = e.replace(/(^|[^\w#])(\d+)(?![^<]*<\/span>)/g, '$1<span class="tall">$2</span>');
+  return e + (kom ? '<span class="kom">' + kom + "</span>" : "");
+}
+var visFil = null;
+function visKode(fil){
+  if (visFil === fil) return;
+  visFil = fil;
+  $("filnavn").textContent = fil;
+  var linjer = DATA.filer[fil].split("\n");
+  var h = "";
+  linjer.forEach(function(l, i){ h += '<div class="rad" data-n="' + (i + 1) + '"><span class="ln">' + (i + 1) + "</span><span>" + farg(l) + "</span></div>"; });
+  $("rader").innerHTML = h;
+}
+function merk(l){
+  var rader = $("rader").children;
+  for (var i = 0; i < rader.length; i++) rader[i].classList.remove("merket");
+  if (!l){ $("linjeinfo").textContent = ""; return; }
+  for (var n = l[0]; n <= l[1]; n++){ if (rader[n - 1]) rader[n - 1].classList.add("merket"); }
+  $("linjeinfo").textContent = l[0] === l[1] ? "linje " + l[0] : "linje " + l[0] + "–" + l[1];
+  var vindu = $("rader").parentNode.clientHeight;
+  var midt = ((l[0] + l[1]) / 2 - 1) * LH + PAD;
+  var y = Math.max(0, midt - vindu / 2 + LH / 2);
+  $("rader").style.transform = "translateY(" + (-y) + "px)";
+}
+
+// ---------- Tilstand: bygges opp fra starten av kapitlet ----------
+function tilstand(pos){
+  var p = LISTE[pos];
+  var k = kapitler[p.k];
+  var husk = {}, skjerm = {figurer: {}, merker: [], tekster: []}, endret = {};
+  var stopp = p.kort === "intro" ? -1 : (p.kort === "slutt" ? k.lysbilder.length - 1 : p.i);
+  for (var i = 0; i <= stopp; i++){
+    var lb = k.lysbilder[i];
+    var siste = (i === stopp);
+    if (lb.husk) Object.keys(lb.husk).forEach(function(n){
+      if (lb.husk[n] === null) delete husk[n]; else { if (siste && husk[n] !== lb.husk[n]) endret[n] = true; husk[n] = lb.husk[n]; }
+    });
+    if (lb.skjerm) {
+      var s = lb.skjerm;
+      ["kart","ruter","bakgrunn","rutenett","dim"].forEach(function(f){ if (f in s) skjerm[f] = s[f]; });
+      if (s.figurer) Object.keys(s.figurer).forEach(function(n){
+        if (s.figurer[n] === null) delete skjerm.figurer[n];
+        else skjerm.figurer[n] = Object.assign({}, skjerm.figurer[n] || {}, s.figurer[n]);
+      });
+      if ("merker" in s) skjerm.merker = s.merker || [];
+      if ("tekster" in s) skjerm.tekster = s.tekster || [];
+    }
+    if (!siste) { if (!(lb.skjerm && "merker" in lb.skjerm)) {} }
+  }
+  // merker gjelder bare lysbildet de står på
+  var naa = (p.kort || stopp < 0) ? null : k.lysbilder[stopp];
+  if (!naa || !naa.skjerm || !("merker" in naa.skjerm)) skjerm.merker = [];
+  return {husk: husk, skjerm: skjerm, endret: endret};
+}
+
+// ---------- Spillskjermen ----------
+var bilder = {};
+function bilde(navn){
+  if (!bilder[navn]){
+    var im = new Image();
+    im.onload = function(){ tegnPaaNytt(); };
+    im.src = "bilder/" + navn + ".png";
+    bilder[navn] = im;
+  }
+  return bilder[navn];
+}
+var sisteSkjerm = null;
+function tegnPaaNytt(){ if (sisteSkjerm) tegn(sisteSkjerm); }
+function tegn(sk){
+  sisteSkjerm = sk;
+  var c = $("skjerm"), g = c.getContext("2d");
+  g.imageSmoothingEnabled = false;
+  g.fillStyle = "#000"; g.fillRect(0, 0, c.width, c.height);
+  if (sk.bakgrunn){
+    var b = bilde(sk.bakgrunn); if (b.complete && b.naturalWidth) g.drawImage(b, 0, 0, b.naturalWidth * S, b.naturalHeight * S);
+  } else if (sk.kart && sk.ruter){
+    sk.kart.forEach(function(rad, r){
+      for (var k = 0; k < rad.length; k++){
+        var navn = sk.ruter[rad[k]];
+        if (!navn) continue;
+        var im = bilde(navn);
+        // mønsterbilder (f.eks. 32 × 32) viser bare 16 × 16-biten som hører til ruta, som i motoren
+        var w = im.naturalWidth, h = im.naturalHeight;
+        if (im.complete && w) g.drawImage(im, (k * 16) % w, (r * 16) % h, 16, 16, k * 16 * S, r * 16 * S, 16 * S, 16 * S);
+      }
+    });
+  }
+  // figurer, sortert etter føttene (som i motoren)
+  var fig = Object.keys(sk.figurer).map(function(n){ return sk.figurer[n]; });
+  fig.sort(function(a, b){
+    var la = a.lag === undefined ? 1 : a.lag, lb = b.lag === undefined ? 1 : b.lag;
+    if (la !== lb) return la - lb;
+    var ia = bilde(a.bilde), ib = bilde(b.bilde);
+    return (a.y + (ia.naturalHeight || 16)) - (b.y + (ib.naturalHeight || 16));
+  });
+  fig.forEach(function(f){
+    var im = bilde(f.bilde);
+    if (im.complete && im.naturalWidth) g.drawImage(im, Math.round(f.x) * S, Math.round(f.y) * S, im.naturalWidth * S, im.naturalHeight * S);
+  });
+  if (sk.dim){ g.fillStyle = "rgba(10,10,20,.45)"; g.fillRect(0, 0, c.width, c.height); }
+  if (sk.rutenett){
+    g.strokeStyle = "rgba(255,255,255,.22)"; g.lineWidth = 1;
+    for (var x = 0; x <= 240; x += 16){ g.beginPath(); g.moveTo(x * S + .5, 0); g.lineTo(x * S + .5, 480); g.stroke(); }
+    for (var y = 0; y <= 160; y += 16){ g.beginPath(); g.moveTo(0, y * S + .5); g.lineTo(720, y * S + .5); g.stroke(); }
+    g.font = "12px Consolas, monospace"; g.fillStyle = "rgba(255,255,255,.75)";
+    for (var k2 = 0; k2 < 15; k2++) g.fillText(String(k2), k2 * 48 + 3, 12);
+    for (var r2 = 1; r2 < 10; r2++) g.fillText(String(r2), 3, r2 * 48 + 12);
+  }
+  (sk.tekster || []).forEach(function(t){
+    var st = (t.storrelse && t.storrelse <= 3) ? t.storrelse : 1;   // 8 betyr vanlig størrelse (gammel skrivemåte)
+    if (t.skygge !== false){
+      var sf = t.skygge || "#181820";
+      pikseltekst(g, t.tekst, t.x + st, t.y, sf, st);
+      pikseltekst(g, t.tekst, t.x, t.y + st, sf, st);
+      pikseltekst(g, t.tekst, t.x + st, t.y + st, sf, st);
+    }
+    pikseltekst(g, t.tekst, t.x, t.y, t.farge || "#f8f8f8", st);
+  });
+  (sk.merker || []).forEach(function(m){ merke(g, m); });
+}
+// Spillmotorens egen pikselskrift (de samme bokstavene som i spillet)
+function pikseltekst(g, tekst, x, y, farge, st){
+  var SK = DATA.skrift, cx = x;
+  g.fillStyle = farge;
+  String(tekst).split("").forEach(function(tegn){
+    if (tegn === " "){ cx += 4 * st; return; }
+    var rader = SK[tegn] || SK["\u25a1"];
+    rader.forEach(function(rad, ry){
+      for (var rx = 0; rx < rad.length; rx++)
+        if (rad[rx] === "#") g.fillRect((cx + rx * st) * S, (y + ry * st) * S, S * st, S * st);
+    });
+    cx += (rader[0].length + 1) * st;
+  });
+}
+function etikett(g, tekst, x, y, farge){
+  if (!tekst) return;
+  g.font = "bold 16px Consolas, monospace";
+  var b = g.measureText(tekst).width + 10;
+  x = Math.max(2, Math.min(720 - b - 2, x)); y = Math.max(2, Math.min(480 - 24, y));
+  g.fillStyle = "rgba(10,10,20,.85)"; g.fillRect(x, y, b, 22);
+  g.strokeStyle = farge; g.lineWidth = 1; g.strokeRect(x + .5, y + .5, b - 1, 21);
+  g.fillStyle = farge; g.textBaseline = "middle"; g.fillText(tekst, x + 5, y + 11.5);
+}
+function merke(g, m){
+  var f = m.farge || "#f8e070";
+  g.lineWidth = 3; g.strokeStyle = f; g.fillStyle = f;
+  if (m.type === "fylt"){
+    g.fillRect(m.x * S, m.y * S, m.b * S, m.h * S);
+    etikett(g, m.tekst, m.x * S, (m.y + m.h) * S + 4, f);
+  } else if (m.type === "boks"){
+    g.strokeRect(m.x * S + 1.5, m.y * S + 1.5, m.b * S - 3, m.h * S - 3);
+    etikett(g, m.tekst, m.x * S, (m.y + m.h) * S + 4, f);
+  } else if (m.type === "rute"){
+    g.strokeRect(m.kol * 48 + 1.5, m.rad * 48 + 1.5, 45, 45);
+    etikett(g, m.tekst, m.kol * 48, m.rad * 48 + 50, f);
+  } else if (m.type === "punkt"){
+    g.beginPath(); g.arc(m.x * S, m.y * S, 6, 0, Math.PI * 2); g.fill();
+    g.strokeStyle = "#181820"; g.lineWidth = 2; g.stroke();
+    etikett(g, m.tekst, m.x * S + 10, m.y * S - 11, f);
+  } else if (m.type === "pil"){
+    var x0 = m.fra[0] * S, y0 = m.fra[1] * S, x1 = m.til[0] * S, y1 = m.til[1] * S;
+    g.beginPath(); g.moveTo(x0, y0); g.lineTo(x1, y1); g.stroke();
+    var v = Math.atan2(y1 - y0, x1 - x0);
+    g.beginPath(); g.moveTo(x1, y1);
+    g.lineTo(x1 - 14 * Math.cos(v - .45), y1 - 14 * Math.sin(v - .45));
+    g.lineTo(x1 - 14 * Math.cos(v + .45), y1 - 14 * Math.sin(v + .45)); g.closePath(); g.fill();
+    etikett(g, m.tekst, (x0 + x1) / 2 + 8, (y0 + y1) / 2 - 28, f);
+  }
+}
+
+// ---------- Variabler ----------
+function visHusk(husk, endret){
+  var navn = Object.keys(husk);
+  if (!navn.length){ $("vars").innerHTML = '<p class="tom">Ingen variabler ennå.</p>'; return; }
+  $("vars").innerHTML = navn.map(function(n){
+    return '<div class="var' + (endret[n] ? " endret" : "") + '"><span class="n">' + esc(n) + '</span><span class="v">' + esc(husk[n]) + "</span></div>";
+  }).join("");
+}
+function esc(t){ return String(t).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+
+// ---------- Visning ----------
+var pos = 0;
+function vis(){
+  var p = LISTE[pos], k = kapitler[p.k];
+  $("nr").textContent = pos + 1;
+  if (INNE){   // tell bare lysbildene i denne økta
+    var forsteI = LISTE.findIndex(function(x){ return x.k === p.k; });
+    $("nr").textContent = pos - forsteI + 1;
+    $("tot").textContent = k.lysbilder.length + 2;
+  }
+  Array.prototype.forEach.call($("kapitler").children, function(b, i){ b.classList.toggle("valgt", i === p.k); });
+  visKode(k.fil);
+  var t = tilstand(pos);
+  tegn(t.skjerm); visHusk(t.husk, t.endret);
+  $("kapnavn").textContent = "ØKT " + k.steg + " · " + k.tittel.toUpperCase();
+  var kort = $("kort");
+  if (p.kort === "intro"){
+    kort.innerHTML = '<div class="innhold"><p class="eyebrow">ØKT ' + k.steg + (DATA.elev ? ' · FORKLARING · ' : ' · GJENNOMGANG · ') + esc(k.fil) + '</p><h1>' + esc(k.tittel) +
+      '</h1><p class="ingress">' + k.intro + '</p><p class="hint">Neste: mellomrom eller → · Tilbake: ← · Fullskjerm: F</p></div>';
+    kort.hidden = false; merk(null);
+  } else if (p.kort === "slutt"){
+    kort.innerHTML = '<div class="innhold"><p class="eyebrow">ØKT ' + k.steg + ' · OPPSUMMERING</p><h1>Ta med deg dette</h1><div class="tre">' +
+      k.oppsummering.map(function(o){ return "<div><h2>" + o[0] + "</h2><p>" + o[1] + "</p></div>"; }).join("") + "</div></div>";
+    kort.hidden = false; merk(null);
+  } else {
+    kort.hidden = true;
+    var lb = k.lysbilder[p.i];
+    merk(lb.l);
+    $("fortell").innerHTML = lb.t;
+    $("sp").innerHTML = lb.q || "";
+    $("sporsmal").classList.toggle("skjult", !lb.q);
+    var om = $("oppgmerke");
+    if (lb.o && lb.o.length){
+      om.textContent = (lb.o.length > 1 ? "OPPGAVE " + lb.o.join(" OG ") : "OPPGAVE " + lb.o[0]) + " · HER SKRIVER DU KODEN SELV";
+      om.hidden = false;
+    } else om.hidden = true;
+    Array.prototype.forEach.call($("rader").children, function(r){ r.classList.toggle("oppg", !!(lb.o && lb.o.length)); });
+  }
+  var forsteHer = LISTE.findIndex(function(x){ return x.k === p.k; });
+  $("forrige").disabled = pos === 0 || (INNE && pos === forsteHer);
+  $("neste").disabled = pos === LISTE.length - 1 || (INNE && (pos + 1 >= LISTE.length || LISTE[pos + 1].k !== p.k));
+  if (!INNE) { try { localStorage.setItem("forklaring-Skattejakten", String(pos)); } catch(e) {} }
+  var forste = LISTE.findIndex(function(x){ return x.k === p.k; });
+  var lenke = "#okt" + k.steg + (pos > forste ? "-" + (pos - forste) : "");
+  if (location.hash !== lenke) history.replaceState(null, "", lenke);
+}
+function gaaTil(n){
+  var lo = 0, hi = LISTE.length - 1;
+  if (INNE){   // hold deg innenfor økta du startet i
+    var k0 = LISTE[pos] ? LISTE[pos].k : 0;
+    if (startet){ lo = LISTE.findIndex(function(x){ return x.k === k0; });
+      hi = LISTE.length - 1 - LISTE.slice().reverse().findIndex(function(x){ return x.k === k0; }); }
+  }
+  pos = Math.max(lo, Math.min(hi, n)); startet = true; vis();
+}
+var startet = false;
+$("neste").addEventListener("click", function(){ gaaTil(pos + 1); });
+$("forrige").addEventListener("click", function(){ gaaTil(pos - 1); });
+document.addEventListener("keydown", function(e){
+  if (e.key === "ArrowRight" || e.key === " " || e.key === "PageDown"){ e.preventDefault(); gaaTil(pos + 1); }
+  else if (e.key === "ArrowLeft" || e.key === "PageUp"){ e.preventDefault(); gaaTil(pos - 1); }
+  else if (e.key === "f" || e.key === "F"){ fullskjerm(); }
+  else if (e.key === "Home"){ gaaTil(0); }
+});
+function fullskjerm(){
+  if (!document.fullscreenElement){ if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(function(){}); }
+  else if (document.exitFullscreen) document.exitFullscreen();
+}
+$("fullskjerm").addEventListener("click", fullskjerm);
+function skaler(){
+  var s = Math.min(window.innerWidth / 1600, window.innerHeight / 900);
+  $("stage").style.transform = "translate(-50%,-50%) scale(" + s + ")";
+}
+window.addEventListener("resize", skaler); skaler();
+
+// Start: #okt3 i adressen, ellers der man var sist
+var start = 0;
+var m = /^#okt(\d+)(?:-(\d+))?$/.exec(location.hash);
+if (m){ var ki = kapitler.findIndex(function(k){ return String(k.steg) === m[1]; });
+  if (ki >= 0) start = LISTE.findIndex(function(x){ return x.k === ki; }) + (m[2] ? parseInt(m[2], 10) : 0); }
+else if (!INNE) { try { var lagret = parseInt(localStorage.getItem("forklaring-Skattejakten"), 10); if (lagret >= 0 && lagret < LISTE.length) start = lagret; } catch(e) {} }
+gaaTil(start);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,564 @@
+<!doctype html>
+<html lang="no">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Skattejakten</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@500;700&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<style>
+:root{
+  --natt:#16151f; --panel:#201e2c; --panel2:#282538; --strek:#3a3650;
+  --tekst:#ece9f4; --dempet:#a9a4bf; --aksent:#88c860; --aksent-dyp:#3e6a2a;
+  --mose:#88c860; --rust:#f87858;
+  --display:"Pixelify Sans","Courier New",monospace;
+  --brod:"Atkinson Hyperlegible","Segoe UI",system-ui,sans-serif;
+  --mono:Consolas,"Cascadia Mono","DejaVu Sans Mono",monospace;
+}
+*{box-sizing:border-box}
+html{overflow-y:scroll}
+@supports (scrollbar-gutter:stable){html{overflow-y:auto;scrollbar-gutter:stable}}
+body{margin:0;background:var(--natt);color:var(--tekst);font:17px/1.65 var(--brod)}
+h1,h2,h3,h4,.merkenavn{font-variant-ligatures:none!important;font-feature-settings:"liga" 0,"clig" 0,"calt" 0,"dlig" 0!important}
+.wrap{max-width:1040px;margin:0 auto;padding:0 20px 120px}
+.navbar{position:sticky;top:0;z-index:10;background:var(--natt);border-bottom:1px solid var(--strek)}
+.navinner{max-width:1040px;margin:0 auto;padding:0 20px;display:flex;align-items:stretch}
+.merkenavn{display:flex;align-items:center;margin:0;padding-right:20px;margin-right:12px;border-right:1px solid var(--strek);
+  font:700 20px var(--display);white-space:nowrap;color:var(--aksent)}
+.faner{flex:1 1 auto;min-width:0;display:flex;overflow-x:auto;scrollbar-width:none}
+.faner::-webkit-scrollbar{display:none}
+.fane{flex:0 0 auto;display:flex;align-items:baseline;gap:7px;margin:0 0 -1px;padding:15px 14px 13px;background:none;border:none;
+  border-bottom:2px solid transparent;font:16px var(--brod);color:var(--dempet);white-space:nowrap;cursor:pointer}
+.fane .tall{font:12px var(--mono);color:#6d6789}
+.fane:hover{color:var(--tekst)}
+.fane[aria-selected="true"]{color:var(--tekst);border-bottom-color:var(--aksent)}
+.fane[aria-selected="true"] .tall{color:var(--aksent)}
+.fane.ferdig .tall{color:var(--mose)}
+.fane:focus-visible{outline:2px solid var(--aksent);outline-offset:-3px}
+section.del{margin:44px 0 0;scroll-margin-top:80px}
+[hidden]{display:none!important}
+.seksjonstopp{display:flex;flex-direction:column;gap:6px;margin-bottom:8px}
+.seksjonstopp .nr{font:13px var(--mono);letter-spacing:.08em;color:var(--aksent)}
+h2.stor{font:700 clamp(30px,4.6vw,44px)/1.1 var(--display);margin:0;text-wrap:balance}
+.leder{color:var(--dempet);max-width:64ch;margin:10px 0 26px;font-size:18px}
+.leder.kort{font-size:17px;margin:4px 0 14px}
+.leder p{margin:0 0 8px}
+.panel{background:var(--panel);border:1px solid var(--strek);border-radius:6px;padding:24px 26px;min-width:0}
+.panel + .panel{margin-top:18px}
+.todelt{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:20px;align-items:start}
+figure.skjerm{margin:0}
+figure.skjerm img{width:100%;height:auto;image-rendering:pixelated;border:1px solid var(--strek);border-radius:4px;display:block;background:#000}
+figure.skjerm figcaption{color:var(--dempet);font-size:14px;margin-top:8px}
+.fil{margin:14px 0 0;color:var(--dempet)}
+h3.mellom{font:700 22px var(--display);margin:40px 0 8px}
+h4{font:700 16px var(--display);margin:22px 0 8px;color:var(--aksent)}
+p{max-width:68ch}
+ul.brikker{list-style:none;padding:0;margin:0;display:flex;flex-wrap:wrap;gap:8px}
+ul.brikker li{font:13px var(--mono);border:1px solid var(--aksent-dyp);color:var(--aksent);padding:3px 9px;border-radius:3px}
+ul.brikker code{border:none;background:none;padding:0;font-size:inherit}
+ul.liste{color:var(--dempet);padding-left:22px;max-width:66ch}
+ul.liste li{margin:5px 0}
+ol.stegoversikt{list-style:none;padding:0;margin:0;display:grid;gap:10px}
+ol.stegoversikt li{display:grid;grid-template-columns:22px 1fr;gap:14px;align-items:baseline;color:var(--dempet)}
+ol.stegoversikt .num{font:700 16px var(--mono);color:var(--aksent);flex:0 0 22px}
+ol.stegoversikt b{color:var(--tekst);font-weight:700}
+ol.oppgaver{list-style:none;margin:0;padding:0}
+ol.oppgaver > li{border-top:1px solid var(--strek);padding:20px 0}
+ol.oppgaver > li:last-child{border-bottom:1px solid var(--strek)}
+.oppg{display:flex;gap:18px;align-items:flex-start}
+.oppg .krysse{flex:0 0 auto;padding-top:3px}
+.oppg .innhold{flex:1 1 auto;min-width:0}
+.oppg h3{margin:0 0 6px;font-size:19px;font-weight:700;display:flex;gap:10px;flex-wrap:wrap;align-items:baseline}
+.oppg h3 .num{font:700 16px var(--mono);color:var(--aksent)}
+.oppg p{margin:0 0 10px;color:var(--dempet)}
+.merke{font:12px var(--mono);letter-spacing:.04em;color:var(--aksent);border:1px solid var(--aksent-dyp);padding:2px 8px;border-radius:2px;white-space:nowrap;font-weight:400}
+li.gjort .oppg h3,li.gjort .oppg h3 .num{color:var(--mose)}
+input[type=checkbox]{appearance:none;-webkit-appearance:none;width:24px;height:24px;margin:0;border:1px solid var(--strek);border-radius:3px;
+  background:var(--natt);cursor:pointer;display:grid;place-items:center}
+input[type=checkbox]:hover{border-color:var(--aksent)}
+input[type=checkbox]:focus-visible{outline:2px solid var(--aksent);outline-offset:2px}
+input[type=checkbox]:checked{border-color:var(--mose);background:rgba(136,200,96,.12)}
+input[type=checkbox]:checked::after{content:"";width:11px;height:6px;border-left:2px solid var(--mose);border-bottom:2px solid var(--mose);transform:rotate(-45deg) translate(1px,-2px)}
+details{margin:10px 0 0;border-left:2px solid var(--strek);padding-left:14px}
+details summary{cursor:pointer;color:var(--aksent);font:13.5px var(--mono);list-style:none;padding:2px 0}
+details summary::-webkit-details-marker{display:none}
+details summary::before{content:"+ "}
+details[open] summary::before{content:"\2013 "}
+details > *:not(summary){color:var(--dempet)}
+.kodeboks{position:relative;margin:12px 0}
+pre{margin:0;background:#0f0e17;border:1px solid var(--strek);border-radius:4px;padding:16px 18px;overflow-x:auto;
+  font:14px/1.6 var(--mono);color:#dcd8ea;white-space:pre}
+code{font-family:var(--mono);font-size:.88em;background:#0f0e17;border:1px solid var(--strek);padding:1px 6px;border-radius:3px;color:var(--aksent)}
+.kopier{position:absolute;top:8px;right:8px;font:12px var(--mono);color:var(--dempet);background:var(--panel2);border:1px solid var(--strek);
+  border-radius:3px;padding:4px 10px;cursor:pointer}
+.kopier:hover{color:var(--aksent);border-color:var(--aksent)}
+.framdrift{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-top:24px;padding:16px 20px;border:1px solid var(--strek);border-radius:6px;background:var(--panel2)}
+.stolpe{flex:1 1 200px;height:8px;background:var(--natt);border-radius:2px;overflow:hidden;min-width:150px}
+.stolpe i{display:block;height:100%;width:0;background:var(--aksent);transition:width .35s ease}
+.framdrift .tall{font:14px var(--mono);color:var(--dempet);white-space:nowrap}
+.framdrift.klar{border-color:var(--mose)}
+.framdrift.klar .stolpe i{background:var(--mose)}
+.framdrift.klar .tall{color:var(--mose)}
+table{border-collapse:collapse;width:100%;margin:10px 0;font-size:15px}
+th,td{text-align:left;padding:8px 16px 8px 0;border-bottom:1px solid var(--strek);vertical-align:top}
+th{color:var(--aksent);font:13px var(--mono)}
+td:first-child{width:46%}
+.galleri{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:12px;margin:0 0 18px;
+  padding:14px;background:var(--panel);border:1px solid var(--strek);border-radius:6px}
+figure.bilde{margin:0;display:grid;justify-items:center;align-content:end;gap:6px;text-align:center}
+figure.bilde img{image-rendering:pixelated;max-width:96px;max-height:96px;width:auto;height:auto;zoom:2}
+figure.bilde figcaption code{font-size:11.5px;word-break:break-all}
+.byggrutenett{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:14px}
+.bygg{background:var(--panel);border:1px solid var(--strek);border-radius:6px;padding:14px 16px;min-width:0}
+.bygg h4{margin:8px 0 2px}
+.bygg p{margin:4px 0;color:var(--dempet);font-size:15px}
+.bygg .filer{font-size:13px;word-break:break-word}
+.byggbilder{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end;min-height:52px;padding:8px;background:#0f0e17;border-radius:4px}
+.byggbilder img{image-rendering:pixelated;height:auto;max-height:96px;zoom:2}
+ul.lydliste{list-style:none;padding:0;margin:0;display:grid;gap:6px}
+ul.lydliste li{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+ul.lydliste audio{height:30px;width:220px;max-width:100%}
+.kort{color:var(--dempet)}
+.forklaring{aspect-ratio:16/9;border:1px solid var(--strek);border-radius:6px;overflow:hidden;background:#0d0c14}
+.forklaring iframe{display:block;width:100%;height:100%;border:0}
+.forklaringslenke{font-size:15px;margin-top:8px}
+.forklaringslenke a{color:var(--aksent)}
+footer{margin-top:100px;padding-top:22px;border-top:1px solid var(--strek);color:var(--dempet);font-size:14px}
+@media (max-width:620px){body{font-size:16px} .wrap{padding:0 16px 80px} .navinner{padding:0 16px}
+  .merkenavn{font-size:17px;padding-right:12px} .fane{padding:14px 11px 12px;font-size:15px} .panel{padding:20px 16px}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important} html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<div class="navbar"><div class="navinner">
+  <h1 class="merkenavn">Skattejakten</h1>
+  <div class="faner" id="faner" role="tablist" aria-label="Opplegget">
+    <button class="fane" type="button" id="fane-start" role="tab" aria-controls="start" aria-selected="true">Start</button>
+    <button class="fane" type="button" id="fane-steg1" role="tab" aria-controls="steg1" aria-selected="false" tabindex="-1"><span class="tall">1</span> Din egen eng</button><button class="fane" type="button" id="fane-steg2" role="tab" aria-controls="steg2" aria-selected="false" tabindex="-1"><span class="tall">2</span> Gå med piltastene</button><button class="fane" type="button" id="fane-steg3" role="tab" aria-controls="steg3" aria-selected="false" tabindex="-1"><span class="tall">3</span> Hold deg på skjermen</button><button class="fane" type="button" id="fane-steg4" role="tab" aria-controls="steg4" aria-selected="false" tabindex="-1"><span class="tall">4</span> Plukk opp mynten</button><button class="fane" type="button" id="fane-steg5" role="tab" aria-controls="steg5" aria-selected="false" tabindex="-1"><span class="tall">5</span> Pass deg for slimet!</button><button class="fane" type="button" id="fane-steg6" role="tab" aria-controls="steg6" aria-selected="false" tabindex="-1"><span class="tall">6</span> Vinn spillet</button>
+    
+    <button class="fane" type="button" id="fane-oppslag" role="tab" aria-controls="oppslag" aria-selected="false" tabindex="-1">Oppslag</button>
+  </div>
+  <a href="../Teorikurs/" title="Teorikurset" style="display:flex;align-items:center;padding:0 0 0 14px;margin-left:8px;border-left:1px solid var(--strek);color:var(--dempet);text-decoration:none;white-space:nowrap">Teori</a><a href="../" title="Tilbake til alle spill" style="display:flex;align-items:center;padding:0 0 0 14px;margin-left:8px;border-left:1px solid var(--strek);color:var(--dempet);text-decoration:none;white-space:nowrap">&larr; Alle spill</a><a href="Skattejakten.zip" download style="align-self:center;margin-left:12px;color:var(--natt);background:#88c860;padding:5px 12px;border-radius:4px;font-weight:700;text-decoration:none;white-space:nowrap">Last ned (.zip)</a>
+</div></div>
+<div class="wrap">
+
+<section class="del" id="start" role="tabpanel" aria-labelledby="fane-start">
+  <div class="seksjonstopp"><span class="nr">DET ENKLESTE SPILLET – START HER</span>
+    <h2 class="stor">Skattejakten</h2></div>
+  <p class="leder">Du lager et lite spill der helten løper rundt på en eng, plukker mynter og passer seg for et slim. Hvert steg er kort, og hver oppgave er bare noen få linjer. Over hver oppgave står det et eksempel i koden som ligner på det du skal skrive. Hver økt starter med en ny fil der det som ble laget forrige gang, allerede er på plass.</p>
+  <div class="todelt">
+    <div class="panel">
+      <h3 class="mellom" style="margin-top:0">Slik jobber du</h3>
+      <ul class="liste">
+        <li>Åpne mappen <code>Skattejakten</code> i VS Code eller IDLE.</li>
+        <li>Hver økt har sin egen fil: <code>steg1.py</code>, <code>steg2.py</code> … Kjør den med F5.</li>
+        <li>Der det står <code>OPPGAVE</code> og <code>pass</code>, skal du skrive koden.</li>
+        <li>Kjør spillet ofte. Får du en feil, står den i rødt i spillvinduet og i terminalen.</li>
+        <li>Ikke endre <code>spillmotor.py</code> – den gjør jobben bak kulissene.</li>
+        <li>Vil du beholde noe du har laget selv, kopierer du det over i neste stegfil.</li>
+      </ul>
+    </div>
+    <figure class="skjerm"><img src="oppgaveark_bilder/steg6.png" alt="Det ferdige spillet" width="480" height="320">
+      <figcaption>Slik kan spillet se ut etter steg 6.</figcaption></figure>
+  </div>
+  <h3 class="mellom">De 6 stegene</h3>
+  <ol class="stegoversikt"><li><span class="num">1</span><span><b>Din egen eng</b> – I dag lager du verdenen i spillet: en eng med gress, blomster og en sti.</span></li><li><span class="num">2</span><span><b>Gå med piltastene</b> – I dag får helten bevege seg! Spillet kjører funksjonen <code>oppdater()</code> 60 ganger i sekundet.</span></li><li><span class="num">3</span><span><b>Hold deg på skjermen</b> – Nå kan helten gå rett ut av skjermen og forsvinne.</span></li><li><span class="num">4</span><span><b>Plukk opp mynten</b> – I dag kan helten ta mynten! Når han går på den, skal det si «pling», mynten skal hoppe til et nytt sted, og du får ett poeng.</span></li><li><span class="num">5</span><span><b>Pass deg for slimet!</b> – Nå kommer et slim som kryper etter helten.</span></li><li><span class="num">6</span><span><b>Vinn spillet</b> – I dag blir spillet ferdig: det får musikk, slimet blir raskere for hver mynt du tar, du VINNER når du har 10 mynter, og du kan spille igjen med Enter.</span></li></ol>
+</section>
+<section class="del" id="steg1" role="tabpanel" aria-labelledby="fane-steg1" hidden>
+  <div class="seksjonstopp"><span class="nr">STEG 1 AV 6</span>
+    <h2 class="stor">Din egen eng</h2></div>
+  <div class="leder"><p>I dag lager du verdenen i spillet: en eng med gress, blomster og en sti. Du setter ut helten og en mynt som snurrer. Ingenting beveger seg ennå – det kommer i neste steg.</p></div>
+  <div class="todelt">
+    <div class="panel">
+      <h3 class="mellom" style="margin-top:0">Kom i gang</h3>
+      <p>Åpne <code>steg1.py</code> og kjør den med <strong>F5</strong>. Du ser enga, og helten står oppe i hjørnet. Les kommentarene øverst i fila (linjene som starter med <code>#</code>). Dem leser Python ikke – de er bare til deg.</p>
+<p>Se forklaringen under før du begynner. Den viser koden linje for linje.</p>
+      <p class="fil">Fil: <code>steg1.py</code></p>
+      <p class="fil">Teori til dette steget: <a href="../Teorikurs/programmer.html" style="color:var(--aksent)">1. Hvordan et program kjører</a> · <a href="../Teorikurs/koordinater.html" style="color:var(--aksent)">3. Koordinater og skjermen</a> · <a href="../Teorikurs/figurer.html" style="color:var(--aksent)">12. Figurer, objekter og kollisjon</a></p>
+      <h4>Nytt i dag</h4><ul class="brikker"><li>kjøre et program med F5</li><li>kartet er en liste med tekst</li><li>x og y: hvor ting står på skjermen</li><li>Figur(&quot;bilde&quot;, x, y)</li><li>variabler: helt og mynt</li></ul>
+    </div>
+    <figure class="skjerm"><img src="oppgaveark_bilder/steg1.png" alt="Slik kan spillet se ut etter steg 1" width="480" height="320"><figcaption>Slik kan det se ut når du er ferdig med steg 1.</figcaption></figure>
+  </div>
+  <h3 class="mellom">Forklaring av koden</h3>
+  <p class="leder kort">Bla gjennom forklaringen før du begynner, og gå tilbake til den når du står fast.
+  Den viser koden i <code>steg1.py</code>, hva som skjer på skjermen, og hva programmet husker.
+  Der det står <strong>OPPGAVE</strong>, er det du som skal skrive koden.</p>
+  <div class="forklaring"><iframe src="forklaring.html?inne=1#okt1" loading="lazy"
+    title="Forklaring av koden i steg 1"></iframe></div>
+  <p class="kort forklaringslenke"><a href="forklaring.html#okt1" target="_blank" rel="noopener">Åpne forklaringen i
+  stort vindu &#8599;</a> · Neste: mellomrom eller &rarr; (klikk i forklaringen først)</p>
+  <h3 class="mellom">Oppgavene</h3>
+  <p class="leder kort">I <code>steg1.py</code> står det <code>OPPGAVE</code> og <code>pass</code> der
+  det mangler kode. Bytt ut <code>pass</code> med din egen kode. Kjør spillet ofte!</p>
+  <ol class="oppgaver" data-steg="1"><li><div class="oppg"><div class="krysse"><input type="checkbox" id="skattejakten-s1-o1" aria-labelledby="skattejakten-s1-o1t"></div><div class="innhold"><h3 id="skattejakten-s1-o1t"><span class="num">1.</span> Tegn på kartet <span class="merke">liste med tekst</span></h3><p>Kartet <code>ENGEN</code> er 10 linjer med tekst. Hvert tegn er én rute på skjermen. Bytt noen av punktumene <code>.</code> med <code>*</code> for å lage blomster, eller med <code>=</code> for å lage mer sti. Kjør og se hva som skjer!</p>
+<p><strong>Pass på:</strong> Hver linje må ha nøyaktig 15 tegn, og fnuttene <code>&quot;</code> i begge ender må stå der de står.</p><details><summary>Hint 1</summary><p>Bytt bare ut tegn – ikke legg til eller fjern noen. Da blir linja like lang som før.</p></details><details><summary>Hint 2</summary><p>Slik kan den første linja se ut med flere blomster:</p>
+<div class="kodeboks"><button class="kopier" type="button">Kopier</button><pre>    &quot;..*......*.*.,.&quot;,</pre></div></details></div></div></li><li><div class="oppg"><div class="krysse"><input type="checkbox" id="skattejakten-s1-o2" aria-labelledby="skattejakten-s1-o2t"></div><div class="innhold"><h3 id="skattejakten-s1-o2t"><span class="num">2.</span> Flytt helten <span class="merke">x og y</span></h3><p>Helten står i <code>0, 0</code>, altså helt oppe i venstre hjørne. Flytt ham midt på skjermen ved å bytte ut <code>0, 0</code> med <code>112, 64</code>.</p>
+<ul class="liste"><li>Det første tallet er <strong>x</strong>: hvor langt mot høyre (0 til 240).</li><li>Det andre tallet er <strong>y</strong>: hvor langt ned (0 til 160).</li></ul>
+<p>Prøv gjerne andre tall også. Hva skjer hvis y er 300?</p><details><summary>Hint 1</summary><p>Du skal bare endre de to tallene i linja som starter med <code>helt = Figur(</code>.</p></details><details><summary>Hint 2</summary><div class="kodeboks"><button class="kopier" type="button">Kopier</button><pre>helt = Figur(&quot;helt_ned_1&quot;, 112, 64, skygge=True)</pre></div></details></div></div></li><li><div class="oppg"><div class="krysse"><input type="checkbox" id="skattejakten-s1-o3" aria-labelledby="skattejakten-s1-o3t"></div><div class="innhold"><h3 id="skattejakten-s1-o3t"><span class="num">3.</span> Legg ut en mynt <span class="merke">Figur</span></h3><p>Lag en mynt på samme måte som helten er laget. Bildet heter <code>&quot;mynt_1&quot;</code>. Velg selv hvor den skal stå.</p>
+<p>Finn <code># OPPGAVE 3</code> i fila. Under står det <code>pass</code> – bytt ut <code>pass</code> med din linje. Mønsteret er:</p>
+<div class="kodeboks"><button class="kopier" type="button">Kopier</button><pre>navn = Figur(&quot;bildenavn&quot;, x, y)</pre></div><details><summary>Hint 1</summary><p>Variabelen skal hete <code>mynt</code>. Den trenger vi i oppgave 4.</p></details><details><summary>Hint 2</summary><div class="kodeboks"><button class="kopier" type="button">Kopier</button><pre>mynt = Figur(&quot;mynt_1&quot;, 48, 32)</pre></div></details></div></div></li><li><div class="oppg"><div class="krysse"><input type="checkbox" id="skattejakten-s1-o4" aria-labelledby="skattejakten-s1-o4t"></div><div class="innhold"><h3 id="skattejakten-s1-o4t"><span class="num">4.</span> Få mynten til å snurre <span class="merke">animer</span></h3><p>En mynt som snurrer, er fire bilder som byttes etter hverandre: <code>mynt_1</code>, <code>mynt_2</code>, <code>mynt_3</code> og <code>mynt_4</code>. Bytt ut <code>pass</code> under <code># OPPGAVE 4</code> med denne linja:</p>
+<div class="kodeboks"><button class="kopier" type="button">Kopier</button><pre>mynt.animer([&quot;mynt_1&quot;, &quot;mynt_2&quot;, &quot;mynt_3&quot;, &quot;mynt_4&quot;], fart=8)</pre></div>
+<p>Kjør spillet. Prøv så <code>fart=2</code> og <code>fart=30</code>. Lavere tall gir raskere snurring.</p><details><summary>Vis hint</summary><p>Står det <code>NameError: name &#x27;mynt&#x27; is not defined</code>? Da mangler oppgave 3, eller variabelen er stavet annerledes.</p></details></div></div></li><li><div class="oppg"><div class="krysse"><input type="checkbox" id="skattejakten-s1-o5" aria-labelledby="skattejakten-s1-o5t"></div><div class="innhold"><h3 id="skattejakten-s1-o5t"><span class="num">5.</span> Gi spillet et navn <span class="merke">tekst</span></h3><p>Helt nederst i fila står <code>start(...)</code>. Den starter spillet. Teksten i fnuttene står øverst i spillvinduet. Skriv navnet på spillet ditt der, for eksempel <code>&quot;Skattejakten&quot;</code> eller <code>&quot;Olas skattejakt&quot;</code>.</p><details><summary>Vis hint</summary><p>Bytt bare ut teksten mellom fnuttene. Fnuttene må stå.</p></details></div></div></li></ol>
+  <div class="framdrift" data-steg="1"><div class="stolpe"><i></i></div><span class="tall"></span></div>
+  <h3 class="mellom">Ekstra utfordringer</h3><p class="leder kort">For deg som blir ferdig tidlig. Her er det ingen hull i koden – du bestemmer selv hvordan.</p><ol class="oppgaver ekstra"><li><div class="oppg"><div class="krysse"><input type="checkbox" id="skattejakten-s1-eA" aria-labelledby="skattejakten-s1-eAt"></div><div class="innhold"><h3 id="skattejakten-s1-eAt"><span class="num">A.</span> Flere ting på enga</h3><p>Sett ut flere figurer: en stein, en busk eller et tre. Bildene heter <code>&quot;stein&quot;</code>, <code>&quot;busk&quot;</code> og <code>&quot;tre&quot;</code>. Se alle bildene under <strong>Oppslag</strong>.</p><details><summary>Vis hint</summary><p>Hver ting trenger sin egen linje og sitt eget navn, for eksempel <code>stein = Figur(&quot;stein&quot;, 160, 96)</code>.</p></details></div></div></li><li><div class="oppg"><div class="krysse"><input type="checkbox" id="skattejakten-s1-eB" aria-labelledby="skattejakten-s1-eBt"></div><div class="innhold"><h3 id="skattejakten-s1-eBt"><span class="num">B.</span> Glad helt</h3><p>Bytt bildet til helten fra <code>&quot;helt_ned_1&quot;</code> til <code>&quot;helt_jubel&quot;</code>. Hvilke andre helt-bilder finnes?</p><details><summary>Vis hint</summary><p>Se under <strong>Oppslag</strong> – alle bildene som starter med <code>helt_</code>.</p></details></div></div></li><li><div class="oppg"><div class="krysse"><input type="checkbox" id="skattejakten-s1-eC" aria-labelledby="skattejakten-s1-eCt"></div><div class="innhold"><h3 id="skattejakten-s1-eCt"><span class="num">C.</span> Ditt eget kart</h3><p>Tegn enga helt om, for eksempel med en sti rundt hele kanten. Bruk også <code>,</code> for litt annet gress.</p></div></div></li></ol>
+</section>
+<section class="del" id="steg2" role="tabpanel" aria-labelledby="fane-steg2" hidden>
+  <div class="seksjonstopp"><span class="nr">STEG 2 AV 6</span>
+    <h2 class="stor">Gå med piltastene</h2></div>
+  <div class="leder"><p>I dag får helten bevege seg! Spillet kjører funksjonen <code>oppdater()</code> 60 ganger i sekundet. Hver gang flytter vi helten litt, og da ser det ut som han går.</p></div>
+  <div class="todelt">
+    <div class="panel">
+      <h3 class="mellom" style="margin-top:0">Kom i gang</h3>
+      <p>Åpne <code>steg2.py</code> og kjør den. Hold inne <strong>høyre piltast</strong> – helten går! De andre tastene virker ikke ennå. Finn <code>def oppdater():</code> nederst i fila og se på de tre linjene for høyre piltast. Alle oppgavene i dag ligner på dem.</p>
+      <p class="fil">Fil: <code>steg2.py</code></p>
+      <p class="fil">Teori til dette steget: <a href="../Teorikurs/variabler.html" style="color:var(--aksent)">2. Variabler og regning</a> · <a href="../Teorikurs/koordinater.html" style="color:var(--aksent)">3. Koordinater og skjermen</a> · <a href="../Teorikurs/spillokka.html" style="color:var(--aksent)">6. Spill-løkka, taster og tellere</a></p>
+      <h4>Nytt i dag</h4><ul class="brikker"><li>oppdater(): 60 ganger i sekundet</li><li>if: gjør noe bare hvis noe er sant</li><li>tast_holdes(&quot;hoyre&quot;)</li><li>helt.x = helt.x + FART</li><li>innrykk: fire mellomrom</li></ul>
+    </div>
+    <figure class="skjerm"><img src="oppgaveark_bilder/steg2.png" alt="Slik kan spillet se ut etter steg 2" width="480" height="320"><figcaption>Slik kan det se ut når du er ferdig med steg 2.</figcaption></figure>
+  </div>
+  <h3 class="mellom">Forklaring av koden</h3>
+  <p class="leder kort">Bla gjennom forklaringen før du begynner, og gå tilbake til den når du står fast.
+  Den viser koden i <code>steg2.py</code>, hva som skjer på skjermen, og hva programmet husker.
+  Der det står <strong>OPPGAVE</strong>, er det du som skal skrive koden.</p>
+  <div class="forklaring"><iframe src="forklaring.html?inne=1#okt2" loading="lazy"
+    title="Forklaring av koden i steg 2"></iframe></div>
+  <p class="kort forklaringslenke"><a href="forklaring.html#okt2" target="_blank" rel="noopener">Åpne forklaringen i
+  stort vindu &#8599;</a> · Neste: mellomrom eller &rarr; (klikk i forklaringen først)</p>
+  <h3 class="mellom">Oppgavene</h3>
+  <p class="leder kort">I <code>steg2.py</code> står det <code>OPPGAVE</code> og <code>pass</code> der
+  det mangler kode. Bytt ut <code>pass</code> med din egen kode. Kjør spillet ofte!</p>
+  <ol class="oppgaver" data-steg="2"><li><div class="oppg"><div class="krysse"><input type="checkbox" id="skattejakten-s2-o1" aria-labelledby="skattejakten-s2-o1t"></div><div class="innhold"><h3 id="skattejakten-s2-o1t"><span class="num">1.</span> Raskere helt <span class="merke">variabel</span></h3><p><code>FART</code> sier hvor mange piksler helten flytter seg hver gang <code>oppdater()</code> kjøres. Nå er den 1. Bytt den til 2 og kjør. Prøv gjerne 5 også – men velg 2 til slutt.</p><details><summary>Hint 1</summary><p>Linja står rett over <code># ---------- SPILL-LØKKA ----------</code>.</p></details><details><summary>Hint 2</summary><p><code>FART = 2</code></p></details></div></div></li><li><div class="oppg"><div class="krysse"><input type="checkbox" id="skattejakten-s2-o2" aria-labelledby="skattejakten-s2-o2t"></div><div class="innhold"><h3 id="skattejakten-s2-o2t"><span class="num">2.</span> Gå til venstre <span class="merke">if</span></h3><p>Se på de tre linjene for høyre piltast:</p>
+<div class="kodeboks"><button class="kopier" type="button">Kopier</button><pre>if tast_holdes(&quot;hoyre&quot;):
+    helt.x = helt.x + FART
+    helt.bilde = &quot;helt_hoyre_1&quot;</pre></div>
+<p>Kopier dem og bytt ut <code>pass</code> under <code># OPPGAVE 2</code> med kopien. Endre så tre ting:</p>
+<ul class="liste"><li><code>&quot;hoyre&quot;</code> blir <code>&quot;venstre&quot;</code></li><li><code>+</code> blir <code>-</code> (x skal bli <strong>mindre</strong>)</li><li>bildet blir <code>&quot;helt_venstre_1&quot;</code></li></ul><details><summary>Hint 1</summary><p>Innrykket betyr noe! <code>if</code> skal stå på linje med <code># OPPGAVE 2</code>, og de to linjene under skal ha fire mellomrom mer.</p></details><details><summary>Hint 2</summary><div class="kodeboks"><button class="kopier" type="button">Kopier</button><pre>if tast_holdes(&quot;venstre&quot;):
+    helt.x = helt.x - FART
+    helt.bilde = &quot;helt_venstre_1&quot;</pre></div></details></div></div></li><li><div class="oppg"><div class="krysse"><input type="checkbox" id="skattejakten-s2-o3" aria-labelledby="skattejakten-s2-o3t"></div><div class="innhold"><h3 id="skattejakten-s2-o3t"><span class="num">3.</span> Gå ned <span class="merke">if</span></h3><p>Gjør det samme for pil ned. Nå er det <strong>y</strong> som skal endres, ikke x. y blir <strong>større</strong> når helten går ned. Tasten heter <code>&quot;ned&quot;</code>, og bildet heter <code>&quot;helt_ned_1&quot;</code>.</p><details><summary>Hint 1</summary><p>Kopier blokka fra oppgave 2 og bytt <code>x</code> med <code>y</code>.</p></details><details><summary>Hint 2</summary><div class="kodeboks"><button class="kopier" type="button">Kopier</button><pre>if tast_holdes(&quot;ned&quot;):
+    helt.y = helt.y + FART
+    helt.bilde = &quot;helt_ned_1&quot;</pre></div></details></div></div></li><li><div class="oppg"><div class="krysse"><input type="checkbox" id="skattejakten-s2-o4" aria-labelledby="skattejakten-s2-o4t"></div><div class="innhold"><h3 id="skattejakten-s2-o4t"><span class="num">4.</span> Gå opp <span class="merke">if</span></h3><p>Og til slutt pil opp: y blir <strong>mindre</strong>. Tasten heter <code>&quot;opp&quot;</code>, og bildet heter <code>&quot;helt_opp_1&quot;</code>. Nå kan helten gå overalt – også rett ut av skjermen. Det fikser vi i neste steg.</p><details><summary>Vis hint</summary><div class="kodeboks"><button class="kopier" type="button">Kopier</button><pre>if tast_holdes(&quot;opp&quot;):
+    helt.y = helt.y - FART
+    helt.bilde = &quot;helt_opp_1&quot;</pre></div></details></div></div></li></ol>
+  <div class="framdrift" data-steg="2"><div class="stolpe"><i></i></div><span class="tall"></span></div>
+  <h3 class="mellom">Ekstra utfordringer</h3><p class="leder kort">For deg som blir ferdig tidlig. Her er det ingen hull i koden – du bestemmer selv hvordan.</p><ol class="oppgaver ekstra"><li><div class="oppg"><div class="krysse"><input type="checkbox" id="skattejakten-s2-eA" aria-labelledby="skattejakten-s2-eAt"></div><div class="innhold"><h3 id="skattejakten-s2-eAt"><span class="num">A.</span> Tilbake til start</h3><p>Når du trykker tasten <code>t</code>, skal helten hoppe tilbake til midten (x = 112, y = 64).</p><details><summary>Vis hint</summary><p><code>if tast_holdes(&quot;t&quot;):</code> og så to linjer som setter <code>helt.x</code> og <code>helt.y</code>.</p></details></div></div></li><li><div class="oppg"><div class="krysse"><input type="checkbox" id="skattejakten-s2-eB" aria-labelledby="skattejakten-s2-eBt"></div><div class="innhold"><h3 id="skattejakten-s2-eBt"><span class="num">B.</span> WASD</h3><p>Mange spill bruker W, A, S og D i stedet for piltastene. Få begge deler til å virke.</p><details><summary>Vis hint</summary><p><code>if tast_holdes(&quot;hoyre&quot;) or tast_holdes(&quot;d&quot;):</code></p></details></div></div></li></ol>
+</section>
+<section class="del" id="steg3" role="tabpanel" aria-labelledby="fane-steg3" hidden>
+  <div class="seksjonstopp"><span class="nr">STEG 3 AV 6</span>
+    <h2 class="stor">Hold deg på skjermen</h2></div>
+  <div class="leder"><p>Nå kan helten gå rett ut av skjermen og forsvinne. I dag stopper du ham ved kantene, og du skriver en tekst på skjermen.</p></div>
+  <div class="todelt">
+    <div class="panel">
+      <h3 class="mellom" style="margin-top:0">Kom i gang</h3>
+      <p>Åpne <code>steg3.py</code> og kjør den. Gå mot <strong>venstre</strong> kant – der stopper helten. Gå mot høyre, opp eller ned – der forsvinner han. Finn <code># ---- hold helten på skjermen ----</code> i <code>oppdater()</code> og se hvordan venstre kant er laget.</p>
+      <p class="fil">Fil: <code>steg3.py</code></p>
+      <p class="fil">Teori til dette steget: <a href="../Teorikurs/koordinater.html" style="color:var(--aksent)">3. Koordinater og skjermen</a> · <a href="../Teorikurs/tekst.html" style="color:var(--aksent)">4. Tekst og f-strenger</a> · <a href="../Teorikurs/valg.html" style="color:var(--aksent)">5. Valg: if, elif og else</a></p>
+      <h4>Nytt i dag</h4><ul class="brikker"><li>&lt; mindre enn, &gt; større enn</li><li>if helt.x &lt; 0:</li><li>Tekst(&quot;Hei&quot;, x, y)</li></ul>
+    </div>
+    <figure class="skjerm"><img src="oppgaveark_bilder/steg3.png" alt="Slik kan spillet se ut etter steg 3" width="480" height="320"><figcaption>Slik kan det se ut når du er ferdig med steg 3.</figcaption></figure>
+  </div>
+  <h3 class="mellom">Forklaring av koden</h3>
+  <p class="leder kort">Bla gjennom forklaringen før du begynner, og gå tilbake til den når du står fast.
+  Den viser koden i <code>steg3.py</code>, hva som skjer på skjermen, og hva programmet husker.
+  Der det står <strong>OPPGAVE</strong>, er det du som skal skrive koden.</p>
+  <div class="forklaring"><iframe src="forklaring.html?inne=1#okt3" loading="lazy"
+    title="Forklaring av koden i steg 3"></iframe></div>
+  <p class="kort forklaringslenke"><a href="forklaring.html#okt3" target="_blank" rel="noopener">Åpne forklaringen i
+  stort vindu &#8599;</a> · Neste: mellomrom eller &rarr; (klikk i forklaringen først)</p>
+  <h3 class="mellom">Oppgavene</h3>
+  <p class="leder kort">I <code>steg3.py</code> står det <code>OPPGAVE</code> og <code>pass</code> der
+  det mangler kode. Bytt ut <code>pass</code> med din egen kode. Kjør spillet ofte!</p>
+  <ol class="oppgaver" data-steg="3"><li><div class="oppg"><div class="krysse"><input type="checkbox" id="skattejakten-s3-o1" aria-labelledby="skattejakten-s3-o1t"></div><div class="innhold"><h3 id="skattejakten-s3-o1t"><span class="num">1.</span> En melding <span class="merke">Tekst</span></h3><p>Skriv «Finn mynten!» nederst til venstre på skjermen. Linja med <code>melding = Tekst(...)</code> er der allerede, men teksten er tom: <code>&quot;&quot;</code>. Skriv <code>Finn mynten!</code> mellom fnuttene.</p><details><summary>Vis hint</summary><div class="kodeboks"><button class="kopier" type="button">Kopier</button><pre>melding = Tekst(&quot;Finn mynten!&quot;, 4, 148, skygge=&quot;#181820&quot;)</pre></div></details></div></div></li><li><div class="oppg"><div class="krysse"><input type="checkbox" id="skattejakten-s3-o2" aria-labelledby="skattejakten-s3-o2t"></div><div class="innhold"><h3 id="skattejakten-s3-o2t"><span class="num">2.</span> Høyre kant <span class="merke">if og &gt;</span></h3><p>Venstre kant er laget slik:</p>
+<div class="kodeboks"><button class="kopier" type="button">Kopier</button><pre>if helt.x &lt; 0:
+    helt.x = 0</pre></div>
+<p>Det betyr: er x <strong>mindre enn</strong> 0, setter vi den tilbake til 0.</p>
+<p>Høyre kant er 240 piksler. Helten er 16 piksler bred, så x kan være høyst 240 − 16 = <strong>224</strong>. Er x <strong>større enn</strong> 224, setter du den tilbake til 224.</p><details><summary>Hint 1</summary><p><code>&gt;</code> betyr «større enn».</p></details><details><summary>Hint 2</summary><div class="kodeboks"><button class="kopier" type="button">Kopier</button><pre>if helt.x &gt; 224:
+    helt.x = 224</pre></div></details></div></div></li><li><div class="oppg"><div class="krysse"><input type="checkbox" id="skattejakten-s3-o3" aria-labelledby="skattejakten-s3-o3t"></div><div class="innhold"><h3 id="skattejakten-s3-o3t"><span class="num">3.</span> Toppen <span class="merke">if og &lt;</span></h3><p>Nå er det y. Toppen av skjermen er y = 0. Er y <strong>mindre enn</strong> 0, setter du den tilbake til 0.</p><details><summary>Hint 1</summary><p>Det er nesten det samme som venstre kant, med y i stedet for x.</p></details><details><summary>Hint 2</summary><div class="kodeboks"><button class="kopier" type="button">Kopier</button><pre>if helt.y &lt; 0:
+    helt.y = 0</pre></div></details></div></div></li><li><div class="oppg"><div class="krysse"><input type="checkbox" id="skattejakten-s3-o4" aria-labelledby="skattejakten-s3-o4t"></div><div class="innhold"><h3 id="skattejakten-s3-o4t"><span class="num">4.</span> Bunnen <span class="merke">if og &gt;</span></h3><p>Bunnen av skjermen er 160 piksler. Helten er 24 piksler høy, så y kan være høyst 160 − 24 = <strong>136</strong>.</p><details><summary>Vis hint</summary><div class="kodeboks"><button class="kopier" type="button">Kopier</button><pre>if helt.y &gt; 136:
+    helt.y = 136</pre></div></details></div></div></li></ol>
+  <div class="framdrift" data-steg="3"><div class="stolpe"><i></i></div><span class="tall"></span></div>
+  <h3 class="mellom">Ekstra utfordringer</h3><p class="leder kort">For deg som blir ferdig tidlig. Her er det ingen hull i koden – du bestemmer selv hvordan.</p><ol class="oppgaver ekstra"><li><div class="oppg"><div class="krysse"><input type="checkbox" id="skattejakten-s3-eA" aria-labelledby="skattejakten-s3-eAt"></div><div class="innhold"><h3 id="skattejakten-s3-eAt"><span class="num">A.</span> Farger</h3><p>Gi meldingen en annen farge: <code>Tekst(&quot;Finn mynten!&quot;, 4, 148, farge=&quot;yellow&quot;, skygge=&quot;#181820&quot;)</code>. Prøv også <code>&quot;red&quot;</code>, <code>&quot;#88c860&quot;</code> eller <code>storrelse=2</code>.</p></div></div></li><li><div class="oppg"><div class="krysse"><input type="checkbox" id="skattejakten-s3-eB" aria-labelledby="skattejakten-s3-eBt"></div><div class="innhold"><h3 id="skattejakten-s3-eBt"><span class="num">B.</span> Rundt jorda</h3><p>I noen spill kommer du inn på venstre side når du går ut til høyre. Lag det slik for høyre og venstre kant.</p><details><summary>Vis hint</summary><p>Går helten ut til høyre (<code>helt.x &gt; 224</code>), setter du <code>helt.x = 0</code> i stedet for 224.</p></details></div></div></li></ol>
+</section>
+<section class="del" id="steg4" role="tabpanel" aria-labelledby="fane-steg4" hidden>
+  <div class="seksjonstopp"><span class="nr">STEG 4 AV 6</span>
+    <h2 class="stor">Plukk opp mynten</h2></div>
+  <div class="leder"><p>I dag kan helten ta mynten! Når han går på den, skal det si «pling», mynten skal hoppe til et nytt sted, og du får ett poeng.</p></div>
+  <div class="todelt">
+    <div class="panel">
+      <h3 class="mellom" style="margin-top:0">Kom i gang</h3>
+      <p>Åpne <code>steg4.py</code> og kjør den. Gå bort til mynten. Den hopper sidelengs, men bare sidelengs! Finn funksjonen <code>ta_mynt()</code>. Den kjøres hver gang helten treffer mynten – se nederst i <code>oppdater()</code>.</p>
+      <p class="fil">Fil: <code>steg4.py</code></p>
+      <p class="fil">Teori til dette steget: <a href="../Teorikurs/variabler.html" style="color:var(--aksent)">2. Variabler og regning</a> · <a href="../Teorikurs/tekst.html" style="color:var(--aksent)">4. Tekst og f-strenger</a> · <a href="../Teorikurs/valg.html" style="color:var(--aksent)">5. Valg: if, elif og else</a> · <a href="../Teorikurs/funksjoner.html" style="color:var(--aksent)">7. Funksjoner</a> · <a href="../Teorikurs/global.html" style="color:var(--aksent)">8. Lokale og globale variabler</a> · <a href="../Teorikurs/figurer.html" style="color:var(--aksent)">12. Figurer, objekter og kollisjon</a> · <a href="../Teorikurs/tilfeldighet.html" style="color:var(--aksent)">14. Tilfeldighet og sannsynlighet</a></p>
+      <h4>Nytt i dag</h4><ul class="brikker"><li>helt.treffer(mynt)</li><li>funksjon: def ta_mynt():</li><li>random.randint(0, 224)</li><li>poeng = poeng + 1</li><li>global</li></ul>
+    </div>
+    <figure class="skjerm"><img src="oppgaveark_bilder/steg4.png" alt="Slik kan spillet se ut etter steg 4" width="480" height="320"><figcaption>Slik kan det se ut når du er ferdig med steg 4.</figcaption></figure>
+  </div>
+  <h3 class="mellom">Forklaring av koden</h3>
+  <p class="leder kort">Bla gjennom forklaringen før du begynner, og gå tilbake til den når du står fast.
+  Den viser koden i <code>steg4.py</code>, hva som skjer på skjermen, og hva programmet husker.
+  Der det står <strong>OPPGAVE</strong>, er det du som skal skrive koden.</p>
+  <div class="forklaring"><iframe src="forklaring.html?inne=1#okt4" loading="lazy"
+    title="Forklaring av koden i steg 4"></iframe></div>
+  <p class="kort forklaringslenke"><a href="forklaring.html#okt4" target="_blank" rel="noopener">Åpne forklaringen i
+  stort vindu &#8599;</a> · Neste: mellomrom eller &rarr; (klikk i forklaringen først)</p>
+  <h3 class="mellom">Oppgavene</h3>
+  <p class="leder kort">I <code>steg4.py</code> står det <code>OPPGAVE</code> og <code>pass</code> der
+  det mangler kode. Bytt ut <code>pass</code> med din egen kode. Kjør spillet ofte!</p>
+  <ol class="oppgaver" data-steg="4"><li><div class="oppg"><div class="krysse"><input type="checkbox" id="skattejakten-s4-o1" aria-labelledby="skattejakten-s4-o1t"></div><div class="innhold"><h3 id="skattejakten-s4-o1t"><span class="num">1.</span> Mynten hopper <span class="merke">random</span></h3><p>Mynten får en tilfeldig x med denne linja:</p>
+<div class="kodeboks"><button class="kopier" type="button">Kopier</button><pre>mynt.x = random.randint(0, 224)</pre></div>
+<p><code>random.randint(0, 224)</code> gir et tilfeldig tall fra 0 til 224. Skriv en lik linje for <code>mynt.y</code>. Mynten er 16 piksler høy, så y skal være fra 0 til <strong>144</strong>.</p><details><summary>Vis hint</summary><div class="kodeboks"><button class="kopier" type="button">Kopier</button><pre>mynt.y = random.randint(0, 144)</pre></div></details></div></div></li><li><div class="oppg"><div class="krysse"><input type="checkbox" id="skattejakten-s4-o2" aria-labelledby="skattejakten-s4-o2t"></div><div class="innhold"><h3 id="skattejakten-s4-o2t"><span class="num">2.</span> Pling! <span class="merke">lyd og effekt</span></h3><p>Spill lyden <code>&quot;mynt&quot;</code> og lag glitter der helten står. Det er to linjer:</p>
+<div class="kodeboks"><button class="kopier" type="button">Kopier</button><pre>spill_lyd(&quot;mynt&quot;)
+effekt(&quot;glitter&quot;, helt.midt_x, helt.midt_y)</pre></div>
+<p><code>helt.midt_x</code> og <code>helt.midt_y</code> er midten av helten.</p><details><summary>Vis hint</summary><p>Begge linjene skal ha samme innrykk som <code>mynt.x = ...</code> (fire mellomrom).</p></details></div></div></li><li><div class="oppg"><div class="krysse"><input type="checkbox" id="skattejakten-s4-o3" aria-labelledby="skattejakten-s4-o3t"></div><div class="innhold"><h3 id="skattejakten-s4-o3t"><span class="num">3.</span> Tell poengene <span class="merke">variabel som teller</span></h3><p>Variabelen <code>poeng</code> er 0 når spillet starter. Hver gang helten tar mynten, skal den bli én mer. Det skrives slik:</p>
+<div class="kodeboks"><button class="kopier" type="button">Kopier</button><pre>poeng = poeng + 1</pre></div>
+<p>Les det som «ny poeng er gammel poeng pluss 1». Linja under viser poengene på skjermen.</p>
+<p>Øverst i funksjonen står <code>global poeng</code>. Det trengs fordi funksjonen <strong>endrer</strong> en variabel som ligger utenfor funksjonen.</p><details><summary>Vis hint</summary><p>Står det <code>UnboundLocalError</code>? Da mangler <code>global poeng</code> – den skal stå der fra før.</p></details></div></div></li><li><div class="oppg"><div class="krysse"><input type="checkbox" id="skattejakten-s4-o4" aria-labelledby="skattejakten-s4-o4t"></div><div class="innhold"><h3 id="skattejakten-s4-o4t"><span class="num">4.</span> Bra! <span class="merke">endre tekst</span></h3><p>Når helten tar mynten, skal teksten nederst bli «Bra! Finn en til!». Du endrer teksten i en <code>Tekst</code> slik:</p>
+<div class="kodeboks"><button class="kopier" type="button">Kopier</button><pre>melding.tekst = &quot;Bra! Finn en til!&quot;</pre></div><details><summary>Vis hint</summary><p>Linja skal stå inni if-setningen, rett under <code>ta_mynt()</code>, med samme innrykk.</p></details></div></div></li></ol>
+  <div class="framdrift" data-steg="4"><div class="stolpe"><i></i></div><span class="tall"></span></div>
+  <h3 class="mellom">Ekstra utfordringer</h3><p class="leder kort">For deg som blir ferdig tidlig. Her er det ingen hull i koden – du bestemmer selv hvordan.</p><ol class="oppgaver ekstra"><li><div class="oppg"><div class="krysse"><input type="checkbox" id="skattejakten-s4-eA" aria-labelledby="skattejakten-s4-eAt"></div><div class="innhold"><h3 id="skattejakten-s4-eAt"><span class="num">A.</span> +1</h3><p>Vis en liten «+1» som flyter opp fra helten når han tar mynten: <code>flytende_tekst(&quot;+1&quot;, helt.x, helt.y)</code>.</p><details><summary>Vis hint</summary><p>Skriv linja inni <code>ta_mynt()</code>.</p></details></div></div></li><li><div class="oppg"><div class="krysse"><input type="checkbox" id="skattejakten-s4-eB" aria-labelledby="skattejakten-s4-eBt"></div><div class="innhold"><h3 id="skattejakten-s4-eBt"><span class="num">B.</span> Andre effekter</h3><p>Prøv andre effekter enn <code>&quot;glitter&quot;</code>: <code>&quot;poff&quot;</code>, <code>&quot;hjerte&quot;</code>, <code>&quot;gnister&quot;</code> eller <code>&quot;ild&quot;</code>. Alle effektene står under <strong>Oppslag</strong>.</p></div></div></li><li><div class="oppg"><div class="krysse"><input type="checkbox" id="skattejakten-s4-eC" aria-labelledby="skattejakten-s4-eCt"></div><div class="innhold"><h3 id="skattejakten-s4-eCt"><span class="num">C.</span> Rikere</h3><p>Gi 5 poeng for hver mynt i stedet for 1.</p></div></div></li></ol>
+</section>
+<section class="del" id="steg5" role="tabpanel" aria-labelledby="fane-steg5" hidden>
+  <div class="seksjonstopp"><span class="nr">STEG 5 AV 6</span>
+    <h2 class="stor">Pass deg for slimet!</h2></div>
+  <div class="leder"><p>Nå kommer et slim som kryper etter helten. Tar det deg, mister du et liv. Når livene er brukt opp, er det GAME OVER.</p></div>
+  <div class="todelt">
+    <div class="panel">
+      <h3 class="mellom" style="margin-top:0">Kom i gang</h3>
+      <p>Åpne <code>steg5.py</code> og kjør den. Slimet nede i hjørnet kryper mot helten – men bare sidelengs. Finn funksjonene <code>flytt_slim()</code> og <code>au()</code>.</p>
+      <p class="fil">Fil: <code>steg5.py</code></p>
+      <p class="fil">Teori til dette steget: <a href="../Teorikurs/variabler.html" style="color:var(--aksent)">2. Variabler og regning</a> · <a href="../Teorikurs/valg.html" style="color:var(--aksent)">5. Valg: if, elif og else</a> · <a href="../Teorikurs/funksjoner.html" style="color:var(--aksent)">7. Funksjoner</a> · <a href="../Teorikurs/global.html" style="color:var(--aksent)">8. Lokale og globale variabler</a> · <a href="../Teorikurs/figurer.html" style="color:var(--aksent)">12. Figurer, objekter og kollisjon</a> · <a href="../Teorikurs/tilstand.html" style="color:var(--aksent)">13. Tilstand: spillet husker hva som skjer</a></p>
+      <h4>Nytt i dag</h4><ul class="brikker"><li>en fiende som følger etter</li><li>liv = liv - 1</li><li>== er lik</li><li>True og False</li><li>return</li></ul>
+    </div>
+    <figure class="skjerm"><img src="oppgaveark_bilder/steg5.png" alt="Slik kan spillet se ut etter steg 5" width="480" height="320"><figcaption>Slik kan det se ut når du er ferdig med steg 5.</figcaption></figure>
+  </div>
+  <h3 class="mellom">Forklaring av koden</h3>
+  <p class="leder kort">Bla gjennom forklaringen før du begynner, og gå tilbake til den når du står fast.
+  Den viser koden i <code>steg5.py</code>, hva som skjer på skjermen, og hva programmet husker.
+  Der det står <strong>OPPGAVE</strong>, er det du som skal skrive koden.</p>
+  <div class="forklaring"><iframe src="forklaring.html?inne=1#okt5" loading="lazy"
+    title="Forklaring av koden i steg 5"></iframe></div>
+  <p class="kort forklaringslenke"><a href="forklaring.html#okt5" target="_blank" rel="noopener">Åpne forklaringen i
+  stort vindu &#8599;</a> · Neste: mellomrom eller &rarr; (klikk i forklaringen først)</p>
+  <h3 class="mellom">Oppgavene</h3>
+  <p class="leder kort">I <code>steg5.py</code> står det <code>OPPGAVE</code> og <code>pass</code> der
+  det mangler kode. Bytt ut <code>pass</code> med din egen kode. Kjør spillet ofte!</p>
+  <ol class="oppgaver" data-steg="5"><li><div class="oppg"><div class="krysse"><input type="checkbox" id="skattejakten-s5-o1" aria-labelledby="skattejakten-s5-o1t"></div><div class="innhold"><h3 id="skattejakten-s5-o1t"><span class="num">1.</span> Lett eller vanskelig? <span class="merke">desimaltall</span></h3><p><code>slim_fart</code> sier hvor fort slimet kryper. 0.5 betyr en halv piksel hver gang <code>oppdater()</code> kjøres. Prøv <code>0.3</code> og <code>1</code>, og velg det du synes er best. I Python skriver vi desimaltall med <strong>punktum</strong>, ikke komma.</p><details><summary>Vis hint</summary><p>Linja <code>slim_fart = 0.5</code> står øverst, under slimet.</p></details></div></div></li><li><div class="oppg"><div class="krysse"><input type="checkbox" id="skattejakten-s5-o2" aria-labelledby="skattejakten-s5-o2t"></div><div class="innhold"><h3 id="skattejakten-s5-o2t"><span class="num">2.</span> Opp og ned <span class="merke">if</span></h3><p>Slimet følger helten sidelengs:</p>
+<div class="kodeboks"><button class="kopier" type="button">Kopier</button><pre>if slim.x &lt; helt.x:
+    slim.x = slim.x + slim_fart
+if slim.x &gt; helt.x:
+    slim.x = slim.x - slim_fart</pre></div>
+<p>Er slimet til <strong>venstre</strong> for helten (mindre x), kryper det mot høyre. Skriv det samme med <strong>y</strong>, så slimet også kryper opp og ned.</p><details><summary>Hint 1</summary><p>Kopier de fire linjene og bytt alle <code>x</code> med <code>y</code>.</p></details><details><summary>Hint 2</summary><div class="kodeboks"><button class="kopier" type="button">Kopier</button><pre>if slim.y &lt; helt.y:
+    slim.y = slim.y + slim_fart
+if slim.y &gt; helt.y:
+    slim.y = slim.y - slim_fart</pre></div></details></div></div></li><li><div class="oppg"><div class="krysse"><input type="checkbox" id="skattejakten-s5-o3" aria-labelledby="skattejakten-s5-o3t"></div><div class="innhold"><h3 id="skattejakten-s5-o3t"><span class="num">3.</span> Au! <span class="merke">variabel som teller ned</span></h3><p>Når slimet tar helten, kjøres <code>au()</code>. Helten blinker, og slimet hopper til et hjørne. Men han mister ikke liv ennå! Skriv linja som gjør <code>liv</code> én mindre – det er som <code>poeng = poeng + 1</code>, bare med minus.</p><details><summary>Vis hint</summary><div class="kodeboks"><button class="kopier" type="button">Kopier</button><pre>liv = liv - 1</pre></div></details></div></div></li><li><div class="oppg"><div class="krysse"><input type="checkbox" id="skattejakten-s5-o4" aria-labelledby="skattejakten-s5-o4t"></div><div class="innhold"><h3 id="skattejakten-s5-o4t"><span class="num">4.</span> GAME OVER <span class="merke">if og ==</span></h3><p>Når <code>liv</code> er blitt 0, er spillet over. Da skal tre ting skje:</p>
+<ul class="liste"><li><code>vis_stor(&quot;GAME OVER&quot;)</code> skriver det stort på skjermen</li><li><code>spill_lyd(&quot;game_over&quot;)</code></li><li><code>ferdig = True</code> – da stopper <code>oppdater()</code> alt (se øverst i den)</li></ul>
+<p><code>==</code> betyr «er lik» og sjekker. Ett <code>=</code> betyr «bli» og endrer.</p><details><summary>Hint 1</summary><p>Begynn med <code>if liv == 0:</code> og sett de tre linjene inni, med fire mellomrom mer innrykk.</p></details><details><summary>Hint 2</summary><div class="kodeboks"><button class="kopier" type="button">Kopier</button><pre>if liv == 0:
+    vis_stor(&quot;GAME OVER&quot;)
+    spill_lyd(&quot;game_over&quot;)
+    ferdig = True</pre></div></details></div></div></li></ol>
+  <div class="framdrift" data-steg="5"><div class="stolpe"><i></i></div><span class="tall"></span></div>
+  <h3 class="mellom">Ekstra utfordringer</h3><p class="leder kort">For deg som blir ferdig tidlig. Her er det ingen hull i koden – du bestemmer selv hvordan.</p><ol class="oppgaver ekstra"><li><div class="oppg"><div class="krysse"><input type="checkbox" id="skattejakten-s5-eA" aria-labelledby="skattejakten-s5-eAt"></div><div class="innhold"><h3 id="skattejakten-s5-eAt"><span class="num">A.</span> Flaggermus</h3><p>Bytt slimet ut med en flaggermus: bildene heter <code>&quot;flaggermus_1&quot;</code> og <code>&quot;flaggermus_2&quot;</code>.</p><details><summary>Vis hint</summary><p>Endre både <code>Figur(...)</code> og <code>slim.animer(...)</code>.</p></details></div></div></li><li><div class="oppg"><div class="krysse"><input type="checkbox" id="skattejakten-s5-eB" aria-labelledby="skattejakten-s5-eBt"></div><div class="innhold"><h3 id="skattejakten-s5-eBt"><span class="num">B.</span> Rist mindre</h3><p><code>rist_skjerm()</code> i <code>au()</code> rister hele skjermen. Prøv <code>rist_skjerm(1, 6)</code> – ett sekund og mer risting. Eller fjern den.</p></div></div></li><li><div class="oppg"><div class="krysse"><input type="checkbox" id="skattejakten-s5-eC" aria-labelledby="skattejakten-s5-eCt"></div><div class="innhold"><h3 id="skattejakten-s5-eCt"><span class="num">C.</span> Et slim til</h3><p>Lag et slim til, <code>slim2</code>, som starter i et annet hjørne og kryper etter helten.</p><details><summary>Vis hint</summary><p>Du trenger en ny <code>Figur</code>, en <code>flytt_slim2()</code> og en <code>if helt.treffer(slim2):</code> i <code>oppdater()</code>.</p></details></div></div></li></ol>
+</section>
+<section class="del" id="steg6" role="tabpanel" aria-labelledby="fane-steg6" hidden>
+  <div class="seksjonstopp"><span class="nr">STEG 6 AV 6</span>
+    <h2 class="stor">Vinn spillet</h2></div>
+  <div class="leder"><p>I dag blir spillet ferdig: det får musikk, slimet blir raskere for hver mynt du tar, du VINNER når du har 10 mynter, og du kan spille igjen med Enter.</p></div>
+  <div class="todelt">
+    <div class="panel">
+      <h3 class="mellom" style="margin-top:0">Kom i gang</h3>
+      <p>Åpne <code>steg6.py</code> og kjør den. Alt fra steg 5 virker. Nå skal du gjøre spillet ferdig – og etterpå kan du gjøre det til ditt eget med ekstraoppgavene og <strong>Byggesett</strong>-fanen.</p>
+      <p class="fil">Fil: <code>steg6.py</code></p>
+      <p class="fil">Teori til dette steget: <a href="../Teorikurs/variabler.html" style="color:var(--aksent)">2. Variabler og regning</a> · <a href="../Teorikurs/valg.html" style="color:var(--aksent)">5. Valg: if, elif og else</a> · <a href="../Teorikurs/spillokka.html" style="color:var(--aksent)">6. Spill-løkka, taster og tellere</a> · <a href="../Teorikurs/funksjoner.html" style="color:var(--aksent)">7. Funksjoner</a> · <a href="../Teorikurs/global.html" style="color:var(--aksent)">8. Lokale og globale variabler</a> · <a href="../Teorikurs/tilstand.html" style="color:var(--aksent)">13. Tilstand: spillet husker hva som skjer</a> · <a href="../Teorikurs/filer_og_feil.html" style="color:var(--aksent)">15. Filer, feilmeldinger og feilsøking</a></p>
+      <h4>Nytt i dag</h4><ul class="brikker"><li>spill_musikk(&quot;navn&quot;)</li><li>slim_fart = slim_fart + 0.1</li><li>if poeng == 10:</li><li>tast_trykket(&quot;enter&quot;)</li><li>nytt_spill()</li></ul>
+    </div>
+    <figure class="skjerm"><img src="oppgaveark_bilder/steg6.png" alt="Slik kan spillet se ut etter steg 6" width="480" height="320"><figcaption>Slik kan det se ut når du er ferdig med steg 6.</figcaption></figure>
+  </div>
+  <h3 class="mellom">Forklaring av koden</h3>
+  <p class="leder kort">Bla gjennom forklaringen før du begynner, og gå tilbake til den når du står fast.
+  Den viser koden i <code>steg6.py</code>, hva som skjer på skjermen, og hva programmet husker.
+  Der det står <strong>OPPGAVE</strong>, er det du som skal skrive koden.</p>
+  <div class="forklaring"><iframe src="forklaring.html?inne=1#okt6" loading="lazy"
+    title="Forklaring av koden i steg 6"></iframe></div>
+  <p class="kort forklaringslenke"><a href="forklaring.html#okt6" target="_blank" rel="noopener">Åpne forklaringen i
+  stort vindu &#8599;</a> · Neste: mellomrom eller &rarr; (klikk i forklaringen først)</p>
+  <h3 class="mellom">Oppgavene</h3>
+  <p class="leder kort">I <code>steg6.py</code> står det <code>OPPGAVE</code> og <code>pass</code> der
+  det mangler kode. Bytt ut <code>pass</code> med din egen kode. Kjør spillet ofte!</p>
+  <ol class="oppgaver" data-steg="6"><li><div class="oppg"><div class="krysse"><input type="checkbox" id="skattejakten-s6-o1" aria-labelledby="skattejakten-s6-o1t"></div><div class="innhold"><h3 id="skattejakten-s6-o1t"><span class="num">1.</span> Musikk <span class="merke">spill_musikk</span></h3><p>Start musikken <code>&quot;oververden&quot;</code> med <code>spill_musikk(&quot;oververden&quot;)</code>. Prøv også <code>&quot;landsby&quot;</code> og <code>&quot;tittel&quot;</code> – hvilken passer best?</p><details><summary>Vis hint</summary><p>Linja skal stå helt til venstre (uten innrykk) under <code># OPPGAVE 1</code>.</p></details></div></div></li><li><div class="oppg"><div class="krysse"><input type="checkbox" id="skattejakten-s6-o2" aria-labelledby="skattejakten-s6-o2t"></div><div class="innhold"><h3 id="skattejakten-s6-o2t"><span class="num">2.</span> Slimet blir raskere <span class="merke">variabel som vokser</span></h3><p>Hver gang helten tar en mynt, skal slimet bli litt raskere: <code>slim_fart</code> skal bli 0.1 mer enn før. Skriv det i <code>ta_mynt()</code>. Det er som <code>poeng = poeng + 1</code>.</p><details><summary>Vis hint</summary><div class="kodeboks"><button class="kopier" type="button">Kopier</button><pre>slim_fart = slim_fart + 0.1</pre></div></details></div></div></li><li><div class="oppg"><div class="krysse"><input type="checkbox" id="skattejakten-s6-o3" aria-labelledby="skattejakten-s6-o3t"></div><div class="innhold"><h3 id="skattejakten-s6-o3t"><span class="num">3.</span> Du vant! <span class="merke">if og ==</span></h3><p>Har helten 10 mynter, har du vunnet! Se hvordan GAME OVER er laget i <code>au()</code>, og lag det samme i <code>ta_mynt()</code>:</p>
+<ul class="liste"><li>sjekk om <code>poeng == 10</code></li><li><code>vis_stor(&quot;DU VANT!&quot;)</code></li><li><code>spill_lyd(&quot;seier&quot;)</code></li><li><code>helt.bilde = &quot;helt_jubel&quot;</code></li><li><code>ferdig = True</code></li></ul><details><summary>Vis hint</summary><div class="kodeboks"><button class="kopier" type="button">Kopier</button><pre>if poeng == 10:
+    vis_stor(&quot;DU VANT!&quot;)
+    spill_lyd(&quot;seier&quot;)
+    helt.bilde = &quot;helt_jubel&quot;
+    ferdig = True</pre></div></details></div></div></li><li><div class="oppg"><div class="krysse"><input type="checkbox" id="skattejakten-s6-o4" aria-labelledby="skattejakten-s6-o4t"></div><div class="innhold"><h3 id="skattejakten-s6-o4t"><span class="num">4.</span> Spill igjen <span class="merke">tast_trykket</span></h3><p>Når spillet er over, står det «Trykk Enter for å spille igjen». Få det til å virke: trykker spilleren <code>&quot;enter&quot;</code>, skal <code>nytt_spill()</code> kjøres. Funksjonen <code>nytt_spill()</code> er ferdig – den setter alt tilbake slik det var i starten.</p>
+<p><code>tast_trykket</code> er sant bare i det øyeblikket tasten trykkes ned, ikke hele tiden den holdes.</p><details><summary>Vis hint</summary><div class="kodeboks"><button class="kopier" type="button">Kopier</button><pre>if tast_trykket(&quot;enter&quot;):
+    nytt_spill()</pre></div>
+<p>Den skal stå inni <code>if ferdig:</code>, over <code>return</code>.</p></details></div></div></li></ol>
+  <div class="framdrift" data-steg="6"><div class="stolpe"><i></i></div><span class="tall"></span></div>
+  <h3 class="mellom">Ekstra utfordringer</h3><p class="leder kort">For deg som blir ferdig tidlig. Her er det ingen hull i koden – du bestemmer selv hvordan.</p><ol class="oppgaver ekstra"><li><div class="oppg"><div class="krysse"><input type="checkbox" id="skattejakten-s6-eA" aria-labelledby="skattejakten-s6-eAt"></div><div class="innhold"><h3 id="skattejakten-s6-eAt"><span class="num">A.</span> Tidtaker</h3><p>Vis hvor mange sekunder spillet har vart. <code>tid()</code> gir sekunder siden spillet startet.</p><details><summary>Vis hint</summary><p>Lag en <code>Tekst</code> øverst i midten, og skriv <code>klokke.tekst = str(int(tid()))</code> i <code>oppdater()</code>.</p></details></div></div></li><li><div class="oppg"><div class="krysse"><input type="checkbox" id="skattejakten-s6-eB" aria-labelledby="skattejakten-s6-eBt"></div><div class="innhold"><h3 id="skattejakten-s6-eBt"><span class="num">B.</span> Hjerte gir liv</h3><p>Legg ut et hjerte (<code>&quot;hjerte&quot;</code>). Tar helten det, får han ett liv mer, og hjertet hopper til et nytt sted.</p><details><summary>Vis hint</summary><p>Se hvordan mynten er laget, og lag en <code>ta_hjerte()</code> som ligner på <code>ta_mynt()</code>.</p></details></div></div></li><li><div class="oppg"><div class="krysse"><input type="checkbox" id="skattejakten-s6-eC" aria-labelledby="skattejakten-s6-eCt"></div><div class="innhold"><h3 id="skattejakten-s6-eCt"><span class="num">C.</span> Ditt eget spill</h3><p>Gjør spillet til ditt eget: et nytt kart, en annen skatt (for eksempel <code>&quot;edelstein_rod&quot;</code>), en annen fiende, andre lyder. Se <strong>Byggesett</strong> og <strong>Oppslag</strong>.</p></div></div></li><li><div class="oppg"><div class="krysse"><input type="checkbox" id="skattejakten-s6-eD" aria-labelledby="skattejakten-s6-eDt"></div><div class="innhold"><h3 id="skattejakten-s6-eDt"><span class="num">D.</span> Videre</h3><p>Klar for mer? Eventyret begynner med det samme som du nå kan: kart, piltaster, kanter og <code>if</code>. Spør læreren om du kan prøve det.</p></div></div></li></ol>
+</section>
+<section class="del" id="oppslag" role="tabpanel" aria-labelledby="fane-oppslag" hidden>
+  <div class="seksjonstopp"><span class="nr">OPPSLAG</span><h2 class="stor">Når du står fast</h2></div>
+  <p class="leder">Alt spillmotoren kan, og navnene på alle bilder, lyder og all musikk. Du finner det samme
+  øverst i <code>spillmotor.py</code>.</p>
+  
+  <div class="panel">
+    <h3 class="mellom" style="margin-top:0">Grunnmuren</h3>
+    <div class="kodeboks"><button class="kopier" type="button">Kopier</button><pre>from spillmotor import *
+
+helt = Figur("helt_ned_1", 7 * RUTE, 4 * RUTE)
+skritt = 0
+
+def oppdater():                    # kjøres 60 ganger i sekundet
+    global skritt                  # trengs når du ENDRER en variabel som står utenfor
+    if tast_holdes("hoyre"):
+        helt.x = helt.x + 1
+        skritt = skritt + 1
+
+start(tittel="Mitt spill")         # helt nederst</pre></div>
+    <p>Skjermen er 15 × 10 <strong>ruter</strong>. Hver rute er 16 × 16 piksler, altså 240 × 160 piksler
+    til sammen. <code>x</code> øker mot høyre, <code>y</code> øker <strong>nedover</strong>.
+    Rute (kolonne 3, rad 2) har øverste venstre hjørne i <code>x = 3 * RUTE</code>, <code>y = 2 * RUTE</code>.</p>
+  </div>
+  <div class="panel">
+    <h3 class="mellom" style="margin-top:0">Figurer, tekst og firkanter</h3>
+    <table>
+      <tr><th>Kode</th><th>Hva den gjør</th></tr>
+      <tr><td><code>Figur("navn", x, y)</code></td><td>en figur med et bilde fra mappen <code>bilder/</code></td></tr>
+      <tr><td><code>figur.x</code>, <code>figur.y</code></td><td>posisjonen (øverste venstre hjørne)</td></tr>
+      <tr><td><code>figur.bilde = "navn"</code></td><td>bytter bilde – slik animerer du</td></tr>
+      <tr><td><code>figur.animer(["a", "b"], fart=10)</code></td><td>bytter bilde automatisk (lavere fart = raskere)</td></tr>
+      <tr><td><code>figur.bredde</code>, <code>figur.hoyde</code></td><td>størrelsen på bildet</td></tr>
+      <tr><td><code>figur.midt_x</code>, <code>figur.midt_y</code></td><td>midtpunktet</td></tr>
+      <tr><td><code>figur.treffer(annen)</code></td><td><code>True</code> hvis figurene overlapper</td></tr>
+      <tr><td><code>Figur(..., treffboks=(2, 16, 12, 8))</code></td><td>bare denne delen av bildet kan treffes (her: føttene)</td></tr>
+      <tr><td><code>figur.synlig = False</code></td><td>skjuler figuren</td></tr>
+      <tr><td><code>figur.fjern()</code></td><td>fjerner figuren for godt</td></tr>
+      <tr><td><code>Figur(..., skygge=True)</code></td><td>liten skygge under føttene</td></tr>
+      <tr><td><code>Figur(..., lag=0)</code></td><td>lag 0 = bakgrunn, 1 = figurer, 2 = effekter, 3 = tekst</td></tr>
+      <tr><td><code>Tekst("Hei", x, y, farge="white", skygge="black")</code></td><td>tekst med pikselskrift. <code>storrelse=2</code> gir dobbel størrelse, <code>maks_bredde=200</code> bryter linjene</td></tr>
+      <tr><td><code>tekst.tekst = "Ny tekst"</code></td><td>bytter teksten</td></tr>
+      <tr><td><code>Rektangel(x, y, bredde, hoyde, "red")</code></td><td>en fylt firkant</td></tr>
+    </table>
+  </div>
+  <div class="panel">
+    <h3 class="mellom" style="margin-top:0">Kart og taster</h3>
+    <table>
+      <tr><th>Kode</th><th>Hva den gjør</th></tr>
+      <tr><td><code>tegn_kart(kart, ruter)</code></td><td>tegner et kart der hvert tegn er én rute</td></tr>
+      <tr><td><code>rute_ved(x, y)</code></td><td>hvilket tegn som ligger på piksel x, y (eller <code>None</code> utenfor)</td></tr>
+      <tr><td><code>endre_rute(kolonne, rad, "tegn")</code></td><td>bytter ut én rute, f.eks. når en dør åpnes</td></tr>
+      <tr><td><code>tast_holdes("venstre")</code></td><td><code>True</code> så lenge tasten holdes nede – til å gå</td></tr>
+      <tr><td><code>tast_trykket("mellomrom")</code></td><td><code>True</code> bare i øyeblikket tasten trykkes – til å slå og velge</td></tr>
+    </table>
+  </div>
+  <div class="panel">
+    <h3 class="mellom" style="margin-top:0">Effekter, lyd og tid</h3>
+    <table>
+      <tr><th>Kode</th><th>Hva den gjør</th></tr>
+      <tr><td><code>effekt("treff", x, y)</code></td><td>ferdig effekt: poff, treff, glitter, plask, stov, blader, gnister, hjerte, ild, vann, blad, lyn, stein, slag</td></tr>
+      <tr><td><code>partikler(x, y, antall=10, farger=["red"], fart=1)</code></td><td>din egen sprut av piksler</td></tr>
+      <tr><td><code>flytende_tekst("-3", x, y)</code></td><td>tekst som stiger opp og forsvinner</td></tr>
+      <tr><td><code>figur.glimt()</code> · <code>figur.blink(1)</code> · <code>figur.rist()</code></td><td>figuren blir hvit · blinker i 1 sekund · rister</td></tr>
+      <tr><td><code>rist_skjerm()</code> · <code>blink_skjerm("white")</code></td><td>hele skjermen rister · blinker</td></tr>
+      <tr><td><code>overgang(funksjon)</code></td><td>toner ut, kaller funksjonen, toner inn. <code>stil="kamp"</code> gir blink og striper</td></tr>
+      <tr><td><code>i_overgang()</code></td><td><code>True</code> mens en overgang pågår</td></tr>
+      <tr><td><code>spill_lyd("navn")</code> · <code>spill_musikk("navn")</code></td><td>spiller en lyd · starter musikk</td></tr>
+      <tr><td><code>etter(2, funksjon)</code></td><td>kaller funksjonen om 2 sekunder (uten parenteser bak navnet!)</td></tr>
+      <tr><td><code>tid()</code></td><td>sekunder siden spillet startet</td></tr>
+    </table>
+  </div>
+  <div class="panel">
+    <h3 class="mellom" style="margin-top:0">Feilmeldinger du kommer til å se</h3>
+    <table>
+      <tr><th>Meldingen</th><th>Hva den betyr</th></tr>
+      <tr><td><code>Fant ikke bildet "..."</code></td><td>Navnet er stavet feil, eller bildet finnes ikke. Motoren foreslår navn som ligner.</td></tr>
+      <tr><td><code>Kjenner ikke tasten "..."</code></td><td>Tastenavnet er feil. Bruk "venstre", "hoyre", "opp", "ned", "mellomrom", "enter" eller en bokstav.</td></tr>
+      <tr><td><code>NameError: name '...' is not defined</code></td><td>Du bruker en variabel som ikke finnes ennå – stavefeil, eller den lages lenger ned.</td></tr>
+      <tr><td><code>UnboundLocalError</code></td><td>Du endrer en variabel inni <code>oppdater()</code> uten å skrive <code>global navn</code> øverst i funksjonen.</td></tr>
+      <tr><td><code>IndentationError</code></td><td>Innrykket stemmer ikke. Alt inni en <code>if</code> eller funksjon må ha like mye innrykk.</td></tr>
+      <tr><td><code>IndexError: list index out of range</code></td><td>Du spør etter en plass i en liste som ikke finnes – ofte en rute utenfor kartet.</td></tr>
+      <tr><td><code>TypeError: ... 'NoneType'</code></td><td>Noe er <code>None</code> der du ventet en verdi. Glemt <code>return</code> i en funksjon?</td></tr>
+    </table>
+  </div>
+  <h3 class="mellom">Alle bildene</h3>
+  <p class="leder kort">Skriv navnet uten <code>.png</code>, for eksempel <code>Figur("blomsterbed", 0, 0)</code>.
+  Størrelsen er 16 × 16 piksler hvis ikke annet står i oppgaven.</p>
+  <div class="galleri"><figure class="bilde"><img src="bilder/blomsterbed.png" alt="" loading="lazy"><figcaption><code>blomsterbed</code></figcaption></figure></div><div class="galleri"><figure class="bilde"><img src="bilder/busk.png" alt="" loading="lazy"><figcaption><code>busk</code></figcaption></figure></div><div class="galleri"><figure class="bilde"><img src="bilder/edelstein_bla.png" alt="" loading="lazy"><figcaption><code>edelstein_bla</code></figcaption></figure><figure class="bilde"><img src="bilder/edelstein_gronn.png" alt="" loading="lazy"><figcaption><code>edelstein_gronn</code></figcaption></figure><figure class="bilde"><img src="bilder/edelstein_rod.png" alt="" loading="lazy"><figcaption><code>edelstein_rod</code></figcaption></figure></div><div class="galleri"><figure class="bilde"><img src="bilder/fx_blad_1.png" alt="" loading="lazy"><figcaption><code>fx_blad_1</code></figcaption></figure><figure class="bilde"><img src="bilder/fx_blad_2.png" alt="" loading="lazy"><figcaption><code>fx_blad_2</code></figcaption></figure><figure class="bilde"><img src="bilder/fx_blad_3.png" alt="" loading="lazy"><figcaption><code>fx_blad_3</code></figcaption></figure><figure class="bilde"><img src="bilder/fx_blad_4.png" alt="" loading="lazy"><figcaption><code>fx_blad_4</code></figcaption></figure><figure class="bilde"><img src="bilder/fx_glitter_1.png" alt="" loading="lazy"><figcaption><code>fx_glitter_1</code></figcaption></figure><figure class="bilde"><img src="bilder/fx_glitter_2.png" alt="" loading="lazy"><figcaption><code>fx_glitter_2</code></figcaption></figure><figure class="bilde"><img src="bilder/fx_glitter_3.png" alt="" loading="lazy"><figcaption><code>fx_glitter_3</code></figcaption></figure><figure class="bilde"><img src="bilder/fx_hjerte_1.png" alt="" loading="lazy"><figcaption><code>fx_hjerte_1</code></figcaption></figure><figure class="bilde"><img src="bilder/fx_hjerte_2.png" alt="" loading="lazy"><figcaption><code>fx_hjerte_2</code></figcaption></figure><figure class="bilde"><img src="bilder/fx_ild_1.png" alt="" loading="lazy"><figcaption><code>fx_ild_1</code></figcaption></figure><figure class="bilde"><img src="bilder/fx_ild_2.png" alt="" loading="lazy"><figcaption><code>fx_ild_2</code></figcaption></figure><figure class="bilde"><img src="bilder/fx_ild_3.png" alt="" loading="lazy"><figcaption><code>fx_ild_3</code></figcaption></figure><figure class="bilde"><img src="bilder/fx_ild_4.png" alt="" loading="lazy"><figcaption><code>fx_ild_4</code></figcaption></figure><figure class="bilde"><img src="bilder/fx_lyn_1.png" alt="" loading="lazy"><figcaption><code>fx_lyn_1</code></figcaption></figure><figure class="bilde"><img src="bilder/fx_lyn_2.png" alt="" loading="lazy"><figcaption><code>fx_lyn_2</code></figcaption></figure><figure class="bilde"><img src="bilder/fx_lyn_3.png" alt="" loading="lazy"><figcaption><code>fx_lyn_3</code></figcaption></figure><figure class="bilde"><img src="bilder/fx_plask_1.png" alt="" loading="lazy"><figcaption><code>fx_plask_1</code></figcaption></figure><figure class="bilde"><img src="bilder/fx_plask_2.png" alt="" loading="lazy"><figcaption><code>fx_plask_2</code></figcaption></figure><figure class="bilde"><img src="bilder/fx_plask_3.png" alt="" loading="lazy"><figcaption><code>fx_plask_3</code></figcaption></figure><figure class="bilde"><img src="bilder/fx_poff_1.png" alt="" loading="lazy"><figcaption><code>fx_poff_1</code></figcaption></figure><figure class="bilde"><img src="bilder/fx_poff_2.png" alt="" loading="lazy"><figcaption><code>fx_poff_2</code></figcaption></figure><figure class="bilde"><img src="bilder/fx_poff_3.png" alt="" loading="lazy"><figcaption><code>fx_poff_3</code></figcaption></figure><figure class="bilde"><img src="bilder/fx_poff_4.png" alt="" loading="lazy"><figcaption><code>fx_poff_4</code></figcaption></figure><figure class="bilde"><img src="bilder/fx_slag_1.png" alt="" loading="lazy"><figcaption><code>fx_slag_1</code></figcaption></figure><figure class="bilde"><img src="bilder/fx_slag_2.png" alt="" loading="lazy"><figcaption><code>fx_slag_2</code></figcaption></figure><figure class="bilde"><img src="bilder/fx_slag_3.png" alt="" loading="lazy"><figcaption><code>fx_slag_3</code></figcaption></figure><figure class="bilde"><img src="bilder/fx_stein_1.png" alt="" loading="lazy"><figcaption><code>fx_stein_1</code></figcaption></figure><figure class="bilde"><img src="bilder/fx_stein_2.png" alt="" loading="lazy"><figcaption><code>fx_stein_2</code></figcaption></figure><figure class="bilde"><img src="bilder/fx_stein_3.png" alt="" loading="lazy"><figcaption><code>fx_stein_3</code></figcaption></figure><figure class="bilde"><img src="bilder/fx_stov_1.png" alt="" loading="lazy"><figcaption><code>fx_stov_1</code></figcaption></figure><figure class="bilde"><img src="bilder/fx_stov_2.png" alt="" loading="lazy"><figcaption><code>fx_stov_2</code></figcaption></figure><figure class="bilde"><img src="bilder/fx_stov_3.png" alt="" loading="lazy"><figcaption><code>fx_stov_3</code></figcaption></figure><figure class="bilde"><img src="bilder/fx_treff_1.png" alt="" loading="lazy"><figcaption><code>fx_treff_1</code></figcaption></figure><figure class="bilde"><img src="bilder/fx_treff_2.png" alt="" loading="lazy"><figcaption><code>fx_treff_2</code></figcaption></figure><figure class="bilde"><img src="bilder/fx_treff_3.png" alt="" loading="lazy"><figcaption><code>fx_treff_3</code></figcaption></figure><figure class="bilde"><img src="bilder/fx_vann_1.png" alt="" loading="lazy"><figcaption><code>fx_vann_1</code></figcaption></figure><figure class="bilde"><img src="bilder/fx_vann_2.png" alt="" loading="lazy"><figcaption><code>fx_vann_2</code></figcaption></figure><figure class="bilde"><img src="bilder/fx_vann_3.png" alt="" loading="lazy"><figcaption><code>fx_vann_3</code></figcaption></figure><figure class="bilde"><img src="bilder/fx_vann_4.png" alt="" loading="lazy"><figcaption><code>fx_vann_4</code></figcaption></figure></div><div class="galleri"><figure class="bilde"><img src="bilder/flaggermus_1.png" alt="" loading="lazy"><figcaption><code>flaggermus_1</code></figcaption></figure><figure class="bilde"><img src="bilder/flaggermus_2.png" alt="" loading="lazy"><figcaption><code>flaggermus_2</code></figcaption></figure></div><div class="galleri"><figure class="bilde"><img src="bilder/gress.png" alt="" loading="lazy"><figcaption><code>gress</code></figcaption></figure><figure class="bilde"><img src="bilder/gress_1.png" alt="" loading="lazy"><figcaption><code>gress_1</code></figcaption></figure><figure class="bilde"><img src="bilder/gress_2.png" alt="" loading="lazy"><figcaption><code>gress_2</code></figcaption></figure><figure class="bilde"><img src="bilder/gress_3.png" alt="" loading="lazy"><figcaption><code>gress_3</code></figcaption></figure><figure class="bilde"><img src="bilder/gress_blomst.png" alt="" loading="lazy"><figcaption><code>gress_blomst</code></figcaption></figure><figure class="bilde"><img src="bilder/gress_blomst_2.png" alt="" loading="lazy"><figcaption><code>gress_blomst_2</code></figcaption></figure><figure class="bilde"><img src="bilder/gress_stor.png" alt="" loading="lazy"><figcaption><code>gress_stor</code></figcaption></figure></div><div class="galleri"><figure class="bilde"><img src="bilder/helt_hoyre_1.png" alt="" loading="lazy"><figcaption><code>helt_hoyre_1</code></figcaption></figure><figure class="bilde"><img src="bilder/helt_hoyre_2.png" alt="" loading="lazy"><figcaption><code>helt_hoyre_2</code></figcaption></figure><figure class="bilde"><img src="bilder/helt_hoyre_3.png" alt="" loading="lazy"><figcaption><code>helt_hoyre_3</code></figcaption></figure><figure class="bilde"><img src="bilder/helt_hoyre_4.png" alt="" loading="lazy"><figcaption><code>helt_hoyre_4</code></figcaption></figure><figure class="bilde"><img src="bilder/helt_jubel.png" alt="" loading="lazy"><figcaption><code>helt_jubel</code></figcaption></figure><figure class="bilde"><img src="bilder/helt_ned_1.png" alt="" loading="lazy"><figcaption><code>helt_ned_1</code></figcaption></figure><figure class="bilde"><img src="bilder/helt_ned_2.png" alt="" loading="lazy"><figcaption><code>helt_ned_2</code></figcaption></figure><figure class="bilde"><img src="bilder/helt_ned_3.png" alt="" loading="lazy"><figcaption><code>helt_ned_3</code></figcaption></figure><figure class="bilde"><img src="bilder/helt_ned_4.png" alt="" loading="lazy"><figcaption><code>helt_ned_4</code></figcaption></figure><figure class="bilde"><img src="bilder/helt_opp_1.png" alt="" loading="lazy"><figcaption><code>helt_opp_1</code></figcaption></figure><figure class="bilde"><img src="bilder/helt_opp_2.png" alt="" loading="lazy"><figcaption><code>helt_opp_2</code></figcaption></figure><figure class="bilde"><img src="bilder/helt_opp_3.png" alt="" loading="lazy"><figcaption><code>helt_opp_3</code></figcaption></figure><figure class="bilde"><img src="bilder/helt_opp_4.png" alt="" loading="lazy"><figcaption><code>helt_opp_4</code></figcaption></figure><figure class="bilde"><img src="bilder/helt_venstre_1.png" alt="" loading="lazy"><figcaption><code>helt_venstre_1</code></figcaption></figure><figure class="bilde"><img src="bilder/helt_venstre_2.png" alt="" loading="lazy"><figcaption><code>helt_venstre_2</code></figcaption></figure><figure class="bilde"><img src="bilder/helt_venstre_3.png" alt="" loading="lazy"><figcaption><code>helt_venstre_3</code></figcaption></figure><figure class="bilde"><img src="bilder/helt_venstre_4.png" alt="" loading="lazy"><figcaption><code>helt_venstre_4</code></figcaption></figure></div><div class="galleri"><figure class="bilde"><img src="bilder/hjerte.png" alt="" loading="lazy"><figcaption><code>hjerte</code></figcaption></figure></div><div class="galleri"><figure class="bilde"><img src="bilder/hud_hjerte_full.png" alt="" loading="lazy"><figcaption><code>hud_hjerte_full</code></figcaption></figure><figure class="bilde"><img src="bilder/hud_hjerte_halv.png" alt="" loading="lazy"><figcaption><code>hud_hjerte_halv</code></figcaption></figure><figure class="bilde"><img src="bilder/hud_hjerte_tom.png" alt="" loading="lazy"><figcaption><code>hud_hjerte_tom</code></figcaption></figure><figure class="bilde"><img src="bilder/hud_mynt.png" alt="" loading="lazy"><figcaption><code>hud_mynt</code></figcaption></figure></div><div class="galleri"><figure class="bilde"><img src="bilder/kiste_aapen.png" alt="" loading="lazy"><figcaption><code>kiste_aapen</code></figcaption></figure><figure class="bilde"><img src="bilder/kiste_lukket.png" alt="" loading="lazy"><figcaption><code>kiste_lukket</code></figcaption></figure></div><div class="galleri"><figure class="bilde"><img src="bilder/mynt_1.png" alt="" loading="lazy"><figcaption><code>mynt_1</code></figcaption></figure><figure class="bilde"><img src="bilder/mynt_2.png" alt="" loading="lazy"><figcaption><code>mynt_2</code></figcaption></figure><figure class="bilde"><img src="bilder/mynt_3.png" alt="" loading="lazy"><figcaption><code>mynt_3</code></figcaption></figure><figure class="bilde"><img src="bilder/mynt_4.png" alt="" loading="lazy"><figcaption><code>mynt_4</code></figcaption></figure></div><div class="galleri"><figure class="bilde"><img src="bilder/nokkel.png" alt="" loading="lazy"><figcaption><code>nokkel</code></figcaption></figure></div><div class="galleri"><figure class="bilde"><img src="bilder/skygge.png" alt="" loading="lazy"><figcaption><code>skygge</code></figcaption></figure></div><div class="galleri"><figure class="bilde"><img src="bilder/slim_1.png" alt="" loading="lazy"><figcaption><code>slim_1</code></figcaption></figure><figure class="bilde"><img src="bilder/slim_2.png" alt="" loading="lazy"><figcaption><code>slim_2</code></figcaption></figure></div><div class="galleri"><figure class="bilde"><img src="bilder/sopphopper_1.png" alt="" loading="lazy"><figcaption><code>sopphopper_1</code></figcaption></figure><figure class="bilde"><img src="bilder/sopphopper_2.png" alt="" loading="lazy"><figcaption><code>sopphopper_2</code></figcaption></figure></div><div class="galleri"><figure class="bilde"><img src="bilder/stein.png" alt="" loading="lazy"><figcaption><code>stein</code></figcaption></figure><figure class="bilde"><img src="bilder/stein_2.png" alt="" loading="lazy"><figcaption><code>stein_2</code></figcaption></figure></div><div class="galleri"><figure class="bilde"><img src="bilder/sti.png" alt="" loading="lazy"><figcaption><code>sti</code></figcaption></figure><figure class="bilde"><img src="bilder/sti_2.png" alt="" loading="lazy"><figcaption><code>sti_2</code></figcaption></figure></div><div class="galleri"><figure class="bilde"><img src="bilder/stikant_hoyre.png" alt="" loading="lazy"><figcaption><code>stikant_hoyre</code></figcaption></figure><figure class="bilde"><img src="bilder/stikant_indre_nh.png" alt="" loading="lazy"><figcaption><code>stikant_indre_nh</code></figcaption></figure><figure class="bilde"><img src="bilder/stikant_indre_nv.png" alt="" loading="lazy"><figcaption><code>stikant_indre_nv</code></figcaption></figure><figure class="bilde"><img src="bilder/stikant_indre_oh.png" alt="" loading="lazy"><figcaption><code>stikant_indre_oh</code></figcaption></figure><figure class="bilde"><img src="bilder/stikant_indre_ov.png" alt="" loading="lazy"><figcaption><code>stikant_indre_ov</code></figcaption></figure><figure class="bilde"><img src="bilder/stikant_ned.png" alt="" loading="lazy"><figcaption><code>stikant_ned</code></figcaption></figure><figure class="bilde"><img src="bilder/stikant_opp.png" alt="" loading="lazy"><figcaption><code>stikant_opp</code></figcaption></figure><figure class="bilde"><img src="bilder/stikant_venstre.png" alt="" loading="lazy"><figcaption><code>stikant_venstre</code></figcaption></figure><figure class="bilde"><img src="bilder/stikant_ytre_nh.png" alt="" loading="lazy"><figcaption><code>stikant_ytre_nh</code></figcaption></figure><figure class="bilde"><img src="bilder/stikant_ytre_nv.png" alt="" loading="lazy"><figcaption><code>stikant_ytre_nv</code></figcaption></figure><figure class="bilde"><img src="bilder/stikant_ytre_oh.png" alt="" loading="lazy"><figcaption><code>stikant_ytre_oh</code></figcaption></figure><figure class="bilde"><img src="bilder/stikant_ytre_ov.png" alt="" loading="lazy"><figcaption><code>stikant_ytre_ov</code></figcaption></figure></div><div class="galleri"><figure class="bilde"><img src="bilder/stubbe.png" alt="" loading="lazy"><figcaption><code>stubbe</code></figcaption></figure></div><div class="galleri"><figure class="bilde"><img src="bilder/tre.png" alt="" loading="lazy"><figcaption><code>tre</code></figcaption></figure><figure class="bilde"><img src="bilder/tre_2.png" alt="" loading="lazy"><figcaption><code>tre_2</code></figcaption></figure></div>
+  <div class="todelt lyd">
+    <div class="panel"><h3 class="mellom" style="margin-top:0">Lyder</h3>
+      <p class="kort"><code>spill_lyd("navn")</code></p><ul class="lydliste"><li><code>au</code> <audio controls preload="none" src="lyder/au.wav"></audio></li><li><code>bump</code> <audio controls preload="none" src="lyder/bump.wav"></audio></li><li><code>game_over</code> <audio controls preload="none" src="lyder/game_over.wav"></audio></li><li><code>glitter</code> <audio controls preload="none" src="lyder/glitter.wav"></audio></li><li><code>hjerte</code> <audio controls preload="none" src="lyder/hjerte.wav"></audio></li><li><code>kiste</code> <audio controls preload="none" src="lyder/kiste.wav"></audio></li><li><code>mynt</code> <audio controls preload="none" src="lyder/mynt.wav"></audio></li><li><code>nokkel</code> <audio controls preload="none" src="lyder/nokkel.wav"></audio></li><li><code>seier</code> <audio controls preload="none" src="lyder/seier.wav"></audio></li><li><code>velg</code> <audio controls preload="none" src="lyder/velg.wav"></audio></li></ul></div>
+    <div class="panel"><h3 class="mellom" style="margin-top:0">Musikk</h3>
+      <p class="kort"><code>spill_musikk("navn")</code> – spilles om og om igjen til du bytter eller kaller
+      <code>stopp_musikk()</code>.</p><ul class="lydliste"><li><code>landsby</code> <audio controls preload="none" src="musikk/landsby.wav"></audio></li><li><code>oververden</code> <audio controls preload="none" src="musikk/oververden.wav"></audio></li><li><code>tittel</code> <audio controls preload="none" src="musikk/tittel.wav"></audio></li></ul></div>
+  </div>
+</section>
+<footer>Skattejakten · Programmering valgfag · Grafikk, lyd og spillmotor laget for dette opplegget.</footer>
+</div>
+<script>
+(function(){
+  var NOKKEL = "topdown-skattejakten-";
+  function les(k){ try { return localStorage.getItem(NOKKEL + k); } catch(e) { return null; } }
+  function skriv(k, v){ try { localStorage.setItem(NOKKEL + k, v); } catch(e) {} }
+  var faner = Array.prototype.slice.call(document.querySelectorAll(".fane"));
+  function vis(id, fokus){
+    faner.forEach(function(f){
+      var valgt = f.getAttribute("aria-controls") === id;
+      f.setAttribute("aria-selected", valgt ? "true" : "false");
+      f.tabIndex = valgt ? 0 : -1;
+      document.getElementById(f.getAttribute("aria-controls")).hidden = !valgt;
+      if (valgt && fokus) f.focus();
+    });
+    skriv("fane", id);
+    if (location.hash !== "#" + id) history.replaceState(null, "", "#" + id);
+    window.scrollTo({top: 0, behavior: "instant"});
+  }
+  faner.forEach(function(f, i){
+    f.addEventListener("click", function(){ vis(f.getAttribute("aria-controls")); });
+    f.addEventListener("keydown", function(e){
+      var n = e.key === "ArrowRight" ? i + 1 : e.key === "ArrowLeft" ? i - 1 : null;
+      if (n === null) return;
+      e.preventDefault();
+      var ny = faner[(n + faner.length) % faner.length];
+      vis(ny.getAttribute("aria-controls"), true);
+    });
+  });
+  var start = (location.hash || "").slice(1) || les("fane") || "start";
+  if (!document.getElementById(start)) start = "start";
+  vis(start);
+
+  function oppdaterFramdrift(){
+    document.querySelectorAll("ol.oppgaver[data-steg]").forEach(function(ol){
+      var bokser = ol.querySelectorAll("input[type=checkbox]");
+      var gjort = 0;
+      bokser.forEach(function(b){ if (b.checked) gjort++; b.closest("li").classList.toggle("gjort", b.checked); });
+      var steg = ol.getAttribute("data-steg");
+      var fd = document.querySelector('.framdrift[data-steg="' + steg + '"]');
+      if (fd) {
+        fd.querySelector("i").style.width = (bokser.length ? 100 * gjort / bokser.length : 0) + "%";
+        fd.querySelector(".tall").textContent = gjort + " av " + bokser.length + " oppgaver";
+        fd.classList.toggle("klar", gjort === bokser.length && bokser.length > 0);
+      }
+      var fane = document.getElementById("fane-steg" + steg);
+      if (fane) fane.classList.toggle("ferdig", gjort === bokser.length && bokser.length > 0);
+    });
+    document.querySelectorAll("ol.ekstra input[type=checkbox]").forEach(function(b){
+      b.closest("li").classList.toggle("gjort", b.checked);
+    });
+  }
+  document.querySelectorAll("input[type=checkbox]").forEach(function(b){
+    b.checked = les(b.id) === "1";
+    b.addEventListener("change", function(){ skriv(b.id, b.checked ? "1" : "0"); oppdaterFramdrift(); });
+  });
+  oppdaterFramdrift();
+
+  document.querySelectorAll(".kopier").forEach(function(k){
+    k.addEventListener("click", function(){
+      var tekst = k.parentNode.querySelector("pre").textContent;
+      function ferdig(){ k.textContent = "Kopiert"; setTimeout(function(){ k.textContent = "Kopier"; }, 1500); }
+      if (navigator.clipboard) navigator.clipboard.writeText(tekst).then(ferdig, function(){});
+    });
+  });
+})();
+</script>
+</body>
+</html>

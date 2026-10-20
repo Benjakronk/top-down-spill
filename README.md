@@ -20,5 +20,5 @@ Denne mappa er GitHub Pages-siden for elevene. Den lages av `_verktoy/lag_nettsi
 
 ## Oppdatere
 
-Kjør `python _verktoy/lag_elevmappe.py` og `python _verktoy/lag_nettside.py`, og deretter
+Kjør `python _verktoy/lag_elevmappe.py`, `python _verktoy/lag_teorikurs.py` og `python _verktoy/lag_nettside.py`, og deretter
 `git add . && git commit -m "Oppdatert" && git push` fra denne mappa.

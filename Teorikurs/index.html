@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="no">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Teorikurs – Python for spill</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@500;700&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<style>
+
+:root{
+  --natt:#16151f; --panel:#201e2c; --panel2:#282538; --strek:#3a3650; --tekst:#ece9f4; --dempet:#a9a4bf;
+  --aksent:#78a8f0; --aksent-dyp:#2f4f8a; --mose:#88c860; --rust:#f87858; --gul:#e8b830;
+  --display:"Pixelify Sans","Courier New",monospace;
+  --brod:"Atkinson Hyperlegible","Segoe UI",system-ui,sans-serif;
+  --mono:Consolas,"Cascadia Mono","DejaVu Sans Mono",monospace;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--natt);color:var(--tekst);font:18px/1.65 var(--brod)}
+h1,h2,h3,.merkenavn{font-variant-ligatures:none!important;font-feature-settings:"liga" 0,"clig" 0,"calt" 0!important}
+a{color:var(--aksent)}
+code{font-family:var(--mono);font-size:.88em;background:#0f0e17;border:1px solid var(--strek);padding:1px 6px;border-radius:3px;color:var(--aksent)}
+.kodeboks{position:relative;margin:14px 0}
+pre{margin:0;background:#0f0e17;border:1px solid var(--strek);border-radius:5px;padding:14px 18px;overflow-x:auto;
+  font:16px/1.6 var(--mono);color:#dcd8ea;white-space:pre}
+.kopier{display:none}
+.kom{color:#7e78a0}.str{color:#a8d058}.nok{color:#f8a040}.tall{color:#78a8f0}.fn{color:#e8b830}
+ul.liste{padding-left:22px;margin:8px 0} ul.liste li{margin:4px 0}
+p{margin:0 0 12px}
+button{font-family:var(--brod)}
+button:focus-visible,a:focus-visible{outline:2px solid var(--aksent);outline-offset:2px}
+[hidden]{display:none!important}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+.wrap{max-width:1000px;margin:0 auto;padding:48px 20px 80px}
+.tilbake{font-size:15px;color:var(--dempet);text-decoration:none}
+.tilbake:hover{color:var(--aksent)}
+h1{font:700 clamp(34px,6vw,54px)/1.05 var(--display);margin:18px 0 14px;color:var(--aksent)}
+.ingress{color:var(--dempet);max-width:62ch;font-size:19px;margin:0 0 26px}
+.slik{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr));gap:16px;margin:0 0 34px}
+.slik div{background:var(--panel);border:1px solid var(--strek);border-radius:6px;padding:14px 18px}
+.slik b{display:block;font:700 17px var(--display);margin-bottom:4px}
+.slik p{margin:0;color:var(--dempet);font-size:16px}
+.velger{background:var(--panel2);border:1px solid var(--strek);border-radius:6px;padding:16px 20px;margin:0 0 30px;display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.velger label{font-weight:700}
+.velger select{font:16px var(--brod);background:var(--natt);color:var(--tekst);border:1px solid var(--strek);border-radius:4px;padding:6px 10px}
+.velger .svar{color:var(--dempet);flex:1 1 100%;margin:0}
+.liste{display:grid;gap:10px}
+a.leksjon{display:grid;grid-template-columns:54px minmax(0,1fr) 150px;gap:16px;align-items:center;background:var(--panel);border:1px solid var(--strek);
+  border-radius:6px;padding:14px 18px;text-decoration:none;color:var(--tekst)}
+a.leksjon:hover{border-color:var(--aksent)}
+a.leksjon.fremhevet{border-color:var(--gul);box-shadow:0 0 0 1px var(--gul)}
+a.leksjon.dempet{opacity:.45}
+.lnr{font:700 26px var(--display);color:var(--aksent)}
+.linnhold b{display:block;font:700 20px var(--display);margin-bottom:2px}
+.ling{display:block;color:var(--dempet);font-size:16px;line-height:1.5}
+.brikker{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.brikke{font:12px var(--mono);border:1px solid var(--strek);color:var(--dempet);padding:1px 7px;border-radius:3px}
+.brikke.skattejakten{border-color:#3e6a2a;color:#88c860}
+.brikke.eventyret{border-color:#784818;color:#e8b830}
+.brikke.monsterjakten{border-color:#a83818;color:#f8a040}
+.framdrift{display:grid;gap:4px;justify-items:end}
+.stolpe{width:100%;height:7px;background:var(--natt);border-radius:2px;overflow:hidden}
+.stolpe i{display:block;height:100%;width:0;background:var(--mose)}
+.framdrift .tall{font:13px var(--mono);color:var(--dempet)}
+@media (max-width:640px){a.leksjon{grid-template-columns:40px minmax(0,1fr)} .framdrift{grid-column:2;justify-items:start} .lnr{font-size:20px}}
+footer{margin-top:60px;color:var(--dempet);font-size:14px;border-top:1px solid var(--strek);padding-top:18px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="tilbake" href="../">← Alle spill</a>
+  <h1>Teorikurs</h1>
+  <p class="ingress">Alt du trenger å forstå for å lage Skattejakten, Eventyret og Monsterjakten – forklart steg for steg,
+  med oppgaver underveis. Ta leksjonene i rekkefølge, eller hopp rett til det du trenger.</p>
+  <div class="slik">
+    <div><b>Les og se</b><p>Hver leksjon forklarer ett tema med små eksempler fra spillene.</p></div>
+    <div><b>Trinn for trinn</b><p>Se koden kjøre én linje om gangen, og hva variablene inneholder.</p></div>
+    <div><b>Test deg selv</b><p>Flervalg, gjett output, finn feilen og mer. Løste oppgaver får en grønn hake.</p></div>
+  </div>
+  <div class="velger">
+    <label for="spill">Hva jobber du med?</label>
+    <select id="spill"><option value="">Velg spill</option><option value="skattejakten">Skattejakten</option>
+      <option value="eventyret">Eventyret</option><option value="monsterjakten">Monsterjakten</option></select>
+    <select id="steg" disabled aria-label="Steg"><option value="">Steg</option></select>
+    <p class="svar" id="velgersvar">Velg spill og steg, så ser du hvilke leksjoner som hører til.</p>
+  </div>
+  <div class="liste" id="liste">
+    <a class="leksjon" href="programmer.html" data-slug="programmer" data-oppg="7">
+      <span class="lnr">01</span>
+      <span class="linnhold"><b>Hvordan et program kjører</b>
+        <span class="ling">Python leser koden din ovenfra og ned, én linje om gangen. Her lærer du å lese et program som Python gjør – og å forstå feilmeldingene.</span>
+        <span class="brikker"><span class="brikke skattejakten">Skattejakten 1</span><span class="brikke eventyret">Eventyret 1</span><span class="brikke monsterjakten">Monsterjakten 1</span></span></span>
+      <span class="framdrift"><span class="stolpe"><i></i></span><span class="tall">0 / 7</span></span>
+    </a>
+    <a class="leksjon" href="variabler.html" data-slug="variabler" data-oppg="13">
+      <span class="lnr">02</span>
+      <span class="linnhold"><b>Variabler og regning</b>
+        <span class="ling">Variabler er navn som husker verdier: poengene, livene, hvor helten står. Her lærer du hvordan de lages, endres og brukes til å regne.</span>
+        <span class="brikker"><span class="brikke skattejakten">Skattejakten 2, 4, 5, 6</span><span class="brikke eventyret">Eventyret 1, 2, 5</span><span class="brikke monsterjakten">Monsterjakten 1, 3</span></span></span>
+      <span class="framdrift"><span class="stolpe"><i></i></span><span class="tall">0 / 13</span></span>
+    </a>
+    <a class="leksjon" href="koordinater.html" data-slug="koordinater" data-oppg="11">
+      <span class="lnr">03</span>
+      <span class="linnhold"><b>Koordinater og skjermen</b>
+        <span class="ling">Hvordan vet spillet hvor helten står? Her lærer du x og y, ruter og piksler – og hvorfor y går nedover.</span>
+        <span class="brikker"><span class="brikke skattejakten">Skattejakten 1, 2, 3</span><span class="brikke eventyret">Eventyret 1, 2, 3</span><span class="brikke monsterjakten">Monsterjakten 1, 2, 3</span></span></span>
+      <span class="framdrift"><span class="stolpe"><i></i></span><span class="tall">0 / 11</span></span>
+    </a>
+    <a class="leksjon" href="tekst.html" data-slug="tekst" data-oppg="13">
+      <span class="lnr">04</span>
+      <span class="linnhold"><b>Tekst og f-strenger</b>
+        <span class="ling">Bildenavn, meldinger, retninger og kart – mye i spillene er tekst. Her lærer du forskjellen på tekst og tall, og hvordan du bygger tekst av variabler.</span>
+        <span class="brikker"><span class="brikke skattejakten">Skattejakten 3, 4</span><span class="brikke eventyret">Eventyret 2, 6, 8</span><span class="brikke monsterjakten">Monsterjakten 2, 4, 9</span></span></span>
+      <span class="framdrift"><span class="stolpe"><i></i></span><span class="tall">0 / 13</span></span>
+    </a>
+    <a class="leksjon" href="valg.html" data-slug="valg" data-oppg="13">
+      <span class="lnr">05</span>
+      <span class="linnhold"><b>Valg: if, elif og else</b>
+        <span class="ling">Et spill må hele tiden velge: Står helten på mynten? Er livene brukt opp? Her lærer du hvordan Python sjekker om noe er sant – og gjør forskjellige ting etter svaret.</span>
+        <span class="brikker"><span class="brikke skattejakten">Skattejakten 3, 4, 5, 6</span><span class="brikke eventyret">Eventyret 1, 2, 3, 4, 5</span><span class="brikke monsterjakten">Monsterjakten 1, 2, 5, 7</span></span></span>
+      <span class="framdrift"><span class="stolpe"><i></i></span><span class="tall">0 / 13</span></span>
+    </a>
+    <a class="leksjon" href="spillokka.html" data-slug="spillokka" data-oppg="12">
+      <span class="lnr">06</span>
+      <span class="linnhold"><b>Spill-løkka, taster og tellere</b>
+        <span class="ling">Hvordan kan et program som leses ovenfra og ned, bli til et spill der ting beveger seg hele tiden? Svaret er spill-løkka: oppdater() kjøres 60 ganger i sekundet.</span>
+        <span class="brikker"><span class="brikke skattejakten">Skattejakten 2, 6</span><span class="brikke eventyret">Eventyret 1, 2, 3, 5, 7</span><span class="brikke monsterjakten">Monsterjakten 1, 2, 4, 6, 7</span></span></span>
+      <span class="framdrift"><span class="stolpe"><i></i></span><span class="tall">0 / 12</span></span>
+    </a>
+    <a class="leksjon" href="funksjoner.html" data-slug="funksjoner" data-oppg="14">
+      <span class="lnr">07</span>
+      <span class="linnhold"><b>Funksjoner</b>
+        <span class="ling">En funksjon gir en bit kode et navn, så du kan bruke den igjen og igjen. ta_mynt(), kan_gaa() og tegn_rom() er funksjoner – her lærer du hvordan de virker inni.</span>
+        <span class="brikker"><span class="brikke skattejakten">Skattejakten 4, 5, 6</span><span class="brikke eventyret">Eventyret 1, 2, 3, 4, 6</span><span class="brikke monsterjakten">Monsterjakten 3, 4, 6, 7</span></span></span>
+      <span class="framdrift"><span class="stolpe"><i></i></span><span class="tall">0 / 14</span></span>
+    </a>
+    <a class="leksjon" href="global.html" data-slug="global" data-oppg="11">
+      <span class="lnr">08</span>
+      <span class="linnhold"><b>Lokale og globale variabler</b>
+        <span class="ling">Hvorfor står det global poeng øverst i funksjonen? Her lærer du hvor variabler bor, når en funksjon kan endre dem – og hvorfor du får UnboundLocalError.</span>
+        <span class="brikker"><span class="brikke skattejakten">Skattejakten 4, 5, 6</span><span class="brikke eventyret">Eventyret 2, 3, 5</span><span class="brikke monsterjakten">Monsterjakten 1, 5</span></span></span>
+      <span class="framdrift"><span class="stolpe"><i></i></span><span class="tall">0 / 11</span></span>
+    </a>
+    <a class="leksjon" href="lister.html" data-slug="lister" data-oppg="11">
+      <span class="lnr">09</span>
+      <span class="linnhold"><b>Lister</b>
+        <span class="ling">Kartet, fiendene, laget ditt og replikkene til folk er alle lister. Her lærer du å lage dem, hente ting ut av dem og endre dem – og hvorfor b = a ikke lager en kopi.</span>
+        <span class="brikker"><span class="brikke eventyret">Eventyret 1, 4, 6</span><span class="brikke monsterjakten">Monsterjakten 1, 4, 8</span></span></span>
+      <span class="framdrift"><span class="stolpe"><i></i></span><span class="tall">0 / 11</span></span>
+    </a>
+    <a class="leksjon" href="lokker.html" data-slug="lokker" data-oppg="14">
+      <span class="lnr">10</span>
+      <span class="linnhold"><b>Løkker: for</b>
+        <span class="ling">Alle fiendene skal flytte seg, alle trærne skal tegnes, og alle monstrene i laget skal vises. En for-løkke gjør det samme for hver ting i en liste – uansett hvor mange det er.</span>
+        <span class="brikker"><span class="brikke eventyret">Eventyret 2, 4, 6, 7</span><span class="brikke monsterjakten">Monsterjakten 3, 4, 8</span></span></span>
+      <span class="framdrift"><span class="stolpe"><i></i></span><span class="tall">0 / 14</span></span>
+    </a>
+    <a class="leksjon" href="ordboker.html" data-slug="ordboker" data-oppg="13">
+      <span class="lnr">11</span>
+      <span class="linnhold"><b>Ordbøker (dictionaries)</b>
+        <span class="ling">En ordbok kobler en nøkkel til en verdi – som RUTER, der hvert tegn i kartet har sitt bilde. Spillene bruker ordbøker til rom, monstre, dører, folk og sekken.</span>
+        <span class="brikker"><span class="brikke eventyret">Eventyret 1, 2, 3, 4, 6, 8</span><span class="brikke monsterjakten">Monsterjakten 3, 4, 6, 7, 8, 9</span></span></span>
+      <span class="framdrift"><span class="stolpe"><i></i></span><span class="tall">0 / 13</span></span>
+    </a>
+    <a class="leksjon" href="figurer.html" data-slug="figurer" data-oppg="13">
+      <span class="lnr">12</span>
+      <span class="linnhold"><b>Figurer, objekter og kollisjon</b>
+        <span class="ling">En Figur er et objekt: en ting som husker sine egne verdier og kan gjøre ting. Her lærer du hvordan figurene virker – og hvordan spillet vet at to ting treffer hverandre.</span>
+        <span class="brikker"><span class="brikke skattejakten">Skattejakten 1, 4, 5</span><span class="brikke eventyret">Eventyret 1, 3, 4, 5, 6</span><span class="brikke monsterjakten">Monsterjakten 1, 4, 7</span></span></span>
+      <span class="framdrift"><span class="stolpe"><i></i></span><span class="tall">0 / 13</span></span>
+    </a>
+    <a class="leksjon" href="tilstand.html" data-slug="tilstand" data-oppg="11">
+      <span class="lnr">13</span>
+      <span class="linnhold"><b>Tilstand: spillet husker hva som skjer</b>
+        <span class="ling">Er spillet på tittelskjermen, i kamp eller på pause? En tilstandsvariabel husker det – og oppdater() gjør forskjellige ting etter hva den er.</span>
+        <span class="brikker"><span class="brikke skattejakten">Skattejakten 5, 6</span><span class="brikke eventyret">Eventyret 5, 6, 7, 8</span><span class="brikke monsterjakten">Monsterjakten 5, 6, 9</span></span></span>
+      <span class="framdrift"><span class="stolpe"><i></i></span><span class="tall">0 / 11</span></span>
+    </a>
+    <a class="leksjon" href="tilfeldighet.html" data-slug="tilfeldighet" data-oppg="12">
+      <span class="lnr">14</span>
+      <span class="linnhold"><b>Tilfeldighet og sannsynlighet</b>
+        <span class="ling">Mynten som hopper til et nytt sted, slimet som bytter retning, monsteret i det høye gresset: tilfeldighet gjør at spillet blir litt annerledes hver gang. Her lærer du hvordan det virker, og hvordan du regner med sjanser.</span>
+        <span class="brikker"><span class="brikke skattejakten">Skattejakten 4</span><span class="brikke eventyret">Eventyret 4, 6, 7</span><span class="brikke monsterjakten">Monsterjakten 4, 5, 6, 8</span></span></span>
+      <span class="framdrift"><span class="stolpe"><i></i></span><span class="tall">0 / 12</span></span>
+    </a>
+    <a class="leksjon" href="filer_og_feil.html" data-slug="filer_og_feil" data-oppg="15">
+      <span class="lnr">15</span>
+      <span class="linnhold"><b>Filer, feilmeldinger og feilsøking</b>
+        <span class="ling">Hvordan husker Eventyret rekorden din etter at spillet er lukket? Og hva gjør du når programmet krasjer? Her lærer du å lagre i en fil, å fange feil med try/except, og å finne feil som en ekte programmerer.</span>
+        <span class="brikker"><span class="brikke skattejakten">Skattejakten 6</span><span class="brikke eventyret">Eventyret 8</span><span class="brikke monsterjakten">Monsterjakten 9</span></span></span>
+      <span class="framdrift"><span class="stolpe"><i></i></span><span class="tall">0 / 15</span></span>
+    </a>
+  </div>
+  <footer>Teorikurs · Programmering valgfag · Framdriften lagres bare i denne nettleseren.</footer>
+</div>
+<script>
+(function(){
+var STEG = {"skattejakten": {"1": [1, 3, 12], "2": [2, 3, 6], "3": [3, 4, 5], "4": [2, 4, 5, 7, 8, 12, 14], "5": [2, 5, 7, 8, 12, 13], "6": [2, 5, 6, 7, 8, 13, 15]}, "eventyret": {"1": [1, 2, 3, 5, 6, 7, 9, 11, 12], "2": [2, 3, 4, 5, 6, 7, 8, 10, 11], "3": [3, 5, 6, 7, 8, 11, 12], "4": [5, 7, 9, 10, 11, 12, 14], "5": [2, 5, 6, 8, 12, 13], "6": [4, 7, 9, 10, 11, 12, 13, 14], "7": [6, 10, 13, 14], "8": [4, 11, 13, 15]}, "monsterjakten": {"1": [1, 2, 3, 5, 6, 8, 9, 12], "2": [3, 4, 5, 6], "3": [2, 3, 7, 10, 11], "4": [4, 6, 7, 9, 10, 11, 12, 14], "5": [5, 8, 13, 14], "6": [6, 7, 11, 13, 14], "7": [5, 6, 7, 11, 12], "8": [9, 10, 11, 14], "9": [4, 11, 13, 15]}};
+function les(k){ try { return localStorage.getItem(k); } catch(e) { return null; } }
+document.querySelectorAll("a.leksjon").forEach(function(a){
+  var slug = a.getAttribute("data-slug"), n = parseInt(a.getAttribute("data-oppg"), 10), gjort = 0;
+  try {
+    for (var i = 0; i < localStorage.length; i++){
+      var k = localStorage.key(i);
+      if (k.indexOf("teorikurs-" + slug + "-o") === 0 && localStorage.getItem(k) === "1") gjort++;
+    }
+  } catch(e) {}
+  gjort = Math.min(gjort, n);
+  a.querySelector(".stolpe i").style.width = (n ? 100 * gjort / n : 0) + "%";
+  a.querySelector(".tall").textContent = gjort + " / " + n + " oppgaver";
+});
+var spill = document.getElementById("spill"), steg = document.getElementById("steg"), svar = document.getElementById("velgersvar");
+var navn = {skattejakten: "Skattejakten", eventyret: "Eventyret", monsterjakten: "Monsterjakten"};
+function marker(){
+  var liste = (STEG[spill.value] || {})[steg.value];
+  document.querySelectorAll("a.leksjon").forEach(function(a, i){
+    a.classList.toggle("fremhevet", !!liste && liste.indexOf(i + 1) >= 0);
+    a.classList.toggle("dempet", !!liste && liste.indexOf(i + 1) < 0);
+  });
+  if (liste) svar.textContent = navn[spill.value] + " steg " + steg.value + " bruker leksjon " + liste.join(", ") + ". De er markert under.";
+  else svar.textContent = "Velg spill og steg, så ser du hvilke leksjoner som hører til.";
+}
+spill.addEventListener("change", function(){
+  steg.innerHTML = '<option value="">Steg</option>';
+  var d = STEG[spill.value] || {};
+  Object.keys(d).sort(function(a, b){ return a - b; }).forEach(function(n){ steg.innerHTML += '<option value="' + n + '">Steg ' + n + "</option>"; });
+  steg.disabled = !spill.value; marker();
+});
+steg.addEventListener("change", marker);
+var m = /[?&]spill=(\w+)&steg=(\d+)/.exec(location.search);
+if (m && STEG[m[1]]){ spill.value = m[1]; spill.dispatchEvent(new Event("change")); steg.value = m[2]; marker(); }
+})();
+</script>
+</body>
+</html>
